@@ -8,6 +8,7 @@ import {
 	TypeProperty,
 	TypeFunction,
 } from "@deepkit/type";
+import { initMetadata } from "../utils";
 
 const injectFlag = "$sf:inject";
 export function Inject(token?: any): ParameterDecorator & PropertyDecorator {
@@ -18,34 +19,14 @@ export function Inject(token?: any): ParameterDecorator & PropertyDecorator {
 	) {
 		if (typeof parameterIndex === "number") {
 			if (propertyKey) {
-				if (!target[propertyKey]) {
-					Object.defineProperty(target[propertyKey], injectFlag, {
-						enumerable: false,
-						value: {},
-					});
-				}
-				target[propertyKey][injectFlag][parameterIndex] = token;
+				initMetadata(target[propertyKey], injectFlag)[parameterIndex] = token;
 			} else {
-				if (!target[injectFlag]) {
-					Object.defineProperty(target, injectFlag, {
-						enumerable: false,
-						value: {},
-					});
-				}
-				target[injectFlag][parameterIndex] = token;
+				initMetadata(target, injectFlag)[parameterIndex] = token;
 			}
 		} else if (propertyKey) {
-			if (!target[injectFlag]) {
-				// target[injectFlag] = {};
-				Object.defineProperty(target, injectFlag, {
-					enumerable: false,
-					value: {},
-				});
-			}
-			if (!target[injectFlag].propertyInject) {
-				target[injectFlag].propertyInject = {};
-			}
-			target[injectFlag].propertyInject[propertyKey] = token;
+			initMetadata(initMetadata(target, injectFlag), "propertyInject")[
+				propertyKey
+			] = token;
 		}
 	};
 }
@@ -116,7 +97,7 @@ export function getClassPropertyInjectTokens<
 
 export function getFunctinInjectTokens(
 	fn: (...arg: any) => any,
-	inj?: any[],
+	inject?: any[],
 ): InjectInfo[] {
 	const tokens: InjectInfo[] = [];
 	const type = typeOf<typeof fn>() as TypeFunction;
@@ -125,8 +106,8 @@ export function getFunctinInjectTokens(
 		let token = null;
 		if (metadata[index]) {
 			token = metadata[index];
-		} else if (inj?.[index]) {
-			token = inj[index];
+		} else if (inject?.[index]) {
+			token = inject[index];
 		} else if (isCustomTypeClass(arg.type)) {
 			token = arg.type.classType;
 		}
