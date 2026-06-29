@@ -1,15 +1,35 @@
 {
-  "name": "@thestarweb/star-server-framework-core",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/init.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name": "@thestarweb/star-node-framework-core",
+  "version": "0.1.0",
+  "description": "Star Node Framework Core - decorators, registry, DI, module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
-  "author": "thestarweb",
-  "license": "ISC",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "postinstall": "deepkit-type-install",
+    "test": "node --require ts-node/register --test tests/decorators.test.ts tests/registry.test.ts tests/module.test.ts tests/di.test.ts tests/params.test.ts tests/deepkit.test.ts"
+  },
+  "dependencies": {
+    "@deepkit/type": "^1.0.19"
+  },
+  "peerDependencies": {
+    "@deepkit/type": "^1.0.19"
+  },
   "devDependencies": {
-    "@types/node": "^20.4.2",
-    "typescript": "^5.1.6"
-  }
+    "@deepkit/type-compiler": "^1.0.0",
+    "@deepkit/vite": "^1.0.19",
+    "@types/node": "^26.0.1",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.1.6",
+    "vitest": "^3.2.6"
+  },
+  "license": "ISC"
 }
