@@ -1,0 +1,22 @@
+root = true
+
+# 匹配所有文件
+[*]
+# 设置换行符类型：lf (Unix/Linux/macOS) 或 crlf (Windows)
+# 强烈建议团队统一使用 lf
+end_of_line = lf
+
+# 文件末尾自动插入一个空行
+insert_final_newline = true
+
+# 自动删除行尾随意的空格
+trim_trailing_whitespace = true
+
+# 字符集编码
+charset = utf-8
+
+# 设置缩进风格：space（空格）或 tab（制表符）
+indent_style = tab
+
+# 缩进大小（如果是 tab，通常由编辑器自行决定显示宽度，但 space 建议设为 2 或 4）
+indent_size = 2

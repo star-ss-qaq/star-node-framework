@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "description": "Node框架",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "npm run test --workspaces",
+    "test:core": "npm run test --workspace=packages/core",
+    "test:http-server": "npm run test --workspace=packages/http-server",
+    "test:cli": "npm run test --workspace=packages/cli",
+    "test:react": "npm run test --workspace=packages/react",
+    "test:integration": "npm run test --workspace=packages/test-project",
+    "build": "npm run build --workspaces",
+    "postinstall": "deepkit-type-install"
+  },
   "private": "true",
   "workspaces": [
     "packages/*"
