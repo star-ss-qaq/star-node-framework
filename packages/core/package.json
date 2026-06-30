@@ -15,10 +15,11 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
     "postinstall": "deepkit-type-install",
-    "test": "node --require ts-node/register --test tests/decorators.test.ts tests/registry.test.ts tests/module.test.ts tests/di.test.ts tests/params.test.ts tests/deepkit.test.ts"
+    "test": "vitest"
   },
   "dependencies": {
-    "@deepkit/type": "^1.0.19"
+    "@deepkit/type": "^1.0.19",
+    "radix3": "^1.1.2"
   },
   "peerDependencies": {
     "@deepkit/type": "^1.0.19"

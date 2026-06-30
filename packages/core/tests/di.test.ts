@@ -1,4 +1,4 @@
-import { expect, describe, test, inject } from "vitest";
+import { expect, describe, test } from "vitest";
 import { DIContainer, Inject, Module, diCreate } from "../src";
 
 describe("DI容器测试", () => {
