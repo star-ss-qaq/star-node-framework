@@ -1,0 +1,30 @@
+{
+  "name": "@thestarweb/star-node-framework-route",
+  "version": "0.0.1",
+  "description": "Star Node Framework route",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "type":"module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@deepkit/type": "^1.0.19",
+    "@thestarweb/star-node-framework-utils": "^0.0.1",
+    "radix3": "^1.1.2"
+  },
+  "peerDependencies": {
+    "@deepkit/type": "^1.0.19"
+  },
+  "devDependencies": {
+    "@deepkit/type-compiler": "^1.0.0",
+    "@deepkit/vite": "^1.0.19",
+    "@types/node": "^26.0.1",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.1.6",
+    "vitest": "^3.2.6"
+  },
+  "license": "ISC"
+}

@@ -4,14 +4,8 @@
   "description": "Node框架",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test --workspaces",
-    "test:core": "npm run test --workspace=packages/core",
-    "test:http-server": "npm run test --workspace=packages/http-server",
-    "test:cli": "npm run test --workspace=packages/cli",
-    "test:react": "npm run test --workspace=packages/react",
-    "test:integration": "npm run test --workspace=packages/test-project",
-    "build": "npm run build --workspaces",
-    "postinstall": "deepkit-type-install"
+    "test": "vitest",
+    "build": "lerna run build"
   },
   "private": "true",
   "workspaces": [
@@ -19,8 +13,11 @@
   ],
   "author": "star",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^20.4.2",
-    "typescript": "^5.1.6"
-  }
+    "lerna": "^8.2.4",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.9"
+  },
+  "dependencies": {}
 }
