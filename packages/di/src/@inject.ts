@@ -8,7 +8,7 @@ import {
 	TypeProperty,
 	TypeFunction,
 } from "@deepkit/type";
-import { initMetadata } from "@thestarweb/star-node-framework-utils";
+import { initMetadata } from "@thestarweb/star-framework-utils";
 
 const injectFlag = "$sf:inject";
 export function Inject(token?: any): ParameterDecorator & PropertyDecorator {

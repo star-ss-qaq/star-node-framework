@@ -1,5 +1,8 @@
 import { expect, describe, test } from "vitest";
-import { Body, getParamMetadata, Query } from "../src";
+import { createParamDecorator, getParamMetadata } from "../src/index.js";
+
+const Body = createParamDecorator("body");
+const Query = createParamDecorator("query");
 
 describe("参数工具测试", () => {
 	test("能够执行基本的参数解析", async () => {

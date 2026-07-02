@@ -1,4 +1,4 @@
-import { initMetadata } from "@thestarweb/star-node-framework-utils";
+import { initMetadata } from "@thestarweb/star-framework-utils";
 import { routeDataKey } from "./consts.js";
 import { RouteMeta } from "./types.js";
 

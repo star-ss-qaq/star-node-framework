@@ -1,24 +1,32 @@
 import { ReflectionKind, TypeClass, TypeMethod, typeOf } from "@deepkit/type";
-import { initMetadata } from "@thestarweb/star-node-framework-utils";
+import { initMetadata } from "@thestarweb/star-framework-utils";
 import { AnyParamType, ParamType } from "./types.js";
 import { mergeType, toParamType } from "./type-helper.js";
 
 const mateKey = "$sf:param";
 
-function createParam<P extends string | never = string>(from: string) {
+export function createParam(
+	from: string,
+	target: object,
+	propertyKey: string | symbol,
+	index: number,
+	path?: string,
+) {
+	initMetadata(initMetadata(target, mateKey), propertyKey || "")[index] = {
+		from,
+		path,
+	};
+}
+
+export function createParamDecorator<P extends string | never = string>(
+	from: string,
+) {
 	return function (path?: P): ParameterDecorator {
 		return function (target, propertyKey, index) {
-			initMetadata(initMetadata(target, mateKey), propertyKey || "")[index] = {
-				from,
-				path,
-			};
+			createParam(from, target, propertyKey || "", index, path);
 		};
 	};
 }
-export const Query = createParam("query");
-export const Body = createParam("body");
-export const Param = createParam("param");
-export const Header = createParam("header");
 
 type RawParamMetadata = Record<number, { from: string; path: string }>;
 

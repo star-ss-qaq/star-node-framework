@@ -1,5 +1,5 @@
 {
-  "name": "@thestarweb/star-node-framework-utils",
+  "name": "@thestarweb/star-framework-utils",
   "version": "0.0.1",
   "description": "Star Node Framework utils",
   "main": "dist/index.js",
