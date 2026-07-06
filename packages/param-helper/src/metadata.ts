@@ -1,42 +1,19 @@
-import { ReflectionKind, TypeClass, TypeMethod, typeOf } from "@deepkit/type";
+import {
+	ReflectionKind,
+	Type,
+	TypeClass,
+	TypeMethod,
+	typeOf,
+} from "@deepkit/type";
 import { initMetadata } from "@thestarweb/star-framework-utils";
 import { AnyParamType, ParamType } from "./types.js";
 import { mergeType, toParamType } from "./type-helper.js";
 
 const mateKey = "$sf:param";
 
-export function createParam(
-	namespase: string,
-	from: string,
-	target: object,
-	propertyKey: string | symbol,
-	index: number,
-	path?: string,
-	exMeta?: any,
-) {
-	const meta = initMetadata(target, mateKey, propertyKey);
-	if (!meta[namespase]) meta[namespase] = Object.create(null);
-	meta[namespase][index] = {
-		from,
-		path,
-		exMeta,
-	};
-}
-
-export function createParamDecorator<P extends string | never = string>(
-	namespase: string,
-	from: string,
-) {
-	return function (path?: P): ParameterDecorator {
-		return function (target, propertyKey, index) {
-			createParam(namespase, from, target, propertyKey || "", index, path);
-		};
-	};
-}
-
 type RawParamMetadata<F, T> = Record<
 	number,
-	{ from: F; path: string; exMeta?: T }
+	{ from: F; path?: string; exMeta?: T }
 >;
 
 function getRawParamMetadata<F, T>(
@@ -45,56 +22,6 @@ function getRawParamMetadata<F, T>(
 	propertyKey: PropertyKey,
 ): RawParamMetadata<F, T> {
 	return initMetadata(target, mateKey, propertyKey)[namespase] || {};
-}
-
-export function getParamMetadata<T = any>(
-	namespase: string,
-	target: object,
-	propertyKey: PropertyKey,
-) {
-	const rawMeta = getRawParamMetadata<any, T>(namespase, target, propertyKey);
-	const meta: Record<string, { type: ParamType; required: boolean }> = {};
-	const objType = typeOf<typeof target>() as TypeClass;
-	const fnType = objType.types.find(
-		(i) => i.kind === ReflectionKind.method && i.name === propertyKey,
-	) as TypeMethod | undefined;
-	if (!fnType) {
-		throw new Error(
-			`cannot find type info for ${Object.getPrototypeOf(target).constructor}.${String(propertyKey)}`,
-		);
-	}
-	fnType.parameters.forEach((p, index) => {
-		const paramRawMeta = rawMeta[index];
-		if (!paramRawMeta) {
-			throw new Error(
-				`unknow param from ${Object.getPrototypeOf(target).constructor}.${String(propertyKey)} index ${index}`,
-			);
-		}
-		if (!meta[paramRawMeta.from]) {
-			meta[paramRawMeta.from] = {
-				type: { type: "any" },
-				required: false,
-			};
-		}
-		const path = `${target.constructor.name}.${String(propertyKey)}.param.${index}`;
-		meta[paramRawMeta.from].type = mergeType(
-			meta[paramRawMeta.from].type,
-			toParamType(p.type, path, p.default, p.optional),
-			path,
-			paramRawMeta.path,
-			!p.optional,
-		);
-		meta[paramRawMeta.from].required ||= !p.optional;
-	});
-	return {
-		meta,
-		params: fnType.parameters.map((p, index) => {
-			return {
-				raw: p,
-				...rawMeta[index],
-			};
-		}),
-	};
 }
 
 export enum RootParamType {
@@ -116,7 +43,7 @@ function isObjectableRootParamType(type: RootParamType) {
 		RootParamType.SingleObject,
 	].includes(type);
 }
-function isMustRootParamType(type: RootParamType) {
+function isMustObjectRootParamType(type: RootParamType) {
 	return [RootParamType.Object, RootParamType.SingleObject].includes(type);
 }
 type ObjectableParamSwitch<
@@ -193,7 +120,26 @@ export class ParamMeta<
 		};
 	}
 
-	getParamMetadata(target: object, propertyKey: PropertyKey) {
+	getParamMetadata(
+		target: object,
+		propertyKey: PropertyKey,
+		{
+			autoAddPath = true,
+			autoParam,
+			isDIInject,
+		}: {
+			/**
+			 * 如果某个参数一定是object，但是解析的不是object且未提供path，则用参数名字作为path
+			 * @default true
+			 */
+			autoAddPath?: boolean;
+			autoParam?: {
+				[K in keyof T]: T[K] extends ObjectableRootParamType ? K : never;
+			}[keyof T];
+			// TODO 如何和DI协调工作？
+			isDIInject?: (object: object, key: PropertyKey, index: number) => boolean;
+		} = {},
+	) {
 		const rawMeta = getRawParamMetadata<keyof T, ET>(
 			this.namespase,
 			target,
@@ -212,11 +158,19 @@ export class ParamMeta<
 			);
 		}
 		fnType.parameters.forEach((p, index) => {
-			const paramRawMeta = rawMeta[index];
+			let paramRawMeta = rawMeta[index];
 			if (!paramRawMeta) {
-				throw new Error(
-					`unknow param from ${Object.getPrototypeOf(target).constructor}.${String(propertyKey)} index ${index}`,
-				);
+				if (isDIInject?.(target, propertyKey, index)) {
+					// 这将由DI注入
+					return;
+				}
+				if (autoParam) {
+					paramRawMeta = { from: autoParam };
+				} else {
+					throw new Error(
+						`unknow param from ${Object.getPrototypeOf(target).constructor}.${String(propertyKey)} index ${index}`,
+					);
+				}
 			}
 			if (!meta[paramRawMeta.from]) {
 				meta[paramRawMeta.from] = {
@@ -225,9 +179,19 @@ export class ParamMeta<
 				};
 			}
 			const path = `${target.constructor.name}.${String(propertyKey)}.param.${index}`;
+			const currentType = toParamType(p.type, path, p.default, p.optional);
+
+			const fromType = this.paramConfig[paramRawMeta.from];
+			if (
+				isMustObjectRootParamType(fromType) &&
+				currentType.type !== "object" &&
+				!paramRawMeta.path
+			) {
+				paramRawMeta.path = p.name;
+			}
 			meta[paramRawMeta.from]!.type = mergeType(
 				meta[paramRawMeta.from]!.type,
-				toParamType(p.type, path, p.default, p.optional),
+				currentType,
 				path,
 				paramRawMeta.path,
 				!p.optional,

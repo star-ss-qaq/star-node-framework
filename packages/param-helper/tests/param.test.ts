@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { getParamMetadata, ParamMeta, RootParamType } from "../src/index.js";
+import { ParamMeta, RootParamType } from "../src/index.js";
 
 const paramMeta = new ParamMeta("default", { body: RootParamType.Any });
 const Body = paramMeta.createDecorator("body");
