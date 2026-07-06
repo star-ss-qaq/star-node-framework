@@ -1,15 +1,14 @@
 import { expect, describe, test } from "vitest";
-import { createParamDecorator, getParamMetadata } from "../src/index.js";
+import { getParamMetadata, ParamMeta, RootParamType } from "../src/index.js";
 
-const Body = createParamDecorator("body");
-const Query = createParamDecorator("query");
-
+const paramMeta = new ParamMeta("default", { body: RootParamType.Any });
+const Body = paramMeta.createDecorator("body");
 describe("参数工具测试", () => {
 	test("能够执行基本的参数解析", async () => {
 		class A {
 			test(@Body() body: { a: string; b?: number }) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -27,7 +26,7 @@ describe("参数工具测试", () => {
 		class A {
 			test(@Body() body: string | number) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -56,7 +55,7 @@ describe("参数工具测试", () => {
 			test5(@Body() body: string | E2) {}
 		}
 		expect(
-			getParamMetadata(A.prototype, "test1").meta,
+			paramMeta.getParamMetadata(A.prototype, "test1").meta,
 			"最基本的子集合并",
 		).toEqual({
 			body: {
@@ -67,7 +66,7 @@ describe("参数工具测试", () => {
 			},
 		});
 		expect(
-			getParamMetadata(A.prototype, "test2").meta,
+			paramMeta.getParamMetadata(A.prototype, "test2").meta,
 			"枚举类型的合并",
 		).toEqual({
 			body: {
@@ -79,7 +78,7 @@ describe("参数工具测试", () => {
 			},
 		});
 		expect(
-			getParamMetadata(A.prototype, "test3").meta,
+			paramMeta.getParamMetadata(A.prototype, "test3").meta,
 			"枚举类型与兼容类型的合并",
 		).toEqual({
 			body: {
@@ -90,7 +89,7 @@ describe("参数工具测试", () => {
 			},
 		});
 		expect(
-			getParamMetadata(A.prototype, "test4").meta,
+			paramMeta.getParamMetadata(A.prototype, "test4").meta,
 			"不兼容类型不应合并",
 		).toEqual({
 			body: {
@@ -107,7 +106,10 @@ describe("参数工具测试", () => {
 				required: true,
 			},
 		});
-		expect(getParamMetadata(A.prototype, "test5").meta, "部分合并").toEqual({
+		expect(
+			paramMeta.getParamMetadata(A.prototype, "test5").meta,
+			"部分合并",
+		).toEqual({
 			body: {
 				type: {
 					type: "anyOf",
@@ -142,11 +144,11 @@ describe("参数工具测试", () => {
 			test4(@Body() body: T4) {}
 			test5(@Body() body: () => void) {}
 		}
-		expect(() => getParamMetadata(A.prototype, "test1")).toThrow();
-		expect(() => getParamMetadata(A.prototype, "test2")).toThrow();
-		expect(() => getParamMetadata(A.prototype, "test3")).toThrow();
-		expect(() => getParamMetadata(A.prototype, "test4")).toThrow();
-		expect(() => getParamMetadata(A.prototype, "test5")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test1")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test2")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test3")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test4")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test5")).toThrow();
 	});
 	test("如果是可选的方法则不报错", async () => {
 		interface T1 {
@@ -179,11 +181,19 @@ describe("参数工具测试", () => {
 				required: false,
 			},
 		};
-		expect(getParamMetadata(A.prototype, "test1").meta).toEqual(neverBody);
-		expect(getParamMetadata(A.prototype, "test2").meta).toEqual(neverBody);
-		expect(getParamMetadata(A.prototype, "test3").meta).toEqual(neverBody);
-		expect(getParamMetadata(A.prototype, "test4").meta).toEqual(neverBody);
-		expect(getParamMetadata(A.prototype, "test5").meta).toEqual({
+		expect(paramMeta.getParamMetadata(A.prototype, "test1").meta).toEqual(
+			neverBody,
+		);
+		expect(paramMeta.getParamMetadata(A.prototype, "test2").meta).toEqual(
+			neverBody,
+		);
+		expect(paramMeta.getParamMetadata(A.prototype, "test3").meta).toEqual(
+			neverBody,
+		);
+		expect(paramMeta.getParamMetadata(A.prototype, "test4").meta).toEqual(
+			neverBody,
+		);
+		expect(paramMeta.getParamMetadata(A.prototype, "test5").meta).toEqual({
 			body: {
 				type: {
 					type: "object",
@@ -195,7 +205,9 @@ describe("参数工具测试", () => {
 				required: true,
 			},
 		});
-		expect(getParamMetadata(A.prototype, "test6").meta).toEqual(neverBody);
+		expect(paramMeta.getParamMetadata(A.prototype, "test6").meta).toEqual(
+			neverBody,
+		);
 	});
 	test("支持参数合并", async () => {
 		class A {
@@ -206,7 +218,7 @@ describe("参数工具测试", () => {
 				@Body("d") d?: string,
 			) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -230,7 +242,7 @@ describe("参数工具测试", () => {
 		class A {
 			test(@Body() body: B) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -249,7 +261,7 @@ describe("参数工具测试", () => {
 		class A {
 			test(@Body() body: Set<string>) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -265,7 +277,7 @@ describe("参数工具测试", () => {
 		class A {
 			test(@Body() body: Map<string, string>) {}
 		}
-		const { meta } = getParamMetadata(A.prototype, "test");
+		const { meta } = paramMeta.getParamMetadata(A.prototype, "test");
 		expect(meta).toEqual({
 			body: {
 				type: {
@@ -287,7 +299,7 @@ describe("参数工具测试", () => {
 			test1(@Body() body: B) {}
 			test2(@Body() body: C) {}
 		}
-		expect(getParamMetadata(A.prototype, "test1").meta).toEqual({
+		expect(paramMeta.getParamMetadata(A.prototype, "test1").meta).toEqual({
 			body: {
 				type: {
 					type: "array",
@@ -298,7 +310,7 @@ describe("参数工具测试", () => {
 				required: true,
 			},
 		});
-		expect(getParamMetadata(A.prototype, "test2").meta).toEqual({
+		expect(paramMeta.getParamMetadata(A.prototype, "test2").meta).toEqual({
 			body: {
 				type: {
 					type: "array",
@@ -317,7 +329,7 @@ describe("参数工具测试", () => {
 			test1(@Body() body: B<string>) {}
 			test2(@Body() body: C) {}
 		}
-		expect(getParamMetadata(A.prototype, "test1").meta).toEqual({
+		expect(paramMeta.getParamMetadata(A.prototype, "test1").meta).toEqual({
 			body: {
 				type: {
 					type: "object",
@@ -331,7 +343,7 @@ describe("参数工具测试", () => {
 				required: true,
 			},
 		});
-		expect(getParamMetadata(A.prototype, "test2").meta).toEqual({
+		expect(paramMeta.getParamMetadata(A.prototype, "test2").meta).toEqual({
 			body: {
 				type: {
 					type: "object",
@@ -354,8 +366,14 @@ describe("参数工具测试", () => {
 		}
 		class B {}
 		class C {}
-		expect(() => getParamMetadata(A.prototype, "test1")).toThrowError();
-		expect(() => getParamMetadata(A.prototype, "test2")).toThrowError();
-		expect(() => getParamMetadata(A.prototype, "test3")).toThrowError();
+		expect(() =>
+			paramMeta.getParamMetadata(A.prototype, "test1"),
+		).toThrowError();
+		expect(() =>
+			paramMeta.getParamMetadata(A.prototype, "test2"),
+		).toThrowError();
+		expect(() =>
+			paramMeta.getParamMetadata(A.prototype, "test3"),
+		).toThrowError();
 	});
 });
