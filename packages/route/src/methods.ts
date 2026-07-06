@@ -8,7 +8,7 @@ function setRouteMetadata(
 	target: any,
 	fnKey: string | symbol,
 ) {
-	initMetadata<RouteMeta[]>(target, routeDataKey, []).push({
+	initMetadata<RouteMeta[]>(target, routeDataKey, "", []).push({
 		type,
 		path,
 		fnKey,

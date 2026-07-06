@@ -1,6 +1,7 @@
 import { createRouter, RadixRouter, toRouteMatcher } from "radix3";
 import { routeDataKey } from "./consts.js";
 import { RouteMeta } from "./types.js";
+import { getMetadata } from "@thestarweb/star-framework-utils";
 
 interface RouteInfo {
 	path: string;
@@ -11,7 +12,7 @@ interface RouteInfo {
 }
 
 function getRouyeMeta(obj: any): RouteMeta[] {
-	return obj[routeDataKey] || [];
+	return getMetadata(obj, routeDataKey, "", []);
 }
 function routeFinderInner(
 	obj: object,

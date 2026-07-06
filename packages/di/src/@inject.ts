@@ -8,7 +8,7 @@ import {
 	TypeProperty,
 	TypeFunction,
 } from "@deepkit/type";
-import { initMetadata } from "@thestarweb/star-framework-utils";
+import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
 
 const injectFlag = "$sf:inject";
 export function Inject(token?: any): ParameterDecorator & PropertyDecorator {
@@ -24,9 +24,11 @@ export function Inject(token?: any): ParameterDecorator & PropertyDecorator {
 				initMetadata(target, injectFlag)[parameterIndex] = token;
 			}
 		} else if (propertyKey) {
-			initMetadata(initMetadata(target, injectFlag), "propertyInject")[
-				propertyKey
-			] = token;
+			const data = initMetadata(target, injectFlag);
+			if (!data.propertyInject) {
+				data.propertyInject = Object.create(null);
+			}
+			data.propertyInject[propertyKey] = token;
 		}
 	};
 }
@@ -41,7 +43,12 @@ export function getClassConstructorInjectTokens<
 >(target: T): InjectInfo[] {
 	const tokens: InjectInfo[] = [];
 	const type = typeOf<T>() as TypeClass;
-	const metadata = (target as any)[injectFlag] || {};
+	const metadata = getMetadata(
+		target,
+		injectFlag,
+		undefined,
+		Object.create(null),
+	);
 	const t = type.types.find(
 		(type) =>
 			type.kind === ReflectionKind.method && type.name === "constructor",
@@ -70,7 +77,7 @@ export function getClassPropertyInjectTokens<
 		}
 	});
 	while (obj) {
-		const inj = obj[injectFlag]?.propertyInject;
+		const inj = getMetadata(obj, injectFlag)?.propertyInject;
 		if (inj) {
 			Object.getOwnPropertyNames(inj).forEach((key) => {
 				if (typeMap.has(key)) {
@@ -101,6 +108,7 @@ export function getFunctinInjectTokens(
 ): InjectInfo[] {
 	const tokens: InjectInfo[] = [];
 	const type = typeOf<typeof fn>() as TypeFunction;
+	// TODO 这里有问题 不能这样写
 	const metadata = (fn as any)[injectFlag] || {};
 	type?.parameters?.forEach((arg, index) => {
 		let token = null;
