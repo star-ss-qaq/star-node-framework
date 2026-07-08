@@ -136,12 +136,16 @@ export class ParamTypeError extends Error {}
 export function toParamType(
 	type: Type,
 	p = "",
-	defaultValue?: () => any,
+	info?: { default?: () => any; description?: string },
 	noError = false,
 ): ParamType {
 	function warp(baseType: ParamType): ParamType {
-		if (defaultValue) {
-			return pureAndFreeze({ defaultValue, ...baseType });
+		if (info) {
+			return pureAndFreeze({
+				defaultValue: info.default,
+				description: info.description,
+				...baseType,
+			});
 		}
 		return pureAndFreeze(baseType);
 	}
@@ -244,7 +248,7 @@ export function toParamType(
 						properties[name] = toParamType(
 							subType,
 							`${p}.${name}`,
-							(t as TypeProperty).default,
+							t,
 							t.optional,
 						);
 						break;
@@ -321,10 +325,42 @@ export function mergeType(
 		);
 	}
 	switch (rawType.type) {
+		case "string":
+		case "number":
+		case "boolean":
+		case "integer":
+			return rawType;
 		case "array":
+			const at = addType as ArrayParamType;
+			const mergeWithArray = (rt: ParamType[], at: ParamType[]): ParamType => {
+				if (rt.length !== at.length) {
+					throw new ParamTypeError(
+						`${p} is required to be ${rt.length} and ${at.length} item array at same time`,
+					);
+				}
+				const merged = rt.map((itemType, index) =>
+					mergeType(itemType, at[index], `${p}[${index}]`),
+				);
+				return pureAndFreeze({
+					type: "array",
+					items: pureAndFreeze(merged),
+				});
+			};
+			const mergeWithDefaul = (rt: ParamType[], at: ParamType) => {
+				return mergeWithArray(rt, Array(rt.length).fill(at));
+			};
+			if (Array.isArray(rawType.items)) {
+				if (Array.isArray(at.items)) {
+					return mergeWithArray(rawType.items, at.items);
+				}
+				return mergeWithDefaul(rawType.items, at.items);
+			}
+			if (Array.isArray(at.items)) {
+				return mergeWithDefaul(at.items, rawType.items);
+			}
 			return pureAndFreeze({
 				type: "array",
-				items: mergeType(rawType.items, (addType as ArrayParamType).items, p),
+				items: mergeType(rawType.items, at.items, p),
 			});
 		case "object":
 			const a = addType as ObjectParamType;
@@ -355,5 +391,5 @@ export function mergeType(
 		case "enum":
 		// TODO
 	}
-	return rawType;
+	throw new Error(`can not merge type at ${p}`);
 }

@@ -5,9 +5,15 @@ import {
 	TypeMethod,
 	typeOf,
 } from "@deepkit/type";
-import { initMetadata } from "@thestarweb/star-framework-utils";
-import { AnyParamType, ParamType } from "./types.js";
+import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
+import {
+	AnyParamType,
+	ArrayParamType,
+	ObjectParamType,
+	ParamType,
+} from "./types.js";
 import { mergeType, toParamType } from "./type-helper.js";
+import { buildType } from "./type-build.js";
 
 const mateKey = "$sf:param";
 
@@ -15,14 +21,6 @@ type RawParamMetadata<F, T> = Record<
 	number,
 	{ from: F; path?: string; exMeta?: T }
 >;
-
-function getRawParamMetadata<F, T>(
-	namespase: string,
-	target: object,
-	propertyKey: PropertyKey,
-): RawParamMetadata<F, T> {
-	return initMetadata(target, mateKey, propertyKey)[namespase] || {};
-}
 
 export enum RootParamType {
 	Any,
@@ -36,6 +34,7 @@ type ObjectableRootParamType =
 	| RootParamType.Any
 	| RootParamType.Object
 	| RootParamType.SingleObject;
+
 function isObjectableRootParamType(type: RootParamType) {
 	return [
 		RootParamType.Any,
@@ -62,16 +61,22 @@ function ObjectableParamSwitch<T extends RootParamType, O, S>(
 	return s as any;
 }
 
-export class ParamMeta<
+type TypeSwitch<
+	T extends RootParamType,
+	R extends Partial<Record<RootParamType, any>>,
+	D = never,
+> = T extends keyof R ? R[T] : D;
+
+export class ParamMetaHelper<
 	T extends { readonly [k: string]: RootParamType },
-	ET = any,
+	ET = never,
 > {
 	constructor(
 		public readonly namespase: string,
 		private readonly paramConfig: T,
 	) {}
 	withExMetaType<ET>() {
-		return this as any as ParamMeta<T, ET>;
+		return this as any as ParamMetaHelper<T, ET>;
 	}
 	createParam(
 		from: keyof T,
@@ -120,6 +125,13 @@ export class ParamMeta<
 		};
 	}
 
+	getRawParamMetadata(
+		target: object,
+		propertyKey: PropertyKey,
+	): RawParamMetadata<keyof T, ET> {
+		return getMetadata(target, mateKey, propertyKey)?.[this.namespase] || {};
+	}
+
 	getParamMetadata(
 		target: object,
 		propertyKey: PropertyKey,
@@ -140,11 +152,7 @@ export class ParamMeta<
 			isDIInject?: (object: object, key: PropertyKey, index: number) => boolean;
 		} = {},
 	) {
-		const rawMeta = getRawParamMetadata<keyof T, ET>(
-			this.namespase,
-			target,
-			propertyKey,
-		);
+		const rawMeta = this.getRawParamMetadata(target, propertyKey);
 		const meta: Partial<
 			Record<keyof T, { type: ParamType; required: boolean }>
 		> = {};
@@ -179,7 +187,7 @@ export class ParamMeta<
 				};
 			}
 			const path = `${target.constructor.name}.${String(propertyKey)}.param.${index}`;
-			const currentType = toParamType(p.type, path, p.default, p.optional);
+			const currentType = toParamType(p.type, path, p, p.optional);
 
 			const fromType = this.paramConfig[paramRawMeta.from];
 			if (
@@ -199,7 +207,20 @@ export class ParamMeta<
 			meta[paramRawMeta.from]!.required ||= !p.optional;
 		});
 		return {
-			meta,
+			types: meta as {
+				[K in keyof T]?: {
+					type: TypeSwitch<
+						T[K],
+						{
+							[RootParamType.Object]: ObjectParamType<ET>;
+							[RootParamType.SingleObject]: ObjectParamType<ET>;
+							[RootParamType.SingleArray]: ArrayParamType<ET>;
+						},
+						ParamType<ET>
+					>;
+					required: boolean;
+				};
+			},
 			params: fnType.parameters.map((p, index) => {
 				return {
 					raw: p,
@@ -207,5 +228,29 @@ export class ParamMeta<
 				};
 			}),
 		};
+	}
+	async call(
+		target: object,
+		propertyKey: PropertyKey,
+		param: Record<keyof T, any>,
+	) {
+		const meta = this.getParamMetadata(target, propertyKey);
+		const pausedParam: any = {};
+		Object.keys(meta.types).forEach((from) => {
+			const { type, required } = meta.types[from]!;
+			if (typeof param[from] != undefined) {
+				pausedParam[from] = buildType(type, param[from], undefined, from);
+			} else {
+				if (required) throw new Error(`${from} is required`);
+			}
+		});
+		const prop = meta.params.map((meta) => {
+			const t = pausedParam[meta.from];
+			if (meta.path) {
+				return t[meta.path];
+			}
+			return t;
+		});
+		return (target as any)[propertyKey](...prop);
 	}
 }
