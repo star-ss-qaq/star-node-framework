@@ -1,5 +1,5 @@
 {
-  "name": "@thestarweb/star-node-framework",
+  "name": "@thestarweb/star-framework",
   "version": "1.0.0",
   "description": "Node框架",
   "main": "index.js",
@@ -14,7 +14,8 @@
   "author": "star",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.4.2",
+    "@types/node": "^26.1.0",
+    "ts-node": "^10.9.2",
     "lerna": "^8.2.4",
     "typescript": "^5.1.6",
     "vitest": "^4.1.9"
