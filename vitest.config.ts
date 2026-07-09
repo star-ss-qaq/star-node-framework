@@ -10,7 +10,7 @@ const projects: { name: string; version: string; location: string }[] =
 	);
 
 export default defineConfig({
-	plugins: [deepkitType()],
+	plugins: [deepkitType({ compilerOptions: { sourceMap: true } })],
 	test: {
 		globals: true,
 		environment: "node",
