@@ -1,0 +1,20 @@
+{
+  "name": "@thestarweb/ts-helper",
+  "version": "0.0.1",
+  "description": "ts工具",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "type":"module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.9"
+  },
+  "license": "ISC"
+}
