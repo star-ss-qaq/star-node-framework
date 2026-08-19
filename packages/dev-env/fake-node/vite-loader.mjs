@@ -23,12 +23,13 @@ function fileURLToPath(path){
 	}
 	return rawFileURLToPath(path).replaceAll('\\','/');
 }
+const node_modules_dir_falg = /[\/\\]node_modules[\/\\]/
 // ═══════════════════════════════════════
 //  resolve hook —— 模块路径解析
 // ═══════════════════════════════════════
 export async function resolve(specifier, context, nextResolve) {
 	// 只有node_module的文件不需要
-	if (!specifier.includes('node_modules')) {
+	if (!node_modules_dir_falg.test(specifier)) {
 		const parentPath = context.parentURL
 			? fileURLToPath(context.parentURL)
 			: undefined;
@@ -53,7 +54,7 @@ export async function resolve(specifier, context, nextResolve) {
 //  load hook —— 文件加载 & 转换
 // ═══════════════════════════════════════
 export async function load(url, context, nextLoad) {
-	if (!url.includes('node_modules')) {
+	if (url.startsWith("file:") && !node_modules_dir_falg.test(url)) {
 		try{
 			const filePath = fileURLToPath(url);
 			const ext = extname(filePath);
