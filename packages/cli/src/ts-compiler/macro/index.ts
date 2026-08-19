@@ -80,7 +80,6 @@ export function crreateSideOnlyVisitor(
 		const res = node.modifiers
 			?.map((m) => {
 				if (isDecorator(m)) {
-					console.log(111);
 					let name = "";
 					const args: NodeArray<Expression>[] = [];
 					const toRel = <T extends FromArgWithSelf<any>>(
@@ -100,17 +99,13 @@ export function crreateSideOnlyVisitor(
 						args.push(t.arguments);
 						t = t.expression;
 					}
-					console.log(2222);
 					if (isIdentifier(t)) {
-						console.log(3333);
 						name = t.text;
 						// TODO：增加从哪导入和重命名的判断
 						const item = rule.find((r) => r.name === name);
 						if (item) {
-							console.log(4444);
 							const reqSide = toRel(item.side);
 							const isMatchSide = Array.isArray(reqSide);
-							console.log(reqSide, item.type || "exclude", false, true);
 							const shouldRemove = isKeepInSide(
 								reqSide,
 								item.type || "exclude",
@@ -133,7 +128,6 @@ export function crreateSideOnlyVisitor(
 			})
 			.filter(Boolean)
 			.sort((a, b) => (b!.importent || 0) - (a!.importent || 0));
-		console.log(res);
 		return {
 			mode: res?.[0]?.shouldRemove ? res[0].mode : "",
 			newDecorator: node.modifiers?.filter((i) => !removeDecorator.has(i)),
