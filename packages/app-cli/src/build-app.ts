@@ -46,9 +46,15 @@ function showHelpFor(obj: object, propertyKey?: PropertyKey) {
 	} else {
 		const commands = getCommands(obj);
 		const cmdNames = Object.keys(commands);
+		const res = [];
 		if (cmdNames.length > 0) {
-			//
+			res.push("");
+			res.push(`Sub Commands: `);
+			cmdNames.forEach((cmd) => {
+				res.push(`\t${cmd}`);
+			});
 		}
+		return res.join("\n");
 	}
 }
 
@@ -65,7 +71,7 @@ async function callOn(
 		const subArg = arg.slice(1);
 	}
 	const commandInfo = commands[subCommand];
-	if (commands[subCommand]) {
+	if (commandInfo) {
 		const t = (obj as any)[commandInfo.propertyKey];
 		if (commandInfo.type === Type.set) {
 			return callOn(t, subArg, [...p, subCommand]);
@@ -139,6 +145,8 @@ async function callOn(
 			end();
 			await callWhithParam(obj, commandInfo.propertyKey, p);
 		}
+	} else {
+		console.log(showHelpFor(obj));
 	}
 	return false;
 }
