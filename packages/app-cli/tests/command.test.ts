@@ -36,7 +36,7 @@ describe("命令识别逻辑测试", () => {
 		expect(number).toBe(10);
 		app(["", "", "--arg", "666"]);
 		expect(number).toBe(666);
-		expect(
+		await expect(
 			app(["", "", "--arg", "abc"]),
 			"如果传入无效数值应该不能执行",
 		).rejects.toThrow();
