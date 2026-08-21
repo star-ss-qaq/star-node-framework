@@ -6,8 +6,8 @@ import { dirname, join, normalize } from "node:path";
 import { realpathSync } from "node:fs";
 
 function isInNodeMoudles(file){
-    file = normalize(file);
     if(!file) return false;
+    file = normalize(file);
     if(!file.includes('node_modules')) return false;
     const path = file.replaceAll('\\','/').split('/');
     const index = path.indexOf('node_modules')
