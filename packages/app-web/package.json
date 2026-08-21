@@ -1,0 +1,31 @@
+{
+  "name": "@thestarweb/star-framework-app-web",
+  "version": "0.0.1",
+  "description": "Star Framework Web App",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "type":"module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@deepkit/type": "^1.0.19",
+    "@deepkit/type-compiler": "^1.0.0",
+    "@thestarweb/star-framework-param-helper": "^0.0.1",
+    "@thestarweb/star-framework-route": "^0.0.1",
+    "@thestarweb/star-framework-utils": "^0.0.1",
+    "qs":"6.15.3"
+  },
+  "peerDependencies": {
+    "@thestarweb/star-framework-cli": "^0.0.1",
+    "@types/qs": "6.15.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.9"
+  },
+  "license": "ISC"
+}
