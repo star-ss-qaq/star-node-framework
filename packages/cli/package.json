@@ -1,7 +1,7 @@
 {
   "name": "@thestarweb/star-framework-cli",
   "version": "0.0.1",
-  "description": "Star Framework DI",
+  "description": "Star Framework CLI",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type":"module",
@@ -10,9 +10,13 @@
     "dev": "tsc -p tsconfig.build.json --watch",
     "test": "vitest"
   },
+  "bin":{
+    "sf-cli": "./bin/sf-cli.js"
+  },
   "dependencies": {
     "@thestarweb/star-framework-app-cli": "^0.0.1",
     "@thestarweb/ts-helper": "^0.0.1"
+    "vite": "^8.2.1"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

@@ -1,20 +1,37 @@
 import { createServer } from "http";
-import { ServerConfig } from "./type.js";
-import { createServerInstance } from "./server/index.js";
+import { ServerConfig, ServerInstanceConfig } from "./type.js";
+import { createServerInstance, ServerInstance } from "./server/index.js";
 
-async function createHandle(config: ServerConfig) {
-	return config.instances.map((i) => {
-		const instance = createServerInstance(i.main);
-		return {
-			...i,
-			instance,
-		};
-	});
+async function createHandle(instances: ServerInstanceConfig[]) {
+	return await Promise.all(
+		instances.map(async (i) => {
+			const ret = {
+				...i,
+				instance: undefined as unknown as ServerInstance,
+			};
+			const { main } = i;
+			switch (typeof main) {
+				case "object":
+					ret.instance = createServerInstance(main);
+					break;
+				case "function":
+					ret.instance = createServerInstance(await main());
+					if (typeof (i as any)._hot === "function") {
+						(i as any)._hot(async () => {
+							ret.instance = createServerInstance(await main());
+							console.log("module hot updated");
+						});
+					}
+					break;
+			}
+			return ret;
+		}),
+	);
 }
 
 export async function createHttpServer(config: ServerConfig) {
 	const server = createServer();
-	const handles = await createHandle(config);
+	let handles = await createHandle(config.instances);
 	server.on("request", async (req, res) => {
 		const url = new URL(
 			req.url || "/",
@@ -51,4 +68,9 @@ export async function createHttpServer(config: ServerConfig) {
 	});
 	server.listen(config.port);
 	console.log(`server start at: http://127.0.0.1:${config.port}`);
+	return {
+		async updateinstances(ins: ServerInstanceConfig[]) {
+			handles = await createHandle(ins);
+		},
+	};
 }

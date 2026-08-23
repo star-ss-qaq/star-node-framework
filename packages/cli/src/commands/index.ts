@@ -1,0 +1,117 @@
+import { buildApp, Command, Options } from "@thestarweb/star-framework-app-cli";
+import {
+	createServer,
+	isRunnableDevEnvironment,
+	mergeConfig,
+	RunnableDevEnvironment,
+} from "vite";
+import { getConfig, loadConfig } from "../config/loadConfig.js";
+import { loadViteConfig } from "../config/vite.js";
+import { SFPluging } from "../plugin/index.js";
+import { callWithHook } from "./call-with-hook.js";
+import { TypeInfo } from "./type.js";
+
+class SFCli {
+	private _allTypes?: Map<string, SFPluging[]>;
+	parseType(type?: string, only = true) {
+		const ret: TypeInfo[] = [];
+		const sfConfig = getConfig()!;
+		const [pluging, typeName] = type
+			? type.includes(":")
+				? type.split(":", 2)
+				: [undefined, type]
+			: [undefined, undefined];
+		sfConfig.pluging.forEach((p) => {
+			if (p.mode && (!pluging || pluging === p.name)) {
+				if (typeName) {
+					if (p.mode[typeName]) {
+						ret.push({
+							plugin: p,
+							type: typeName,
+						});
+					}
+				} else {
+					const keys = Object.keys(p.mode);
+					keys.forEach((k) => {
+						ret.push({
+							plugin: p,
+							type: k,
+						});
+					});
+				}
+			}
+		});
+		if (ret.length === 0) {
+			console.error("当前没有任何插件提供应用类型，cli无法进行任何操作");
+			process.exit();
+		}
+		if (only && ret.length > 1) {
+			console.error(
+				`当前有多个满足条件的应用类型，但是当前操作仅支持操作单个应用：${ret.map((i) => `${i.plugin.name}:${i.type}`)}`,
+			);
+			process.exit();
+		}
+		return ret;
+	}
+	@Command("dev")
+	async dev(
+		@Options()
+		type?: string,
+	) {
+		const [pType] = this.parseType(type);
+		const typeConfig = pType.plugin.mode![pType.type];
+		const hook =
+			typeof typeConfig.dev === "function"
+				? typeConfig.dev()
+				: typeConfig.dev || {};
+		let timeout: NodeJS.Timeout;
+		const viteConfig = mergeConfig(await loadViteConfig(), {
+			environments: { [pType.type]: {} },
+			plugins: [
+				{
+					name: "sf:hot",
+					hotUpdate() {
+						clearTimeout(timeout);
+						timeout = setTimeout(async () => {
+							if (hook.onHotReload) {
+								const main = await loadMainMoudle();
+								hook.onHotReload(main);
+							} else {
+								console.warn("当前APP不支持热更新");
+							}
+						}, 100);
+					},
+				},
+			],
+		});
+		viteConfig.plugins!.push();
+		const viteServer = await callWithHook(
+			createServer,
+			hook.createViteServer,
+			viteConfig,
+		);
+		const env = viteServer.environments[pType.type];
+		if (!isRunnableDevEnvironment(env)) {
+			throw new Error("Environment配置异常");
+		}
+		function loadMainMoudle() {
+			return callWithHook(
+				(env) => env.runner.import("sf:app-main").then((m) => m.default),
+				hook.onLoadMainModule,
+				env as RunnableDevEnvironment,
+			);
+		}
+		return callWithHook(
+			async (mainModule) => {
+				const runtimeModule = await import(typeConfig.createApp.import);
+				runtimeModule[typeConfig.createApp.fnName](mainModule);
+			},
+			hook.onStart,
+			await loadMainMoudle(),
+		);
+	}
+}
+export default async function main() {
+	await loadConfig();
+	buildApp(new SFCli())(process.argv);
+}
