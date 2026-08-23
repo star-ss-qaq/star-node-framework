@@ -1,21 +1,22 @@
+process.env.NODE_ENV = "";
 import { defineConfig } from "vitest/config";
 import { deepkitType } from "@deepkit/vite";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
 import { transformFile } from "./helper.js";
+import { getProjectAliasObj } from "./tools/all-package.js";
 
-const projects: { name: string; version: string; location: string }[] =
-	JSON.parse(
-		execSync("npx lerna list --long --all --json", {
-			encoding: "utf-8",
-			stdio: "pipe",
-		}),
-	);
-
+// const projects: { name: string; version: string; location: string }[] =
+// 	JSON.parse(
+// 		execSync("npx lerna list --long --all --json", {
+// 			encoding: "utf-8",
+// 			stdio: "pipe",
+// 		}),
+// 	);
 export default defineConfig({
 	plugins: [
-		//deepkitType({ compilerOptions: { sourceMap: true } })
+		// deepkitType({ compilerOptions: { sourceMap: true } }),
 		{
 			name: "deepkit-type",
 			enforce: "pre",
@@ -27,8 +28,9 @@ export default defineConfig({
 		environment: "node",
 	},
 	resolve: {
-		alias: Object.fromEntries(
-			projects.map((i) => [i.name, join(i.location, "src/index.ts")]),
-		),
+		// alias: Object.fromEntries(
+		// 	projects.map((i) => [i.name, join(i.location, "src/index.ts")]),
+		// ),
+		alias: getProjectAliasObj(),
 	},
 });
