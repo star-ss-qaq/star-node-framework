@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { execSync, spawn, spawnSync } from "child_process";
+import { accessSync, constants } from "fs";
 import { userInfo } from "os";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -48,7 +49,15 @@ const nodePath = process.execPath;
 const path = fileURLToPath(import.meta.url);
 const fakeNodePath = join(dirname(path), "fake-node");
 const viteNodeJS = join(dirname(path), "fake-node/vite-node.js");
-// const viteConfig =
+let viteConfigFile = undefined;
+for(var i of ['vite.config.ts','vite.config.js']){
+	const path = join(process.cwd(), i);
+	try{
+		accessSync(path, constants.R_OK);
+		viteConfigFile=path;
+		break;
+	}catch{}
+}
 
 let flag = false;
 
@@ -63,6 +72,7 @@ for (var i = 0; i < t.length; i++) {
 					PATH: `${fakeNodePath};${process.env.PATH}`,
 					REL_NODE_PATH: nodePath,
 					FAKE_NODE_JS: viteNodeJS,
+					VITE_CONFIG_FILE: viteConfigFile,
 					SF_DEV: 1,
 				},
 			});
