@@ -24,6 +24,8 @@ function createMethod(type: string) {
 
 export const Get = createMethod("get");
 export const Post = createMethod("post");
+export const Put = createMethod("put");
+export const Delete = createMethod("delete");
 export const SubRoute = function (path?: string): PropertyDecorator {
 	return function (target: any, propertyKey: string | symbol) {
 		setRouteMetadata("sub-route", path, target, propertyKey);
