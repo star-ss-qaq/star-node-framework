@@ -73,9 +73,9 @@ class SFCli {
 					hotUpdate() {
 						clearTimeout(timeout);
 						timeout = setTimeout(async () => {
-							if (hook.onHotReload) {
+							if (hook.hotReload) {
 								const main = await loadMainMoudle();
-								hook.onHotReload(main);
+								hook.hotReload(main);
 							} else {
 								console.warn("当前APP不支持热更新");
 							}
@@ -84,12 +84,12 @@ class SFCli {
 				},
 			],
 		});
-		viteConfig.plugins!.push();
 		const viteServer = await callWithHook(
 			createServer,
 			hook.createViteServer,
 			viteConfig,
 		);
+		hook.onViteServerInited?.(viteServer);
 		const env = viteServer.environments[pType.type];
 		if (!isRunnableDevEnvironment(env)) {
 			throw new Error("Environment配置异常");
@@ -97,16 +97,16 @@ class SFCli {
 		function loadMainMoudle() {
 			return callWithHook(
 				(env) => env.runner.import("sf:app-main").then((m) => m.default),
-				hook.onLoadMainModule,
+				hook.loadMainModule,
 				env as RunnableDevEnvironment,
 			);
 		}
-		return callWithHook(
+		callWithHook(
 			async (mainModule) => {
 				const runtimeModule = await import(typeConfig.createApp.import);
 				runtimeModule[typeConfig.createApp.fnName](mainModule);
 			},
-			hook.onStart,
+			hook.start,
 			await loadMainMoudle(),
 		);
 	}
