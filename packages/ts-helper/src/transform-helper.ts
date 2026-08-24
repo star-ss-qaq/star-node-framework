@@ -1,6 +1,6 @@
 import { basename } from "path";
 import {
-	CompilerOptions,
+	type CompilerOptions,
 	createPrinter,
 	createSourceFile,
 	// @ts-ignore
@@ -10,10 +10,10 @@ import {
 	ModuleKind,
 	readConfigFile,
 	ScriptTarget,
-	SourceFile,
+	type SourceFile,
 	sys,
 	transform,
-	TransformerFactory,
+	type TransformerFactory,
 } from "typescript";
 
 export function withTransform(

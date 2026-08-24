@@ -1,6 +1,6 @@
 import { expect, describe, test } from "vitest";
 import { Get, Post, SubRoute } from "../src/index.js";
-import { routeFinder } from "../src/route-finder.js";
+import { parseRoutes } from "../src/route-finder.js";
 
 describe("路由测试", () => {
 	test("能正确添加元数据并被解析", async () => {
@@ -9,7 +9,7 @@ describe("路由测试", () => {
 			a() {}
 		}
 		const a = new A();
-		const route = routeFinder(a);
+		const route = parseRoutes(a);
 		const ret = route("get", "/");
 		expect(ret).toEqual({
 			obj: a,
@@ -31,7 +31,7 @@ describe("路由测试", () => {
 			b = new B();
 		}
 		const a = new A();
-		const route = routeFinder(a);
+		const route = parseRoutes(a);
 		const ret = route("get", "/");
 		expect(ret).toEqual({
 			obj: a,
@@ -57,7 +57,7 @@ describe("路由测试", () => {
 			postHandle() {}
 		}
 		const a = new A();
-		const route = routeFinder(a);
+		const route = parseRoutes(a);
 		const retGet = route("get", "/some-path");
 		const retPpst = route("post", "/some-path");
 		expect(retGet?.method).toBe("getHandle");

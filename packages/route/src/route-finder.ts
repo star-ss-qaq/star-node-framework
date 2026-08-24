@@ -44,7 +44,7 @@ function routeFinderInner(
 	});
 	return routers;
 }
-export function routeFinder(obj: object) {
+export function parseRoutes(obj: object) {
 	const router = routeFinderInner(obj);
 	return (method: string, path: string) => {
 		return router[method]?.lookup(path);
