@@ -47,6 +47,9 @@ export async function createHttpServer(config: ServerConfig) {
 					req,
 				);
 				if (ret) {
+					if (ret.code) {
+						res.statusCode = ret.code;
+					}
 					Object.entries(ret.header).forEach(([key, data]) => {
 						res.setHeader(key, data as any);
 					});
@@ -60,6 +63,7 @@ export async function createHttpServer(config: ServerConfig) {
 			} catch (e) {
 				console.warn(e);
 				res.statusCode = 500;
+				res.end();
 				return;
 			}
 		}

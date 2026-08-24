@@ -1,7 +1,9 @@
-import { Readable } from "stream";
+import { PassThrough, Readable } from "stream";
 import { parse } from "qs";
 import { parseRoutes } from "@thestarweb/star-framework-route";
 import { paramMeta } from "../../params/index.js";
+import { ResponseWithMeta } from "../../return-types/index.js";
+import { PassThroughReadable } from "../utils/pass-through-readable.js";
 export interface ServerInstance {
 	onRequert: (
 		method: string,
@@ -10,6 +12,7 @@ export interface ServerInstance {
 		body?: Readable,
 	) => Promise<
 		| {
+				code: number;
 				header: any;
 				res: Readable;
 		  }
@@ -29,20 +32,31 @@ export function createServerInstance(object: any) {
 				let body: null;
 				if (reqHeader["content-type"]) {
 				}
-				const data = await paramMeta.call(route.obj, route.method, {
+				const rawData = await paramMeta.call(route.obj, route.method, {
 					body: null,
 					header: reqHeader,
 					query: parse(urlObj.search),
 				});
-				const header: any = {};
 				let res: Readable;
+				const {
+					data,
+					code = 200,
+					header = {},
+				} = ResponseWithMeta.isResponseWithMeta(rawData)
+					? rawData
+					: { data: rawData };
 				if (data instanceof Readable) {
 					res = data;
+				} else if (data instanceof PassThrough) {
+					res = new PassThroughReadable(data);
 				} else {
-					header["content-type"] = "application/json";
+					if (!header["content-type"]) {
+						header["content-type"] = "application/json";
+					}
 					res = Readable.from(JSON.stringify(data));
 				}
 				return {
+					code,
 					header,
 					res,
 				};
