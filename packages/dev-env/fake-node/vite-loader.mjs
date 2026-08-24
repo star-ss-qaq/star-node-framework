@@ -8,7 +8,8 @@ const viteServer = await createServer({
 	server: { hmr: false, watch: null },
 	optimizeDeps: { noDiscovery: true, include:[] },
 	appType: "custom",
-	configFile: process.env.VITE_CONFIG_FILE
+	configFile: process.env.VITE_CONFIG_FILE,
+	logLevel: 'error',
 });
 const vpre='file://__vite__/'
 function pathToFileURL(path){
