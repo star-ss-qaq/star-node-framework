@@ -66,6 +66,8 @@ export function createServerInstance(object: any) {
 					res = new PassThroughReadable(data);
 				} else if (data === null || typeof data === "undefined") {
 					res = null;
+				} else if (header["content-type"]?.includes?.("text")) {
+					res = Readable.from(data?.toString() || "");
 				} else {
 					if (!header["content-type"]) {
 						header["content-type"] = "application/json";
