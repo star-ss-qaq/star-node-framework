@@ -10,3 +10,4 @@ export { Body, Query, Header } from "./params/index.js";
 export { createHttpServer } from "./runtime/index.js";
 export { SFWebPluging } from "./cli/index.js";
 export * from "./return-types/index.js";
+export { AddInterceptor, type Interceptor } from "./interceptor/index.js";
