@@ -17,6 +17,9 @@ export function initMetadata(
 	propertyKey: PropertyKey = "",
 	defalutValue = Object.create(null) as any,
 ) {
+	if (typeof obj === "function" && !propertyKey) {
+		obj = obj.prototype;
+	}
 	if (!Object.hasOwn(obj, mateRootStorageKey)) {
 		Object.defineProperty(obj, mateRootStorageKey, {
 			enumerable: false,
@@ -51,6 +54,9 @@ export function getMetadata(
 	propertyKey: PropertyKey = "",
 	defalutValue = null,
 ) {
+	if (typeof obj === "function" && !propertyKey) {
+		obj = obj.prototype;
+	}
 	if (Object.hasOwn(obj, mateRootStorageKey)) {
 		const map = obj[mateRootStorageKey][propertyKey];
 		if (map?.has(mateKey)) {
