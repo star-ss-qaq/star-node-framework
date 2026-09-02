@@ -14,8 +14,9 @@
     "sf-cli": "./bin/sf-cli.js"
   },
   "dependencies": {
-    "@thestarweb/star-framework-app-cli": "^0.0.1",
-    "@thestarweb/ts-helper": "^0.0.1"
+    "ts-node": "^10.9.2",
+    "@thestarweb/star-framework-di": "^0.0.1",
+    "@thestarweb/ts-helper": "^0.0.1",
     "vite": "^8.2.1"
   },
   "devDependencies": {

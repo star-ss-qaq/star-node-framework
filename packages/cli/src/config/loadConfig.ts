@@ -19,6 +19,7 @@ export async function loadConfig() {
 		loadedConfig = {
 			entry: join(process.cwd(), userConfig.entry || "src/index.ts"),
 			pluging: userConfig.pluging || [],
+			useDi: userConfig.useDi ?? true,
 		};
 		Object.freeze(loadedConfig);
 	}
