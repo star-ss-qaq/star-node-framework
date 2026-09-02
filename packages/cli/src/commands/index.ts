@@ -96,7 +96,10 @@ class SFCli {
 		}
 		function loadMainMoudle() {
 			return callWithHook(
-				(env) => env.runner.import("sf:app-main").then((m) => m.default),
+				(env) =>
+					env.runner
+						.import(`sf:app-main:${pType.plugin.name}:${pType.type}`)
+						.then((m) => m.default),
 				hook.loadMainModule,
 				env as RunnableDevEnvironment,
 			);

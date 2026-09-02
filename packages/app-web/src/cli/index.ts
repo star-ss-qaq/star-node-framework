@@ -10,7 +10,7 @@ export function SFWebPluging(): SFPluging {
 				dev: devServer,
 				createApp: {
 					import: "@thestarweb/star-framework-app-web",
-					fnName: "",
+					fnName: "createServerInstance",
 				},
 			},
 		},

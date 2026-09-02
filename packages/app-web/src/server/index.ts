@@ -1,28 +1,13 @@
 import { PassThrough, Readable } from "stream";
 import { parse } from "qs";
-import { paramMeta } from "../../params/index.js";
-import { ResponseWithMeta } from "../../return-types/index.js";
-import { PassThroughReadable } from "../utils/pass-through-readable.js";
-import { getInterceptors, Interceptor } from "../../interceptor/index.js";
-import { CallProp } from "../type.js";
-import { parseRoute } from "../../route/index.js";
-import { Method } from "../../route/types.js";
-import { serverRender } from "../../view/get-render.js";
-export interface ServerInstance {
-	onRequert: (
-		method: Method,
-		url: string | URL,
-		header: any,
-		body?: Readable,
-	) => Promise<
-		| {
-				code: number;
-				header: any;
-				res: Readable | null;
-		  }
-		| undefined
-	>;
-}
+import { paramMeta } from "../params/index.js";
+import { ResponseWithMeta } from "../return-types/index.js";
+import { PassThroughReadable } from "./utils/pass-through-readable.js";
+import { getInterceptors, Interceptor } from "../interceptor/index.js";
+import { ServerInstance } from "../runtime/type.js";
+import { parseRoute } from "../route/index.js";
+import { serverRender } from "../view/get-render.js";
+import { CallProp } from "./types.js";
 
 export function createServerInstance(object: any) {
 	const routes = parseRoute(object);

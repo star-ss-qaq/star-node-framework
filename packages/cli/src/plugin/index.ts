@@ -11,8 +11,8 @@ export interface SFDevHook {
 	): ViteDevServer | Promise<ViteDevServer>;
 	onViteServerInited?(vite: ViteDevServer): void;
 	loadMainModule?(env: RunnableDevEnvironment): Promise<{ default: object }>;
-	start?(main: object): void;
-	hotReload?(main: object): void;
+	start?(main: any): void;
+	hotReload?(main: any): void;
 }
 
 export interface SFModeConfig {

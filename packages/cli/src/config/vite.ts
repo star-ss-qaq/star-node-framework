@@ -14,8 +14,26 @@ export async function loadViteConfig() {
 					if (id === "sf:app-main") {
 						return [
 							`import Main from ${JSON.stringify(config.entry)};`,
-							"export default new Main();",
+							"const main = new Main();",
+							"export default main;",
 						].join("\n");
+					}
+					if (id.startsWith("sf:app-main:")) {
+						const [, , plugin, mode] = id.split(":");
+						const pluginInfo = config.pluging.find((p) => p.name === plugin)
+							?.mode?.[mode];
+						if (pluginInfo) {
+							return [
+								`import main from "sf:app-main";`,
+								`import {${pluginInfo.createApp.fnName} as createApp} from ${JSON.stringify(pluginInfo.createApp.import)};`,
+								"export default createApp(main);",
+							].join("\n");
+						}
+					}
+				},
+				resolveId(id) {
+					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {
+						return id;
 					}
 				},
 			},

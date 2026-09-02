@@ -1,7 +1,6 @@
 import { createServer } from "http";
-import { ServerConfig, ServerInstanceConfig } from "./type.js";
-import { createServerInstance, ServerInstance } from "./server/index.js";
-import { Method } from "../route/types.js";
+import { ServerConfig, ServerInstance, ServerInstanceConfig } from "./type.js";
+import type { Method } from "../route/types.js";
 
 async function createHandle(instances: ServerInstanceConfig[]) {
 	return await Promise.all(
@@ -13,16 +12,9 @@ async function createHandle(instances: ServerInstanceConfig[]) {
 			const { main } = i;
 			switch (typeof main) {
 				case "object":
-					ret.instance = createServerInstance(main);
+					ret.instance = main;
 					break;
-				case "function":
-					ret.instance = createServerInstance(await main());
-					if (typeof (i as any)._hot === "function") {
-						(i as any)._hot(async () => {
-							ret.instance = createServerInstance(await main());
-							console.log("module hot updated");
-						});
-					}
+				case "string":
 					break;
 			}
 			return ret;

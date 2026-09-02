@@ -1,7 +1,7 @@
 import { Interceptor } from "../interceptor/index.js";
 import { ResponseWithMeta } from "../return-types/index.js";
 import { parseRoute, RouteType } from "../route/index.js";
-import { CallProp } from "../runtime/type.js";
+import { CallProp } from "../server/types.js";
 import { RenderContext } from "./render/index.js";
 
 export function getRender(prop: CallProp, data: any) {
