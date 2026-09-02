@@ -1,2 +1,2 @@
-export { RouteMetadata } from "./metadata.js";
-export { RouteInfo } from "./types.js";
+export { RouteMetadata, type RouteMetadataRouteType } from "./metadata.js";
+export type { RouteInfo } from "./types.js";

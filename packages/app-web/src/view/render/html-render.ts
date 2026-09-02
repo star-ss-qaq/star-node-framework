@@ -2,16 +2,20 @@ import { IRender } from "./render.js";
 
 export class HTMLRender implements IRender {
 	constructor(
-		private readonly html:
+		private readonly htmlFn:
 			| string
 			| (() => Promise<string | { default: string }>),
 	) {}
-	async renderToString() {
-		if (typeof this.html === "function") {
-			const res = await this.html();
-			if (typeof res === "string") return res;
-			return res.default;
+	private html = "";
+	async fetchResource() {
+		if (typeof this.htmlFn === "function") {
+			const res = await this.htmlFn();
+			this.html = typeof res === "string" ? res : res.default;
+		} else {
+			this.html = this.htmlFn;
 		}
+	}
+	renderToString() {
 		return this.html;
 	}
 }

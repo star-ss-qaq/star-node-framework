@@ -10,6 +10,22 @@ export interface RouteMeta {
 	context: any;
 	isSubRoute: boolean;
 }
+
+export type RouteMetadataRouteType<R extends RouteMetadata, M> =
+	R extends RouteMetadata<
+		infer T,
+		infer CommonOption,
+		infer TypeOption,
+		infer SubRouteOption
+	>
+		? M extends T
+			? RouteInfo<
+					Partial<{} & CommonOption & TypeOption[M]>,
+					Partial<SubRouteOption>
+				>
+			: never
+		: never;
+
 export class RouteMetadata<
 	T extends string = string,
 	CommonOption extends {} = {},
@@ -21,11 +37,11 @@ export class RouteMetadata<
 		this.subRoute.bind(this);
 	}
 	private readonly routeMetaKey: string;
-	route(type: string) {
+	route<M extends T>(type: M) {
 		const { routeMetaKey } = this;
 		return function (
 			path?: string,
-			context?: Partial<CommonOption & TypeOption[T]>,
+			context?: Partial<CommonOption & TypeOption[M]>,
 		): MethodDecorator {
 			return function (target: any, propertyKey: string | symbol) {
 				initMetadata<RouteMeta[]>(target, routeMetaKey, undefined, []).push({
@@ -112,13 +128,7 @@ export class RouteMetadata<
 	}
 	parse(obj: any) {
 		const router = this.routeFinder({ obj, path: "/" });
-		return <M extends T>(
-			method: M,
-			path: string,
-		): RouteInfo<
-			Partial<{} & CommonOption & TypeOption[M]>,
-			Partial<SubRouteOption>
-		> => {
+		return <M extends T>(method: M, path: string) => {
 			return (
 				router[method]?.lookup(path) ||
 				router["__SF:NotFind"].lookup(path) || { allRoute: [] }
@@ -126,10 +136,10 @@ export class RouteMetadata<
 		};
 	}
 }
-// const a = new RouteMetadata<
-// 	"get" | "post",
-// 	{ common: 1 },
-// 	{ get: { get: 1 }; post: { post: 1 } },
-// 	{ subRoute: 1 }
-// >("t1");
-// const b = a.parse({})("get", "/");
+const a = new RouteMetadata<
+	"get" | "post",
+	{ common: 1 },
+	{ get: { get: 1 }; post: { post: 1 } },
+	{ subRoute: 1 }
+>("t1");
+const b = a.parse({})("get", "/");

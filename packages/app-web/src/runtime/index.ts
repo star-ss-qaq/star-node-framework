@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { ServerConfig, ServerInstanceConfig } from "./type.js";
 import { createServerInstance, ServerInstance } from "./server/index.js";
+import { Method } from "../route/types.js";
 
 async function createHandle(instances: ServerInstanceConfig[]) {
 	return await Promise.all(
@@ -41,7 +42,7 @@ export async function createHttpServer(config: ServerConfig) {
 		if (instance) {
 			try {
 				const ret = await instance.instance.onRequert(
-					req.method || "get",
+					(req.method?.toLocaleLowerCase() as Method) || "get",
 					url,
 					req.headers,
 					req,
