@@ -1,2 +1,2 @@
-export * from "./methods.js";
-export * from "./route-finder.js";
+export { RouteMetadata } from "./metadata.js";
+export { RouteInfo } from "./types.js";
