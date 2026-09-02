@@ -21,9 +21,10 @@ export async function loadViteConfig() {
 			},
 			{
 				name: "ts",
+				enforce: "pre",
 				transform(code: string, id: string) {
 					if (id.endsWith("ts")) {
-						return withTransform(
+						const data = withTransform(
 							code,
 							[
 								(context) => {
@@ -33,6 +34,7 @@ export async function loadViteConfig() {
 							],
 							id,
 						);
+						return data;
 					}
 				},
 			},
