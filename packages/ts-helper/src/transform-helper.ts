@@ -33,14 +33,15 @@ export function withTransform(
 	);
 	const transformed = transform(sf, transformers, compilerOptions);
 	const print = createPrinter();
+	const cwd = process.cwd().replaceAll("\\", "/");
 	const sMap = createSourceMapGenerator(
 		{
-			getCurrentDirectory: () => process.cwd(),
+			getCurrentDirectory: () => cwd,
 			getCanonicalFileName: (path: string) => path,
 		},
 		basename(file),
-		process.cwd(),
-		process.cwd(),
+		cwd,
+		cwd,
 		{},
 	);
 	const w = createTextWriter("\n");
