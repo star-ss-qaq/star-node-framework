@@ -2,6 +2,7 @@ import { Readable } from "stream";
 import { paramMeta } from "../params/index.js";
 import { parseRoute, RouteType } from "../route/index.js";
 import { Method } from "../route/types.js";
+import { Interceptor } from "../interceptor/index.js";
 
 export interface ServerInstanceConfig {
 	main: ServerInstance | string;
@@ -27,4 +28,5 @@ export interface ServerInstance {
 		  }
 		| undefined
 	>;
+	addGlobalInterceptor(i: Interceptor): void;
 }

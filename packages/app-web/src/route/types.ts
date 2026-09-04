@@ -1,6 +1,6 @@
 import { IRender } from "../view/index.js";
 
-export type Method = "get" | "post" | "put" | "delete";
+export type Method = "GET" | "POST" | "PUT" | "DELETE";
 export interface CommonRouteOption {}
 export interface GetRouteOption {
 	render: IRender;

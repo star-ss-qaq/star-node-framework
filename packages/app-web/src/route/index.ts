@@ -16,10 +16,10 @@ const routeMetadata = new RouteMetadata<
 	Method,
 	CommonRouteOption,
 	{
-		post: PostRouteOption;
-		get: GetRouteOption;
-		put: PutRouteOption;
-		delete: DeleteRouteOption;
+		POST: PostRouteOption;
+		GET: GetRouteOption;
+		PUT: PutRouteOption;
+		DELETE: DeleteRouteOption;
 	},
 	SubRouteOption
 >("web");
@@ -28,10 +28,10 @@ export type RouteType<M extends Method> = RouteMetadataRouteType<
 	M
 >;
 
-export const Get = routeMetadata.route("get");
-export const Post = routeMetadata.route("post");
-export const Put = routeMetadata.route("put");
-export const Delete = routeMetadata.route("delete");
+export const Get = routeMetadata.route("GET");
+export const Post = routeMetadata.route("POST");
+export const Put = routeMetadata.route("PUT");
+export const Delete = routeMetadata.route("DELETE");
 export const SubRoute = routeMetadata.subRoute.bind(routeMetadata);
 
 export function parseRoute(obj: object) {

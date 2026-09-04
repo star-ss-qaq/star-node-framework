@@ -6,21 +6,22 @@ import { PassThroughReadable } from "./utils/pass-through-readable.js";
 import { getInterceptors, Interceptor } from "../interceptor/index.js";
 import { ServerInstance } from "../runtime/type.js";
 import { parseRoute } from "../route/index.js";
-import { serverRender } from "../view/get-render.js";
+import { serverRender } from "../view/get-render/index.js";
 import { CallProp } from "./types.js";
 
 export function createServerInstance(object: any) {
 	const routes = parseRoute(object);
+	const globalInterceptor: Interceptor[] = [];
 	const ins: ServerInstance = {
 		async onRequert(method, url, reqHeader, rawBody) {
 			const urlObj =
 				typeof url === "string" ? new URL(url, "http://127.0.0.1/") : url;
 			const route = routes(method, urlObj.pathname);
 
-			const interceptors: Interceptor[] = route.allRoute
-				.map((info) => getInterceptors(info.obj))
-				.flat();
-			interceptors.unshift(serverRender);
+			const interceptors: Interceptor[] = route.allRoute.flatMap((info) =>
+				getInterceptors(info.obj),
+			);
+			interceptors.unshift(...globalInterceptor, serverRender);
 
 			let body: any = null;
 			let call: (
@@ -79,6 +80,9 @@ export function createServerInstance(object: any) {
 				header,
 				res,
 			};
+		},
+		addGlobalInterceptor(i) {
+			globalInterceptor.push(i);
 		},
 	};
 	return ins;

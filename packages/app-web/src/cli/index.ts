@@ -13,6 +13,13 @@ export function SFWebPluging(): SFPluging {
 					fnName: "createServerInstance",
 				},
 			},
+			browser: {
+				side: ["browser"],
+				createApp: {
+					import: "@thestarweb/star-framework-app-web",
+					fnName: "createBrowsweInstance",
+				},
+			},
 		},
 	};
 }

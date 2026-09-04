@@ -49,12 +49,6 @@ export class RenderContext {
 	get child() {
 		return this._child;
 	}
-	async fetchResource() {
-		await Promise.all([
-			this._render.fetchResource?.(),
-			this._child?.fetchResource(),
-		]);
-	}
 	warpRenderToString() {
 		if (this._child) {
 			return this.render.renderToString?.(this.prop, this._child) || "";

@@ -1,6 +1,7 @@
 import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
 import { Interceptor } from "./types.js";
-export type * from "./types.js";
+export * from "./types.js";
+export { middlewareToInterceptor } from "./middleware-to-interceptor/index.js";
 const metaKey = "$sf:app:interceptor";
 export function AddInterceptor(
 	interceptor: Interceptor | Interceptor[],

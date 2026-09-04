@@ -66,6 +66,8 @@ class SFCli {
 				: typeConfig.dev || {};
 		let timeout: NodeJS.Timeout;
 		const viteConfig = mergeConfig(await loadViteConfig(), {
+			appType: "custom",
+			server: { middlewareMode: true },
 			environments: { [pType.type]: {} },
 			plugins: [
 				{

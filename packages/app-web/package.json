@@ -4,7 +4,7 @@
   "description": "Star Framework Web App",
   "main": "dist/index.js",
   "types": "src/index.ts",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
@@ -16,7 +16,9 @@
     "@thestarweb/star-framework-param-helper": "^0.0.1",
     "@thestarweb/star-framework-route": "^0.0.1",
     "@thestarweb/star-framework-utils": "^0.0.1",
-    "qs":"6.15.3"
+    "node-mocks-http": "^1.18.1",
+    "qs": "6.15.3",
+    "txml": "^6.0.3"
   },
   "peerDependencies": {
     "@thestarweb/star-framework-cli": "^0.0.1",

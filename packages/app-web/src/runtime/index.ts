@@ -34,7 +34,7 @@ export async function createHttpServer(config: ServerConfig) {
 		if (instance) {
 			try {
 				const ret = await instance.instance.onRequert(
-					(req.method?.toLocaleLowerCase() as Method) || "get",
+					(req.method?.toLocaleUpperCase() as Method) || "GET",
 					url,
 					req.headers,
 					req,

@@ -1,5 +1,5 @@
 import { IRender } from "./render.js";
-
+parseInt;
 export class HTMLRender implements IRender {
 	constructor(
 		private readonly htmlFn:
@@ -7,6 +7,9 @@ export class HTMLRender implements IRender {
 			| (() => Promise<string | { default: string }>),
 	) {}
 	private html = "";
+	parseHtml() {
+		//
+	}
 	async fetchResource() {
 		if (typeof this.htmlFn === "function") {
 			const res = await this.htmlFn();
