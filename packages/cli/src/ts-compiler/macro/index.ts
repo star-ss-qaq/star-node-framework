@@ -19,6 +19,8 @@ import {
 	isObjectLiteralExpression,
 	isPropertyAssignment,
 	isPropertySignature,
+	SourceFile,
+	isSourceFile,
 } from "typescript";
 import {
 	parseExpressionToValue,
@@ -133,7 +135,66 @@ export function crreateSideOnlyVisitor(
 			newDecorator: node.modifiers?.filter((i) => !removeDecorator.has(i)),
 		};
 	}
+	let sourceFile: SourceFile;
+	function shouldRemoverByComment(node: Node) {
+		try {
+			const text = sourceFile.getFullText();
+			let code = text.substring(node.pos, node.end);
+			const lines = code.replaceAll("\r", "\n").split("\n");
+			for (let line of lines) {
+				const metch = /^[ \t]*\/\/[ \t]*@side-(only|omit) (.+)/.exec(line);
+				if (metch) {
+					const [, mode, prop] = metch;
+					const [sideStrArr] = prop.split(" ");
+					return isKeepInSide(
+						sideStrArr.split(",") as StarFrameworkSide[],
+						mode == "only" ? "SFSiteOnly" : "SFSiteOmit",
+						false,
+						true,
+					);
+				}
+				if (!/^[ \t]*\/\//.test(line) && line) break;
+			}
+			// if (start === -1) return false;
+			// while (["\r", "\n"].includes(text[start])) start++;
+			// const lines = sourceFile.getLineStarts();
+			// let cIndex = lines.findIndex((c) => c > start) - 1;
+			// if (lines.includes(start)) {
+			// 	console.log(111, lines, node.kind);
+			// }
+			// console.log(start);
+			// while (cIndex > 0) {
+			// 	const line = text.substring(lines[cIndex - 1], lines[cIndex]);
+			// 	const metch = /^[ \t]*\/\/[ \t]*@side-(only|omit) (.+)/.exec(line);
+			// 	if (metch) {
+			// 		if (!/^[ \t]$/.test(text.substring(lines[cIndex], start))) {
+			// 			console.log("before has", text.substring(lines[cIndex], start));
+			// 			return false;
+			// 		}
+			// 		const nextLine = lines[cIndex + 1] || text.length;
+			// 		if (
+			// 			node.end < nextLine &&
+			// 			!/^[ \t\r\n]*$/.test(text.substring(node.end, nextLine))
+			// 		) {
+			// 			console.log("after has", text.substring(node.end, nextLine));
+			// 			return false;
+			// 		}
+			// 		const [mode, prop] = metch;
+			// 		const [side] = prop.split(",");
+			// 		return true;
+			// 	}
+			// 	if (!/^[ \t]*\/\//.test(line)) break;
+			// 	cIndex--;
+			// }
+		} catch {}
+		return false;
+	}
 	return (node, factory) => {
+		if (isSourceFile(node)) {
+			sourceFile = node;
+		} else if (shouldRemoverByComment(node)) {
+			return undefined as any;
+		}
 		if (isClassDeclaration(node)) {
 			const t = shouldRemove(node);
 			if (t.mode) {

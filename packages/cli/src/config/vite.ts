@@ -1,7 +1,9 @@
-import { UserConfig } from "vite";
+import { UserConfig, Visitor } from "vite";
 import { loadConfig } from "./loadConfig.js";
 import { withTransform } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
+import { crreateSideOnlyVisitor } from "../ts-compiler/macro/index.js";
+import { SourceFile, visitEachChild } from "typescript";
 
 let viteConfig: UserConfig | null = null;
 export async function loadViteConfig() {
@@ -18,7 +20,6 @@ export async function loadViteConfig() {
 								"import { diCreate } from '@thestarweb/star-framework-di';",
 							);
 							lines.push("const main = await diCreate(Main);");
-							lines.push("console.log(main)");
 						} else {
 							lines.push("const main = new Main();");
 						}
@@ -39,7 +40,7 @@ export async function loadViteConfig() {
 					}
 				},
 				resolveId(id) {
-					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {\
+					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {
 						return id;
 					}
 				},
@@ -47,21 +48,32 @@ export async function loadViteConfig() {
 			{
 				name: "ts",
 				enforce: "pre",
-				transform(code: string, id: string) {
+				transform(code: string, id: string, op) {
 					this.environment.name;
-					if (id.endsWith("ts")) {
-						const data = withTransform(
-							code,
-							[
-								(context) => {
-									const t = transformer(context);
-									return (node) => t.transformSourceFile(node);
-								},
-							],
-							id,
-						);
-						return data;
-					}
+					const data = withTransform(
+						code,
+						[
+							(context) => {
+								const t = transformer(context);
+								return (node) => t.transformSourceFile(node);
+							},
+							(context) => (node) => {
+								const sideOnly = crreateSideOnlyVisitor(
+									op?.ssr ? ["server"] : [],
+								);
+								const visitor: Visitor = (node: Node) => {
+									return visitEachChild(
+										sideOnly(node, context.factory, {}),
+										visitor,
+										context,
+									);
+								};
+								return visitor(node) as SourceFile;
+							},
+						],
+						id,
+					);
+					return data;
 				},
 			},
 		],
