@@ -65,6 +65,8 @@ class SFCli {
 				? typeConfig.dev()
 				: typeConfig.dev || {};
 		let timeout: NodeJS.Timeout;
+		let hasMessageNoHot = false;
+		let isStarted = false;
 		const viteConfig = mergeConfig(await loadViteConfig(), {
 			appType: "custom",
 			server: { middlewareMode: true },
@@ -73,15 +75,15 @@ class SFCli {
 				{
 					name: "sf:hot",
 					hotUpdate() {
-						clearTimeout(timeout);
-						timeout = setTimeout(async () => {
-							if (hook.hotReload) {
-								const main = await loadMainMoudle();
-								hook.hotReload(main);
-							} else {
-								console.warn("当前APP不支持热更新");
-							}
-						}, 100);
+						if (hook.hotReload || !isStarted) {
+							clearTimeout(timeout);
+							timeout = setTimeout(async () => {
+								await loadMainMoudle();
+							}, 100);
+						} else if (!hasMessageNoHot) {
+							hasMessageNoHot = true;
+							console.warn("当前APP不支持热更新");
+						}
 					},
 				},
 			],
@@ -96,24 +98,29 @@ class SFCli {
 		if (!isRunnableDevEnvironment(env)) {
 			throw new Error("Environment配置异常");
 		}
-		function loadMainMoudle() {
-			return callWithHook(
-				(env) =>
-					env.runner
-						.import(`sf:app-main:${pType.plugin.name}:${pType.type}`)
-						.then((m) => m.default),
-				hook.loadMainModule,
-				env as RunnableDevEnvironment,
-			);
+		async function loadMainMoudle() {
+			let app: any = null;
+			try {
+				app = await callWithHook(
+					(env) =>
+						env.runner
+							.import(`sf:app-main:${pType.plugin.name}:${pType.type}`)
+							.then((m) => m.default),
+					hook.loadMainModule,
+					env as RunnableDevEnvironment,
+				);
+			} catch (e) {
+				console.error(e);
+				return;
+			}
+			if (isStarted) {
+				hook.hotReload?.(app);
+			} else {
+				isStarted = true;
+				callWithHook(async (mainModule) => {}, hook.start, app);
+			}
 		}
-		callWithHook(
-			async (mainModule) => {
-				const runtimeModule = await import(typeConfig.createApp.import);
-				runtimeModule[typeConfig.createApp.fnName](mainModule);
-			},
-			hook.start,
-			await loadMainMoudle(),
-		);
+		loadMainMoudle();
 	}
 }
 export default async function main() {

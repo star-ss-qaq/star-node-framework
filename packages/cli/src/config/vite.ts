@@ -26,7 +26,6 @@ export async function loadViteConfig() {
 						return lines.join("\n");
 					}
 					if (id.startsWith("sf:app-main:")) {
-						console.log(id);
 						const [, , plugin, mode] = id.split(":");
 						const pluginInfo = config.pluging.find((p) => p.name === plugin)
 							?.mode?.[mode];
@@ -40,8 +39,7 @@ export async function loadViteConfig() {
 					}
 				},
 				resolveId(id) {
-					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {
-						console.log(id);
+					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {\
 						return id;
 					}
 				},
