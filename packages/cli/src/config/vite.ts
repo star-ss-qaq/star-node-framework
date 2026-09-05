@@ -3,7 +3,7 @@ import { loadConfig } from "./loadConfig.js";
 import { withTransform } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
 import { crreateSideOnlyVisitor } from "../ts-compiler/macro/index.js";
-import { SourceFile, visitEachChild } from "typescript";
+import { SourceFile, TransformerFactory, visitEachChild } from "typescript";
 
 let viteConfig: UserConfig | null = null;
 export async function loadViteConfig() {
@@ -49,33 +49,32 @@ export async function loadViteConfig() {
 				name: "ts",
 				enforce: "pre",
 				transform(code: string, id: string, op) {
-					this.environment.name;
-					const data = withTransform(
-						code,
-						[
-							(context) => {
-								const t = transformer(context);
-								if (/\.tsx?($|\?)/.test(id)) {
-									return (node) => t.transformSourceFile(node);
-								}
-								return (node) => node;
-							},
-							(context) => (node) => {
-								const sideOnly = crreateSideOnlyVisitor(
-									op?.ssr ? ["server"] : [],
+					if (!["js", "jsx", "ts", "tsx"].includes(op?.moduleType as any)) {
+						return;
+					}
+					// this.environment.name;
+					const factory: TransformerFactory<SourceFile>[] = [
+						(context) => (node) => {
+							const sideOnly = crreateSideOnlyVisitor(
+								op?.ssr ? ["server" as any] : [],
+							);
+							const visitor: Visitor = (node: Node) => {
+								return visitEachChild(
+									sideOnly(node, context.factory, {}),
+									visitor,
+									context,
 								);
-								const visitor: Visitor = (node: Node) => {
-									return visitEachChild(
-										sideOnly(node, context.factory, {}),
-										visitor,
-										context,
-									);
-								};
-								return visitor(node) as SourceFile;
-							},
-						],
-						id,
-					);
+							};
+							return visitor(node) as SourceFile;
+						},
+					];
+					if (/\.tsx?($|\?)/.test(id)) {
+						factory.push((context) => {
+							const t = transformer(context);
+							return (node) => t.transformSourceFile(node);
+						});
+					}
+					const data = withTransform(code, factory, id);
 					return data;
 				},
 			},
