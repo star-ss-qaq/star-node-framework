@@ -1,16 +1,6 @@
 import { IncomingMessage } from "http";
-import EventEmitter, { Abortable } from "node:events";
 import { IncomingHttpHeaders } from "node:http";
-import { Socket } from "node:net";
-import {
-	Duplex,
-	ReadableIteratorOptions,
-	ReadableOperatorOptions,
-	Readable,
-	PipeOptions,
-} from "node:stream";
-import { ByteReadableStream, toAsyncStreamable } from "node:stream/iter";
-import { WritableStream, TransformStream } from "node:stream/web";
+import { Readable } from "node:stream";
 import { CallProp } from "../../server/types.js";
 
 export class MookReq extends Readable implements IncomingMessage {

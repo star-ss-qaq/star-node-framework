@@ -6,7 +6,7 @@ import { PassThroughReadable } from "./utils/pass-through-readable.js";
 import { getInterceptors, Interceptor } from "../interceptor/index.js";
 import { ServerInstance } from "../runtime/type.js";
 import { parseRoute } from "../route/index.js";
-import { serverRender } from "../view/get-render/index.js";
+import { serverRender } from "../view/utils/index.js";
 import { CallProp } from "./types.js";
 
 export function createServerInstance(object: any) {

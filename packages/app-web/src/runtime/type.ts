@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import { type Readable } from "stream";
 import { paramMeta } from "../params/index.js";
 import { parseRoute, RouteType } from "../route/index.js";
 import { Method } from "../route/types.js";

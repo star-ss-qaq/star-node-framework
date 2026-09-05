@@ -1,4 +1,3 @@
-import "typescript";
 export enum VNodeType {
 	Element = 1,
 	Comment = 2,

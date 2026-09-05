@@ -1,4 +1,4 @@
-import { SFDevHook } from "@thestarweb/star-framework-cli";
+import { type SFDevHook } from "@thestarweb/star-framework-cli";
 import { createHttpServer } from "../runtime/index.js";
 import { AddInterceptor, Interceptor } from "../interceptor/index.js";
 import { middlewareToInterceptor } from "../interceptor/index.js";

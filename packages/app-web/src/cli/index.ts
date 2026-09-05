@@ -1,4 +1,4 @@
-import { SFPluging } from "@thestarweb/star-framework-cli";
+import { type SFPluging } from "@thestarweb/star-framework-cli";
 import { devServer } from "./dev-server.js";
 
 export function SFWebPluging(): SFPluging {

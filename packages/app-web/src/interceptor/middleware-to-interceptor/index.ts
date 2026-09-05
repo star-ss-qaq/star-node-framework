@@ -1,27 +1,10 @@
 import { ViteDevServer } from "vite";
 import { Interceptor } from "../types.js";
-import { createRequest, createResponse } from "node-mocks-http";
-import { ServerResponse } from "http";
-import { ResponseWithMeta } from "../../index.js";
-import {
-	OutgoingHttpHeaders,
-	OutgoingHttpHeader,
-	IncomingMessage,
-	OutgoingMessageEventMap,
-	IncomingMessageEventMap,
-} from "node:http";
-import { Socket } from "node:net";
-import {
-	Duplex,
-	PipeOptions,
-	Readable,
-	ReadableIteratorOptions,
-	ReadableOperatorOptions,
-} from "node:stream";
-import { Abortable } from "node:events";
-import { ByteReadableStream } from "node:stream/iter";
-import { WritableStream, TransformStream } from "node:stream/web";
+// @side-only server
+import { IncomingMessage } from "node:http";
+// @side-only server
 import { MookReq } from "./mook-req.js";
+// @side-only server
 import { MookRes } from "./mock-res.js";
 
 export function middlewareToInterceptor(

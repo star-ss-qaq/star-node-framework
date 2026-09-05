@@ -1,6 +1,7 @@
 import { OutgoingMessage, ServerResponse } from "node:http";
 import { Socket } from "node:net";
 import { ResponseWithMeta } from "../../return-types/response-with-meta.js";
+// @side-only server
 import { PassThrough } from "node:stream";
 
 export class MookRes extends OutgoingMessage implements ServerResponse {

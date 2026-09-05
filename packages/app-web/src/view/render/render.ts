@@ -1,3 +1,6 @@
+import { parseHtmlToVDom } from "../html/parse-html-to-v-dom.js";
+import { findRouteDom } from "../utils/index.js";
+
 export interface RenderInstance {
 	unMount?(): void;
 	updateProp?(newProp: any): void;
@@ -21,6 +24,7 @@ export interface IRender {
 	fetchResource?(): Promise<void> | void;
 	renderToString?(prop: any, chrild: RenderContext): string;
 	mount?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
+	hydrate?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
 }
 export class RenderContext {
 	private constructor(
@@ -30,7 +34,7 @@ export class RenderContext {
 		// 原因：比如一个layout命中了 但是下面的页面没有命中，但是layout切换页面时，layout本身不应该重新渲染，所以需要一开始给它一个占位的空姐点，然后更新这个空节点
 		private _child?: RenderContext,
 	) {}
-	private static createNoop() {
+	public static createNoop() {
 		return new RenderContext({}, {});
 	}
 	public static create(
@@ -63,6 +67,23 @@ export class RenderContext {
 				instance = this.render.mount(dom, this.prop, this._child);
 			} else if (this.render.renderToString) {
 				dom.innerHTML = this.render.renderToString(this.prop, this._child);
+			}
+		}
+		return new WarpRenderInstance(this, dom, instance);
+	}
+	hydrate(dom: HTMLElement) {
+		let instance: RenderInstance = {};
+		if (this._child) {
+			if (this.render.hydrate) {
+				instance = this.render.hydrate(dom, this.prop, this._child);
+			} else if (this.render.renderToString) {
+				// const vDom = parseHtmlToVDom(
+				// 	this.render.renderToString(this.prop, this._child),
+				// );
+				const routeDoms = findRouteDom(dom);
+				routeDoms.forEach((r) => this.child!.hydrate(r));
+			} else if (this.render.mount) {
+				instance = this.render.mount(dom, this.prop, this._child);
 			}
 		}
 		return new WarpRenderInstance(this, dom, instance);
