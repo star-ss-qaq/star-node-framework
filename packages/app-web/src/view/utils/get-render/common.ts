@@ -16,7 +16,7 @@ export async function createRenderContext(
 		]);
 		let render = RenderContext.create(view, data);
 		return layouts.reduceRight((previousValue, currentValue) => {
-			return RenderContext.create(currentValue, {}, previousValue);
+			return RenderContext.create(currentValue, undefined, previousValue);
 		}, render);
 	}
 }

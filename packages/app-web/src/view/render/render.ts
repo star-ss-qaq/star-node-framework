@@ -15,7 +15,11 @@ export class WarpRenderInstance {
 		this.conetxt._instances.push(this);
 	}
 	unMount() {
-		this.rawInstance.unMount?.();
+		if (this.rawInstance.unMount) {
+			this.rawInstance.unMount();
+		} else {
+			this.dom.innerHTML = "";
+		}
 		this.conetxt._instances.filter((i) => i !== this);
 	}
 }
