@@ -55,7 +55,10 @@ export async function loadViteConfig() {
 						[
 							(context) => {
 								const t = transformer(context);
-								return (node) => t.transformSourceFile(node);
+								if (/\.tsx?($|\?)/.test(id)) {
+									return (node) => t.transformSourceFile(node);
+								}
+								return (node) => node;
 							},
 							(context) => (node) => {
 								const sideOnly = crreateSideOnlyVisitor(
