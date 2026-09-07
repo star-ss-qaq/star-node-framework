@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { ServerConfig, ServerInstance, ServerInstanceConfig } from "./type.js";
 import type { Method } from "../route/types.js";
+import { Readable } from "stream";
 
 async function createHandle(instances: ServerInstanceConfig[]) {
 	return await Promise.all(
@@ -47,7 +48,19 @@ export async function createHttpServer(config: ServerConfig) {
 						res.setHeader(key, data as any);
 					});
 					if (ret.res) {
-						ret.res.pipe(res);
+						if (ret.res instanceof ReadableStream) {
+							// const read = ret.res.getReader();
+							// let t: ReadableStreamReadResult<any>;
+							// while ((t = await read.read())) {
+							// 	t.value;
+							// }
+							Readable.fromWeb(ret.res as any).pipe(res);
+							// for await (const item of ret.res) {
+							// 	//
+							// }
+						} else {
+							ret.res.pipe(res);
+						}
 					} else {
 						res.end();
 					}

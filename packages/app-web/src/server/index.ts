@@ -60,8 +60,12 @@ export function createServerInstance(object: any) {
 				method,
 				route,
 			});
-			let res: Readable | null;
-			if (data instanceof Readable) {
+			let res: ReadableStream | Readable | null;
+			if (data instanceof ReadableStream) {
+				res = data;
+			} else if (data instanceof TransformStream) {
+				res = data.readable;
+			} else if (data instanceof Readable) {
 				res = data;
 			} else if (data instanceof PassThrough) {
 				res = new PassThroughReadable(data);

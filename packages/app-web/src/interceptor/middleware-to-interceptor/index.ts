@@ -13,8 +13,8 @@ export function middlewareToInterceptor(
 	return (req, next) => {
 		return new Promise((resolve, reject) => {
 			try {
-				const _req: IncomingMessage = new MookReq(req);
-				middleware(_req, new MookRes(resolve), async () => {
+				const _req = new MookReq(req);
+				middleware(_req as any, new MookRes(_req, resolve) as any, async () => {
 					try {
 						resolve(await next(req));
 					} catch (e) {

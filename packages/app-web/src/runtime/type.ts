@@ -24,7 +24,7 @@ export interface ServerInstance {
 		| {
 				code: number;
 				header: any;
-				res: Readable | null;
+				res: Readable | ReadableStream | null;
 		  }
 		| undefined
 	>;
