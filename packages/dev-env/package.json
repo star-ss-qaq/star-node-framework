@@ -9,7 +9,8 @@
   "bin": {
     "sf-dev-env": "./active.js"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "@oxc-project/runtime": "^0.149.0"
+  },
   "license": "ISC"
 }
