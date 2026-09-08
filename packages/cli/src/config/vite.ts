@@ -3,12 +3,36 @@ import { loadConfig } from "./loadConfig.js";
 import { withTransform } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
 import { crreateSideOnlyVisitor } from "../ts-compiler/macro/index.js";
-import { SourceFile, TransformerFactory, visitEachChild } from "typescript";
+import {
+	Node,
+	SourceFile,
+	TransformerFactory,
+	visitEachChild,
+} from "typescript";
+import { SFModeConfig, SFPluging } from "../plugin/index.js";
 
 let viteConfig: UserConfig | null = null;
+export function getEnvironmentName(plugingName: string, modeName: string) {
+	return `${plugingName}$${modeName}`.replaceAll(/[^a-z0-9A-Z\$]/gi, "_");
+}
 export async function loadViteConfig() {
 	const config = await loadConfig();
+	const environmentNameToConfig: Record<
+		string,
+		{ plugin: SFPluging; mode: string; config: SFModeConfig }
+	> = {};
+	const customEnvironment: UserConfig["environments"] = {};
+	config.pluging.forEach(
+		(i) =>
+			i.mode &&
+			Object.entries(i.mode).forEach(([mode, config]) => {
+				const envName = getEnvironmentName(i.name, mode);
+				environmentNameToConfig[envName] = { plugin: i, mode, config };
+				customEnvironment[envName] = config.environments || {};
+			}),
+	);
 	viteConfig = {
+		environments: customEnvironment,
 		plugins: [
 			{
 				name: "sf:main",
@@ -52,15 +76,16 @@ export async function loadViteConfig() {
 					if (!["js", "jsx", "ts", "tsx"].includes(op?.moduleType as any)) {
 						return;
 					}
-					// this.environment.name;
+					const side =
+						environmentNameToConfig[this.environment.name]?.config.side || [];
 					const factory: TransformerFactory<SourceFile>[] = [
 						(context) => (node) => {
 							const sideOnly = crreateSideOnlyVisitor(
-								op?.ssr ? ["server" as any] : [],
+								Array.isArray(side) ? side : [side],
 							);
-							const visitor: Visitor = (node: Node) => {
-								return visitEachChild(
-									sideOnly(node, context.factory, {}),
+							const visitor = <T extends Node>(node: T): T => {
+								return visitEachChild<T>(
+									sideOnly<T>(node, context.factory, {}) as T,
 									visitor,
 									context,
 								);

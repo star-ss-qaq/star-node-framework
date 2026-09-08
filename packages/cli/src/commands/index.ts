@@ -5,8 +5,12 @@ import {
 	mergeConfig,
 	RunnableDevEnvironment,
 } from "vite";
-import { getConfig, loadConfig } from "../config/loadConfig.js";
-import { loadViteConfig } from "../config/vite.js";
+import {
+	getConfig,
+	loadConfig,
+	getEnvironmentName,
+	loadViteConfig,
+} from "../config/index.js";
 import { SFPluging } from "../plugin/index.js";
 import { callWithHook } from "./call-with-hook.js";
 import { TypeInfo } from "./type.js";
@@ -70,7 +74,6 @@ class SFCli {
 		const viteConfig = mergeConfig(await loadViteConfig(), {
 			appType: "custom",
 			server: { middlewareMode: true },
-			environments: { [pType.type]: {} },
 			plugins: [
 				{
 					name: "sf:hot",
@@ -94,7 +97,10 @@ class SFCli {
 			viteConfig,
 		);
 		hook.onViteServerInited?.(viteServer);
-		const env = viteServer.environments[pType.type];
+		const env =
+			viteServer.environments[
+				getEnvironmentName(pType.plugin.name, pType.type)
+			] || viteServer.environments.ssr;
 		if (!isRunnableDevEnvironment(env)) {
 			throw new Error("Environment配置异常");
 		}

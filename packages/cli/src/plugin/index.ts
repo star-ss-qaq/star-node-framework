@@ -1,6 +1,8 @@
 import {
 	DevEnvironment,
+	EnvironmentOptions,
 	InlineConfig,
+	ResolvedConfig,
 	type RunnableDevEnvironment,
 	ViteDevServer,
 } from "vite";
@@ -21,7 +23,9 @@ export interface SFModeConfig {
 		fnName: string;
 	};
 	dev?: SFDevHook | (() => SFDevHook);
-	environments?: string | string[];
+	environments?: Partial<
+		EnvironmentOptions & ResolvedConfig["environments"][string]
+	>;
 	side?: StarFrameworkSide | StarFrameworkSide[];
 }
 export interface SFPluging {

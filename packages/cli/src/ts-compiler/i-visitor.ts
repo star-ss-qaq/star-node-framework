@@ -1,7 +1,7 @@
 import { Node, NodeFactory } from "typescript";
 
-export type Visrior = (
-	node: Node,
+export type Visrior = <T extends Node>(
+	node: T,
 	factory: NodeFactory,
 	scorp: any,
-) => Node | Node[];
+) => T | Node[];

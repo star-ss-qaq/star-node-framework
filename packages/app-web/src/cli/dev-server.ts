@@ -1,4 +1,7 @@
-import { type SFDevHook } from "@thestarweb/star-framework-cli";
+import {
+	getEnvironmentName,
+	type SFDevHook,
+} from "@thestarweb/star-framework-cli";
 import { createHttpServer } from "../runtime/index.js";
 import { AddInterceptor, Interceptor } from "../interceptor/index.js";
 import { middlewareToInterceptor } from "../interceptor/index.js";
@@ -33,7 +36,9 @@ export function devServer(): SFDevHook {
 	return {
 		onViteServerInited(vite) {
 			viteInterceptor = middlewareToInterceptor(vite.middlewares);
-			vite.transformIndexHtml;
+			// TODO 暂时像用这种“硬核”方式让middlewares使用特定环境
+			vite.environments.client =
+				vite.environments[getEnvironmentName("sf-web", "browser")];
 			_vite = vite;
 		},
 		async start(main) {
