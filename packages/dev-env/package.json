@@ -5,9 +5,7 @@
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type":"module",
-  "scripts": {
-    "build": "tsc"
-  },
+  "scripts": {},
   "bin": {
     "sf-dev-env": "./active.js"
   },

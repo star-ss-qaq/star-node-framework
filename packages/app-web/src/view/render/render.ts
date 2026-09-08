@@ -26,9 +26,17 @@ export class WarpRenderInstance {
 
 export interface IRender {
 	fetchResource?(): Promise<void> | void;
-	renderToString?(prop: any, chrild: RenderContext): string;
-	mount?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
-	hydrate?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
+	renderToString?(prop: any, chrild: RenderContext): string | Promise<string>;
+	mount?(
+		dom: HTMLElement,
+		prop: any,
+		chrild: RenderContext,
+	): RenderInstance | Promise<RenderInstance>;
+	hydrate?(
+		dom: HTMLElement,
+		prop: any,
+		chrild: RenderContext,
+	): RenderInstance | Promise<RenderInstance>;
 }
 export class RenderContext {
 	private constructor(
@@ -57,37 +65,43 @@ export class RenderContext {
 	get child() {
 		return this._child;
 	}
-	warpRenderToString() {
+	async warpRenderToString() {
 		if (this._child) {
-			return this.render.renderToString?.(this.prop, this._child) || "";
+			return (await this.render.renderToString?.(this.prop, this._child)) || "";
 		}
 		return "";
 	}
-	private _instances: WarpRenderInstance[] = [];
-	mount(dom: HTMLElement) {
+	/**
+	 * @internal
+	 */
+	_instances: WarpRenderInstance[] = [];
+	async mount(dom: HTMLElement) {
 		let instance: RenderInstance = {};
 		if (this._child) {
 			if (this.render.mount) {
-				instance = this.render.mount(dom, this.prop, this._child);
+				instance = await this.render.mount(dom, this.prop, this._child);
 			} else if (this.render.renderToString) {
-				dom.innerHTML = this.render.renderToString(this.prop, this._child);
+				dom.innerHTML = await this.render.renderToString(
+					this.prop,
+					this._child,
+				);
 			}
 		}
 		return new WarpRenderInstance(this, dom, instance);
 	}
-	hydrate(dom: HTMLElement) {
+	async hydrate(dom: HTMLElement) {
 		let instance: RenderInstance = {};
 		if (this._child) {
 			if (this.render.hydrate) {
-				instance = this.render.hydrate(dom, this.prop, this._child);
+				instance = await this.render.hydrate(dom, this.prop, this._child);
 			} else if (this.render.renderToString) {
 				// const vDom = parseHtmlToVDom(
 				// 	this.render.renderToString(this.prop, this._child),
 				// );
 				const routeDoms = findRouteDom(dom);
-				routeDoms.forEach((r) => this.child!.hydrate(r));
+				await Promise.all(routeDoms.map((r) => this.child!.hydrate(r)));
 			} else if (this.render.mount) {
-				instance = this.render.mount(dom, this.prop, this._child);
+				instance = await this.render.mount(dom, this.prop, this._child);
 			}
 		}
 		return new WarpRenderInstance(this, dom, instance);
@@ -95,7 +109,8 @@ export class RenderContext {
 	unmountAll() {
 		this._instances.forEach((i) => i.unMount());
 	}
-	updateTree(node: RenderContext) {
+	async updateTree(node: RenderContext) {
+		const p: any[] = [];
 		const reRendeRange = new Set<WarpRenderInstance>();
 		if (this._render !== node._render) {
 			this._render = node._render;
@@ -105,7 +120,7 @@ export class RenderContext {
 			if (!this._child || !node._child) {
 				this._child = node._child;
 			} else {
-				this._child?.updateTree(node._child);
+				p.push(this._child?.updateTree(node._child));
 			}
 			if (node._child) {
 				this._instances.forEach((i) => {
@@ -127,7 +142,8 @@ export class RenderContext {
 		}
 		reRendeRange.forEach((i) => {
 			i.unMount();
-			this.mount(i.dom);
+			p.push(this.mount(i.dom));
 		});
+		await Promise.all(p);
 	}
 }

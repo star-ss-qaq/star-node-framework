@@ -5,7 +5,7 @@ import { readFileSync, existsSync, write } from "node:fs";
 import { resolve as resolvePath, dirname, extname, normalize } from "node:path";
 
 const viteServer = await createServer({
-	server: { hmr: false, watch: null },
+	server: { hmr: false, watch: null, ws: false },
 	optimizeDeps: { noDiscovery: true, include:[] },
 	appType: "custom",
 	configFile: process.env.VITE_CONFIG_FILE,
