@@ -4,18 +4,12 @@
   "description": "Star Node Framework route",
   "main": "dist/index.js",
   "types": "src/index.ts",
-  "type":"module",
+  "type": "module",
   "scripts": {},
   "bin": {
     "sf-dev-env": "./active.js"
   },
-  "dependencies": {
-    "koffi": "^3.1.4",
-    "ts-node": "^10.0.0"
-  },
-  "peerDependencies": {},
-  "devDependencies": {
-    "@deepkit/type-compiler": "^1.0.0"
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "license": "ISC"
 }

@@ -4,24 +4,26 @@
   "description": "Star Framework CLI",
   "main": "dist/index.js",
   "types": "src/index.ts",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "tsc -p tsconfig.build.json --watch",
+    "build": "tspc -p tsconfig.build.json",
+    "dev": "tspc -p tsconfig.build.json --watch",
     "test": "vitest"
   },
-  "bin":{
+  "bin": {
     "sf-cli": "./bin/sf-cli.js"
   },
   "dependencies": {
-    "ts-node": "^10.9.2",
     "@thestarweb/star-framework-di": "^0.0.1",
     "@thestarweb/ts-helper": "^0.0.1",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
     "vite": "^8.2.1"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
-    "typescript": "^5.1.6",
+    "ts-patch": "^4.0.1",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   },
   "license": "ISC"

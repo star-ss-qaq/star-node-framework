@@ -4,16 +4,16 @@
   "description": "Star Node Framework Param Helper",
   "main": "dist/index.js",
   "types": "src/index.ts",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "tsc -p tsconfig.build.json --watch",
+    "build": "tspc -p tsconfig.build.json",
+    "dev": "tspc -p tsconfig.build.json --watch",
     "test": "vitest"
   },
   "dependencies": {
     "@deepkit/type": "^1.0.19",
     "@thestarweb/star-framework-utils": "^0.0.1",
-    "radix3": "^1.1.2"
+    "tslib": "^2.8.1"
   },
   "peerDependencies": {
     "@deepkit/type": "^1.0.19"
@@ -23,7 +23,8 @@
     "@deepkit/vite": "^1.0.19",
     "@types/node": "^26.0.1",
     "ts-node": "^10.0.0",
-    "typescript": "^5.1.6",
+    "ts-patch": "^4.0.1",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   },
   "license": "ISC"

@@ -4,17 +4,20 @@
   "description": "Star Node Framework utils",
   "main": "dist/index.js",
   "types": "src/index.ts",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "tsc -p tsconfig.build.json --watch",
+    "build": "tspc -p tsconfig.build.json",
+    "dev": "tspc -p tsconfig.build.json --watch",
     "test": "vitest"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^26.0.1",
-    "typescript": "^5.1.6",
+    "ts-patch": "^4.0.1",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "tslib": "^2.8.1"
+  }
 }
