@@ -14,9 +14,7 @@ const defaultHtmlEl: HTMLVNode[] = [
 		createEelment("head", {}, [createEelment("title", {}, [])]),
 		createEelment("body", {}, [
 			createEelment(routeElementSelector, {}, []),
-			createEelment("script", { type: "module" }, [
-				"import 'sf:app-main:sf-web:browser';",
-			]),
+			createEelment("script", { type: "module" }, ["import 'sf:main';"]),
 		]),
 	]),
 ];
@@ -35,8 +33,7 @@ export const serverRender: Interceptor = async (prop, next) => {
 	if (render) {
 		const nextRet = await nextPromise;
 		return new ResponseWithMeta(
-			// `<${routeElementSelector}>${render.warpRenderToString()}</${routeElementSelector}><script type="module">import 'sf:app-main:sf-web:browser';console.log(111)</script>`,
-			renderVDomToString(defaultHtmlEl, {
+			await renderVDomToString(defaultHtmlEl, {
 				customizeChildrenRender: (dom) => {
 					if (dom.tagName === routeElementSelector) {
 						return () => render.warpRenderToString();

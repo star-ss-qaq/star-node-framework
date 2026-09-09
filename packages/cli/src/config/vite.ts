@@ -10,6 +10,7 @@ import {
 	visitEachChild,
 } from "typescript";
 import { SFModeConfig, SFPluging } from "../plugin/index.js";
+import { join } from "path";
 
 let viteConfig: UserConfig | null = null;
 export function getEnvironmentName(plugingName: string, modeName: string) {
@@ -28,11 +29,30 @@ export async function loadViteConfig() {
 			Object.entries(i.mode).forEach(([mode, config]) => {
 				const envName = getEnvironmentName(i.name, mode);
 				environmentNameToConfig[envName] = { plugin: i, mode, config };
-				customEnvironment[envName] = config.environments || {};
+				customEnvironment[envName] = {
+					input: "sf:main",
+					...config.environments,
+					build: {
+						outDir: join("dist", i.name, mode),
+						...config.environments?.build,
+					},
+				};
 			}),
 	);
+	function getModeMainCode(mode: SFModeConfig) {
+		return [
+			`import main from "sf:app-main";`,
+			`import {${mode.createApp.fnName} as createApp} from ${JSON.stringify(mode.createApp.import)};`,
+			"export default createApp(main);",
+		].join("\n");
+	}
 	viteConfig = {
 		environments: customEnvironment,
+		// @ts-ignore
+		input: "sf:main",
+		rolldownOptions: {
+			input: "sf:main",
+		},
 		plugins: [
 			{
 				name: "sf:main",
@@ -48,23 +68,18 @@ export async function loadViteConfig() {
 							lines.push("const main = new Main();");
 						}
 						lines.push("export default main;");
-						return lines.join("\n");
+						return { code: lines.join("\n"), moduleType: "ts" };
 					}
-					if (id.startsWith("sf:app-main:")) {
-						const [, , plugin, mode] = id.split(":");
-						const pluginInfo = config.pluging.find((p) => p.name === plugin)
-							?.mode?.[mode];
-						if (pluginInfo) {
-							return [
-								`import main from "sf:app-main";`,
-								`import {${pluginInfo.createApp.fnName} as createApp} from ${JSON.stringify(pluginInfo.createApp.import)};`,
-								"export default createApp(main);",
-							].join("\n");
+					if (id === "sf:main") {
+						const config =
+							environmentNameToConfig[this.environment.name]?.config;
+						if (config) {
+							return { code: getModeMainCode(config), moduleType: "ts" };
 						}
 					}
 				},
 				resolveId(id) {
-					if (id === "sf:app-main" || id.startsWith("sf:app-main:")) {
+					if (id === "sf:app-main" || id === "sf:main") {
 						return id;
 					}
 				},
@@ -72,42 +87,47 @@ export async function loadViteConfig() {
 			{
 				name: "ts",
 				enforce: "pre",
-				transform(code: string, id: string, op) {
-					if (!["js", "jsx", "ts", "tsx"].includes(op?.moduleType as any)) {
-						return;
-					}
-					const side =
-						environmentNameToConfig[this.environment.name]?.config.side || [];
-					const factory: TransformerFactory<SourceFile>[] = [
-						(context) => (node) => {
-							const sideOnly = crreateSideOnlyVisitor(
-								Array.isArray(side) ? side : [side],
-							);
-							const visitor = <T extends Node>(node: T): T => {
-								return visitEachChild<T>(
-									sideOnly<T>(node, context.factory, {}) as T,
-									visitor,
-									context,
+
+				transform: {
+					filter: { id: /(j|t|m)sx?$/ },
+					handler(code: string, id: string, op) {
+						if (!["js", "jsx", "ts", "tsx"].includes(op?.moduleType as any)) {
+							return;
+						}
+						// if (!/(j|t|m)sx?$/.test(id)) return;
+						const side =
+							environmentNameToConfig[this.environment.name]?.config.side || [];
+						const factory: TransformerFactory<SourceFile>[] = [
+							(context) => (node) => {
+								const sideOnly = crreateSideOnlyVisitor(
+									Array.isArray(side) ? side : [side],
 								);
-							};
-							return visitor(node) as SourceFile;
-						},
-					];
-					if (/\.tsx?($|\?)/.test(id)) {
-						factory.push((context) => {
-							const t = transformer(context);
-							return (node) => t.transformSourceFile(node);
-						});
-					}
-					const data = withTransform(code, factory, id);
-					return data;
+								const visitor = <T extends Node>(node: T): T => {
+									return visitEachChild<T>(
+										sideOnly<T>(node, context.factory, {}) as T,
+										visitor,
+										context,
+									);
+								};
+								return visitor(node) as SourceFile;
+							},
+						];
+						if (/\.tsx?($|\?)/.test(id)) {
+							factory.push((context) => {
+								const t = transformer(context);
+								return (node) => t.transformSourceFile(node);
+							});
+						}
+						const data = withTransform(code, factory, id);
+						return data;
+					},
 				},
 			},
 		],
 		resolve: {
 			alias: {},
 		},
-	};
+	} as UserConfig;
 	if (process.env.SF_DEV) {
 		const { getProjectAliasObj } =
 			// @ts-ignore

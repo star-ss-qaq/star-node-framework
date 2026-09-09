@@ -1,5 +1,7 @@
 import { buildApp, Command, Options } from "@thestarweb/star-framework-app-cli";
 import {
+	build,
+	createBuilder,
 	createServer,
 	isRunnableDevEnvironment,
 	mergeConfig,
@@ -11,9 +13,10 @@ import {
 	getEnvironmentName,
 	loadViteConfig,
 } from "../config/index.js";
-import { SFPluging } from "../plugin/index.js";
+import { BuildRes, SFPluging } from "../plugin/index.js";
 import { callWithHook } from "./call-with-hook.js";
 import { TypeInfo } from "./type.js";
+import { RolldownOutput } from "rolldown";
 
 class SFCli {
 	private _allTypes?: Map<string, SFPluging[]>;
@@ -108,10 +111,7 @@ class SFCli {
 			let app: any = null;
 			try {
 				app = await callWithHook(
-					(env) =>
-						env.runner
-							.import(`sf:app-main:${pType.plugin.name}:${pType.type}`)
-							.then((m) => m.default),
+					(env) => env.runner.import(`sf:main`).then((m) => m.default),
 					hook.loadMainModule,
 					env as RunnableDevEnvironment,
 				);
@@ -127,6 +127,44 @@ class SFCli {
 			}
 		}
 		loadMainMoudle();
+	}
+	@Command("build")
+	async build(
+		@Options()
+		type?: string,
+	) {
+		const viteConfig = await loadViteConfig();
+		const builder = await createBuilder(viteConfig);
+		const types = this.parseType(type, false);
+		const tRes: Record<string, Record<string, BuildRes>> = Object.create(null);
+		const plugins = new Set<SFPluging>();
+		for (let item of types) {
+			const e =
+				builder.environments[getEnvironmentName(item.plugin.name, item.type)];
+			if (e) {
+				const res = (await builder.build(e)) as RolldownOutput;
+				const buildRes: BuildRes = {
+					main: [],
+					assets: [],
+				};
+				res.output.forEach((o) => {
+					if ((o as any).isEntry) {
+						buildRes.main.push(o.fileName);
+					} else {
+						buildRes.assets.push(o.fileName);
+					}
+				});
+				await item.plugin.onAnyModeBuild?.(item.type, buildRes);
+				if (!tRes[item.plugin.name]) {
+					tRes[item.plugin.name] = {};
+				}
+				tRes[item.plugin.name][item.type] = buildRes;
+				plugins.add(item.plugin);
+			}
+		}
+		for (let p of plugins) {
+			await p.onAllModeBuildEnd?.(Object.keys(tRes[p.name]), tRes[p.name]);
+		}
 	}
 }
 export default async function main() {

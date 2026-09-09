@@ -28,7 +28,13 @@ export interface SFModeConfig {
 	>;
 	side?: StarFrameworkSide | StarFrameworkSide[];
 }
+export interface BuildRes {
+	main: string[];
+	assets: string[];
+}
 export interface SFPluging {
 	name: string;
 	mode?: Record<string, SFModeConfig>;
+	onAnyModeBuild?: (mode: string, buildRes: BuildRes) => any;
+	onAllModeBuildEnd?: (modes: string[], res: Record<string, BuildRes>) => any;
 }
