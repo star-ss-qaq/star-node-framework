@@ -20,7 +20,7 @@ export class WarpRenderInstance {
 		} else {
 			this.dom.innerHTML = "";
 		}
-		this.conetxt._instances.filter((i) => i !== this);
+		this.conetxt._instances = this.conetxt._instances.filter((i) => i !== this);
 	}
 }
 
@@ -109,41 +109,64 @@ export class RenderContext {
 	unmountAll() {
 		this._instances.forEach((i) => i.unMount());
 	}
-	async updateTree(node: RenderContext) {
-		const p: any[] = [];
-		const reRendeRange = new Set<WarpRenderInstance>();
+	async updateTree(node: RenderContext, allowRender = true) {
+		let shoudldRerender = false;
+		const unRerenderTask: (() => any)[] = [];
 		if (this._render !== node._render) {
 			this._render = node._render;
-			this._instances.forEach((i) => reRendeRange.add(i));
-		}
-		if (this._child !== node._child) {
-			if (!this._child || !node._child) {
-				this._child = node._child;
-			} else {
-				p.push(this._child?.updateTree(node._child));
-			}
-			if (node._child) {
-				this._instances.forEach((i) => {
-					if (i.rawInstance.updateChild) {
-						i.rawInstance.updateChild(node._child!);
-					}
-				});
+			if (allowRender) {
+				shoudldRerender = true;
 			}
 		}
 		if (this._prop !== node._prop) {
 			this._prop = node._prop;
-			this._instances.forEach((i) => {
-				if (i.rawInstance.updateProp) {
-					i.rawInstance.updateProp(node._prop);
+			if (allowRender) {
+				if (this._instances.every((i) => i.rawInstance.updateProp)) {
+					unRerenderTask.push(() => {
+						this._instances.forEach((i) => {
+							i.rawInstance.updateProp!(node._prop);
+						});
+					});
 				} else {
-					reRendeRange.add(i);
+					shoudldRerender = true;
 				}
-			});
+			}
 		}
-		reRendeRange.forEach((i) => {
-			i.unMount();
-			p.push(this.mount(i.dom));
-		});
-		await Promise.all(p);
+		let childUpdated = false;
+		let shoudUpdateSubtree = false;
+		if (this._child !== node._child) {
+			if (!this._child || !node._child) {
+				this._child = node._child;
+			} else {
+				shoudUpdateSubtree = true;
+			}
+			if (this._instances.every((i) => i.rawInstance.updateChild)) {
+				childUpdated = true;
+				unRerenderTask.push(() => {
+					this._instances.forEach((i) => {
+						if (i.rawInstance.updateChild) {
+							i.rawInstance.updateChild(node._child!);
+						}
+					});
+				});
+			}
+		}
+		let isRerender = allowRender && shoudldRerender;
+		if (isRerender) {
+			await Promise.all(
+				this._instances.map(async (i) => {
+					i.unMount();
+					await this.mount(i.dom);
+				}),
+			);
+		} else {
+			await Promise.all(unRerenderTask.map((i) => i()));
+		}
+		if (shoudUpdateSubtree) {
+			await this._child?.updateTree(
+				node._child!,
+				allowRender && !childUpdated && !isRerender,
+			);
+		}
 	}
 }

@@ -10,6 +10,7 @@ export {
 	HTMLRender,
 	type IRender,
 	RenderContext,
+	type RenderInstance,
 } from "./view/index.js";
 // @side-only server
 export { createServerFactory } from "./server/index.js";
