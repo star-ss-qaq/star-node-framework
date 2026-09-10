@@ -11,6 +11,7 @@ export {
 	type IRender,
 	RenderContext,
 	type RenderInstance,
+	type WarpRenderInstance,
 } from "./view/index.js";
 // @side-only server
 export { createServerFactory } from "./server/index.js";

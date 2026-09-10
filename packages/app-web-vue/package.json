@@ -1,0 +1,29 @@
+{
+  "name": "@thestarweb/star-framework-app-web-vue",
+  "version": "0.0.1",
+  "description": "Star Framework Web App VUE pluging",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tspc -p tsconfig.build.json",
+    "dev": "tspc -p tsconfig.build.json --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@thestarweb/star-framework-app-web": "^0.0.1",
+    "@thestarweb/star-framework-utils": "^0.0.1",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "tslib": "^2.8.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.41"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "ts-patch": "^4.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  },
+  "license": "ISC"
+}

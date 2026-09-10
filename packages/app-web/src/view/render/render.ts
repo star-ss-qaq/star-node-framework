@@ -27,21 +27,13 @@ export class WarpRenderInstance {
 export interface IRender {
 	fetchResource?(): Promise<void> | void;
 	renderToString?(prop: any, chrild: RenderContext): string | Promise<string>;
-	mount?(
-		dom: HTMLElement,
-		prop: any,
-		chrild: RenderContext,
-	): RenderInstance | Promise<RenderInstance>;
-	hydrate?(
-		dom: HTMLElement,
-		prop: any,
-		chrild: RenderContext,
-	): RenderInstance | Promise<RenderInstance>;
+	mount?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
+	hydrate?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
 }
 export class RenderContext {
 	private constructor(
-		public _render: IRender,
-		public _prop: any,
+		private _render: IRender,
+		private _prop: any,
 		// 结尾始终要跟一个空的RenderContext
 		// 原因：比如一个layout命中了 但是下面的页面没有命中，但是layout切换页面时，layout本身不应该重新渲染，所以需要一开始给它一个占位的空姐点，然后更新这个空节点
 		private _child?: RenderContext,
@@ -75,33 +67,32 @@ export class RenderContext {
 	 * @internal
 	 */
 	_instances: WarpRenderInstance[] = [];
-	async mount(dom: HTMLElement) {
+	mount(dom: HTMLElement) {
 		let instance: RenderInstance = {};
 		if (this._child) {
 			if (this.render.mount) {
-				instance = await this.render.mount(dom, this.prop, this._child);
+				instance = this.render.mount(dom, this.prop, this._child);
 			} else if (this.render.renderToString) {
-				dom.innerHTML = await this.render.renderToString(
-					this.prop,
-					this._child,
-				);
+				Promise.resolve(
+					this.render.renderToString(this.prop, this._child),
+				).then((html) => (dom.innerHTML = html));
 			}
 		}
 		return new WarpRenderInstance(this, dom, instance);
 	}
-	async hydrate(dom: HTMLElement) {
+	hydrate(dom: HTMLElement) {
 		let instance: RenderInstance = {};
 		if (this._child) {
 			if (this.render.hydrate) {
-				instance = await this.render.hydrate(dom, this.prop, this._child);
+				instance = this.render.hydrate(dom, this.prop, this._child);
 			} else if (this.render.renderToString) {
 				// const vDom = parseHtmlToVDom(
 				// 	this.render.renderToString(this.prop, this._child),
 				// );
 				const routeDoms = findRouteDom(dom);
-				await Promise.all(routeDoms.map((r) => this.child!.hydrate(r)));
+				routeDoms.forEach((r) => this.child!.hydrate(r));
 			} else if (this.render.mount) {
-				instance = await this.render.mount(dom, this.prop, this._child);
+				instance = this.render.mount(dom, this.prop, this._child);
 			}
 		}
 		return new WarpRenderInstance(this, dom, instance);
@@ -152,6 +143,13 @@ export class RenderContext {
 			}
 		}
 		let isRerender = allowRender && shoudldRerender;
+
+		if (shoudUpdateSubtree) {
+			await this._child?.updateTree(
+				node._child!,
+				allowRender && !childUpdated && !isRerender,
+			);
+		}
 		if (isRerender) {
 			await Promise.all(
 				this._instances.map(async (i) => {
@@ -161,12 +159,6 @@ export class RenderContext {
 			);
 		} else {
 			await Promise.all(unRerenderTask.map((i) => i()));
-		}
-		if (shoudUpdateSubtree) {
-			await this._child?.updateTree(
-				node._child!,
-				allowRender && !childUpdated && !isRerender,
-			);
 		}
 	}
 }
