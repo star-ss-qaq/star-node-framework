@@ -2,7 +2,7 @@ import { HTMLVElement, HTMLVNode, VNodeType } from "./types.js";
 
 export function renderVDomToString(
 	vDom: HTMLVNode | HTMLVNode[],
-	config: {
+	config?: {
 		customizeRender?: (
 			dom: HTMLVNode,
 		) => null | undefined | ((dom: HTMLVNode) => string);

@@ -1,6 +1,6 @@
 import { HTMLVElement, HTMLVNode, VNodeType } from "./types.js";
 
-export function createEelment(
+export function createElement(
 	type: string,
 	prop: any,
 	...children: (HTMLVNode | HTMLVNode[])[]

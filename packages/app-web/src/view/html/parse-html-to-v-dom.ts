@@ -150,7 +150,6 @@ export function parseHtmlToVDom(html: string, { keepWhitespace = false } = {}) {
 							}
 							pos++;
 						}
-						console.log(pos, html[pos]);
 						children.push({
 							type: VNodeType.Outher,
 							text: html.substring(startDoctype, pos + 1),

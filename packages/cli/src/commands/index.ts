@@ -17,6 +17,7 @@ import { BuildRes, SFPluging } from "../plugin/index.js";
 import { callWithHook } from "./call-with-hook.js";
 import { TypeInfo } from "./type.js";
 import { RolldownOutput } from "rolldown";
+import { join } from "path";
 
 class SFCli {
 	private _allTypes?: Map<string, SFPluging[]>;
@@ -99,7 +100,7 @@ class SFCli {
 			hook.createViteServer,
 			viteConfig,
 		);
-		hook.onViteServerInited?.(viteServer);
+		await hook.onViteServerInited?.(viteServer);
 		const env =
 			viteServer.environments[
 				getEnvironmentName(pType.plugin.name, pType.type)
@@ -107,6 +108,7 @@ class SFCli {
 		if (!isRunnableDevEnvironment(env)) {
 			throw new Error("Environment配置异常");
 		}
+		await hook.onViteEnvironmentLoaded?.(env);
 		async function loadMainMoudle() {
 			let app: any = null;
 			try {
@@ -146,6 +148,7 @@ class SFCli {
 				const buildRes: BuildRes = {
 					main: [],
 					assets: [],
+					distPath: join(process.cwd(), e.config.build.outDir),
 				};
 				res.output.forEach((o) => {
 					if ((o as any).isEntry) {

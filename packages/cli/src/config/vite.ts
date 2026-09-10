@@ -22,7 +22,7 @@ export async function loadViteConfig() {
 		string,
 		{ plugin: SFPluging; mode: string; config: SFModeConfig }
 	> = {};
-	const customEnvironment: UserConfig["environments"] = {};
+	const customEnvironment: any = {};
 	config.pluging.forEach(
 		(i) =>
 			i.mode &&
@@ -123,6 +123,7 @@ export async function loadViteConfig() {
 					},
 				},
 			},
+			...config.pluging.flatMap((i) => i.vitePlugin).filter(Boolean),
 		],
 		resolve: {
 			alias: {},

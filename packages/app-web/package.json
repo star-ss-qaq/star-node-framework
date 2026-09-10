@@ -16,6 +16,7 @@
     "@thestarweb/star-framework-param-helper": "^0.0.1",
     "@thestarweb/star-framework-route": "^0.0.1",
     "@thestarweb/star-framework-utils": "^0.0.1",
+    "@thestarweb/star-framework-web-runtime-node":"^0.0.1",
     "node-mocks-http": "^1.18.1",
     "qs": "6.15.3",
     "tslib": "^2.8.1",
