@@ -49,7 +49,10 @@ export const createServerRender: (
 				}),
 				{
 					...nextRet,
-					header: { "content-type": "text/html", ...nextRet.header },
+					header: {
+						"content-type": "text/html; charset=utf-8",
+						...nextRet.header,
+					},
 				},
 			);
 		}
