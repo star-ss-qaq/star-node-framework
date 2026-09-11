@@ -52,6 +52,14 @@ export function SFWebPluging({
 				},
 			},
 		},
+		siteOnlyConfig: [
+			{
+				import: "@thestarweb/star-framework-app-web",
+				name: ["Get", "Post", "Put", "Delete"],
+				side: "server",
+				type: "include",
+			},
+		],
 		vitePlugin: {
 			name: "sf-web-html",
 			resolveId: {

@@ -2,7 +2,10 @@ import { UserConfig, Visitor } from "vite";
 import { loadConfig } from "./loadConfig.js";
 import { withTransform } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
-import { crreateSideOnlyVisitor } from "../ts-compiler/macro/index.js";
+import {
+	crreateSideOnlyVisitor,
+	SiteOnlyConfigRule,
+} from "../ts-compiler/macro/index.js";
 import {
 	Node,
 	SourceFile,
@@ -23,9 +26,9 @@ export async function loadViteConfig() {
 		{ plugin: SFPluging; mode: string; config: SFModeConfig }
 	> = {};
 	const customEnvironment: any = {};
-	config.pluging.forEach(
-		(i) =>
-			i.mode &&
+	const siteOnlyConfig: SiteOnlyConfigRule[] = [];
+	config.pluging.forEach((i) => {
+		i.mode &&
 			Object.entries(i.mode).forEach(([mode, config]) => {
 				const envName = getEnvironmentName(i.name, mode);
 				environmentNameToConfig[envName] = { plugin: i, mode, config };
@@ -37,8 +40,11 @@ export async function loadViteConfig() {
 						...config.environments?.build,
 					},
 				};
-			}),
-	);
+			});
+		if (i.siteOnlyConfig) {
+			siteOnlyConfig.push(...i.siteOnlyConfig);
+		}
+	});
 	function getModeMainCode(mode: SFModeConfig) {
 		return [
 			`import main from "sf:app-main";`,
@@ -50,8 +56,8 @@ export async function loadViteConfig() {
 		environments: customEnvironment,
 		// @ts-ignore
 		input: "sf:main",
-		rolldownOptions: {
-			input: "sf:main",
+		build: {
+			minify: false,
 		},
 		plugins: [
 			{
@@ -101,6 +107,7 @@ export async function loadViteConfig() {
 							(context) => (node) => {
 								const sideOnly = crreateSideOnlyVisitor(
 									Array.isArray(side) ? side : [side],
+									{ rules: siteOnlyConfig },
 								);
 								const visitor = <T extends Node>(node: T): T => {
 									return visitEachChild<T>(

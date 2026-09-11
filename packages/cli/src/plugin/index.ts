@@ -1,6 +1,5 @@
 import { DeepPartial } from "@thestarweb/ts-helper";
 import {
-	DevEnvironment,
 	EnvironmentOptions,
 	InlineConfig,
 	Plugin,
@@ -8,6 +7,7 @@ import {
 	type RunnableDevEnvironment,
 	ViteDevServer,
 } from "vite";
+import type { SiteOnlyConfigRule } from "../ts-compiler/index.js";
 
 export interface SFDevHook {
 	createViteServer?(
@@ -41,4 +41,5 @@ export interface SFPluging {
 	vitePlugin?: Plugin | Plugin[];
 	onAnyModeBuild?: (mode: string, buildRes: BuildRes) => any;
 	onAllModeBuildEnd?: (modes: string[], res: Record<string, BuildRes>) => any;
+	siteOnlyConfig?: SiteOnlyConfigRule[];
 }

@@ -34,7 +34,7 @@ import {
 	SiteOnlyConfig,
 	SiteOnlyConfigRule,
 } from "./types.js";
-
+export * from "./types.js";
 const defaultRule: SiteOnlyConfigRule[] = [
 	{
 		import: "",
@@ -104,7 +104,9 @@ export function crreateSideOnlyVisitor(
 					if (isIdentifier(t)) {
 						name = t.text;
 						// TODO：增加从哪导入和重命名的判断
-						const item = rule.find((r) => r.name === name);
+						const item = rule.find((r) =>
+							Array.isArray(r.name) ? r.name.includes(name) : r.name === name,
+						);
 						if (item) {
 							const reqSide = toRel(item.side);
 							const isMatchSide = Array.isArray(reqSide);
@@ -155,37 +157,6 @@ export function crreateSideOnlyVisitor(
 				}
 				if (!/^[ \t]*\/\//.test(line) && line) break;
 			}
-			// if (start === -1) return false;
-			// while (["\r", "\n"].includes(text[start])) start++;
-			// const lines = sourceFile.getLineStarts();
-			// let cIndex = lines.findIndex((c) => c > start) - 1;
-			// if (lines.includes(start)) {
-			// 	console.log(111, lines, node.kind);
-			// }
-			// console.log(start);
-			// while (cIndex > 0) {
-			// 	const line = text.substring(lines[cIndex - 1], lines[cIndex]);
-			// 	const metch = /^[ \t]*\/\/[ \t]*@side-(only|omit) (.+)/.exec(line);
-			// 	if (metch) {
-			// 		if (!/^[ \t]$/.test(text.substring(lines[cIndex], start))) {
-			// 			console.log("before has", text.substring(lines[cIndex], start));
-			// 			return false;
-			// 		}
-			// 		const nextLine = lines[cIndex + 1] || text.length;
-			// 		if (
-			// 			node.end < nextLine &&
-			// 			!/^[ \t\r\n]*$/.test(text.substring(node.end, nextLine))
-			// 		) {
-			// 			console.log("after has", text.substring(node.end, nextLine));
-			// 			return false;
-			// 		}
-			// 		const [mode, prop] = metch;
-			// 		const [side] = prop.split(",");
-			// 		return true;
-			// 	}
-			// 	if (!/^[ \t]*\/\//.test(line)) break;
-			// 	cIndex--;
-			// }
 		} catch {}
 		return false;
 	}
