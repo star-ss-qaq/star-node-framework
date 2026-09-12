@@ -1,6 +1,7 @@
 import {
 	Expression,
 	isArrayLiteralExpression,
+	isIdentifier,
 	isLiteralTypeNode,
 	isNumericLiteral,
 	isStringLiteral,
@@ -17,6 +18,9 @@ export function parseExpressionToValue<T = any>(node: Expression): T {
 	if (node.kind === SyntaxKind.TrueKeyword) return true as any;
 	if (isArrayLiteralExpression(node))
 		return node.elements.map(parseExpressionToValue) as any;
+	if (isIdentifier(node)) {
+		return node.escapedText as T;
+	}
 	throw new Error(`can not parse expression with node kind ${node.kind}`);
 }
 
