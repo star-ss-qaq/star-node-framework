@@ -9,12 +9,18 @@ export enum ScopeVarType {
 	Array = 5, // 暂不使用
 	FunctionReturn = 6,
 	NewObject = 7, // 暂不使用
+	Customize = 8,
 	Unknow = -1,
 }
 export type ScopeVar =
 	| {
 			type: ScopeVarType.Const;
 			value: any;
+	  }
+	| {
+			type: ScopeVarType.Import;
+			filePath: string;
+			varPath: string[];
 	  }
 	| {
 			type: ScopeVarType.Import;
@@ -35,11 +41,20 @@ export type ScopeVar =
 	  }
 	| { type: ScopeVarType.FunctionReturn }
 	| { type: ScopeVarType.NewObject }
+	| {
+			type: ScopeVarType.Customize;
+			meta: any;
+	  }
 	| { type: ScopeVarType.Unknow };
 export type Scope = Record<string, ScopeVar>;
 
-export type TSVisrior = <T extends Node>(
+export interface TSVisriorConfig {
+	enableScop?: boolean;
+	globalScop?: Scope;
+}
+export type TSVisrior = (<T extends Node>(
 	node: T,
 	factory: NodeFactory,
 	scope: ScopeHelper,
-) => T | Node[];
+) => T | Node[]) &
+	TSVisriorConfig;

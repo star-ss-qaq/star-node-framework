@@ -124,18 +124,8 @@ export class ScopeHelper {
 				return this.scope[v];
 			}
 		} else if (isPropertyAccessExpression(node)) {
-			const arr = [parseExpressionToValue(node.name)];
-			let { expression } = node;
-			while (isPropertyAccessExpression(expression)) {
-				arr.push(parseExpressionToValue(expression.name));
-				expression = expression.expression;
-			}
-			if (isExpression(expression)) {
-				const v = parseExpressionToValue(expression);
-				if (this.scope[v]) {
-					return getPathFromScope(arr.reverse(), this.scope[v]);
-				}
-			}
+			const name = parseExpressionToValue(node.name);
+			return findFromScopeVar(name, this.parseExpression(node.expression));
 		}
 		return defalutUnknow;
 	}
