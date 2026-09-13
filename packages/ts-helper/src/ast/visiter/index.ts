@@ -25,7 +25,6 @@ export function tsVisitorHandel(
 	Object.entries(globalScop).forEach(([k, s]) => {
 		currentScope.scope[k] = s;
 	});
-	console.log(currentScope.scope);
 	const innerVisitor = <T extends Node>(node: T): T => {
 		let flagIsBlock = false;
 		if (enableScop && isBlock(node)) {
@@ -103,3 +102,4 @@ export function setTSVisriorConfig(
 	return Object.assign(v, config);
 }
 export { ScopeVarType, TSVisrior, TSVisriorConfig } from "./type.js";
+export { ScopeHelper } from "./scope.js";

@@ -27,7 +27,6 @@ export enum RootParamType {
 	Object,
 	Single,
 	SingleObject,
-	// TODO 需要支持这种
 	SingleArray,
 }
 type ObjectableRootParamType =

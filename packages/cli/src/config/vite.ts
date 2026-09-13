@@ -1,17 +1,15 @@
 import { UserConfig, Visitor } from "vite";
 import { loadConfig } from "./loadConfig.js";
-import { withTransform } from "@thestarweb/ts-helper";
+import {
+	createTransformerFactoryByTsVistor,
+	withTransform,
+} from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
 import {
 	crreateSideOnlyVisitor,
 	SiteOnlyConfigRule,
 } from "../ts-compiler/macro/index.js";
-import {
-	Node,
-	SourceFile,
-	TransformerFactory,
-	visitEachChild,
-} from "typescript";
+import { SourceFile, TransformerFactory } from "typescript";
 import { SFModeConfig, SFPluging } from "../plugin/index.js";
 import { join } from "path";
 
@@ -104,20 +102,11 @@ export async function loadViteConfig() {
 						const side =
 							environmentNameToConfig[this.environment.name]?.config.side || [];
 						const factory: TransformerFactory<SourceFile>[] = [
-							(context) => (node) => {
-								const sideOnly = crreateSideOnlyVisitor(
-									Array.isArray(side) ? side : [side],
-									{ rules: siteOnlyConfig },
-								);
-								const visitor = <T extends Node>(node: T): T => {
-									return visitEachChild<T>(
-										sideOnly<T>(node, context.factory, {}) as T,
-										visitor,
-										context,
-									);
-								};
-								return visitor(node) as SourceFile;
-							},
+							createTransformerFactoryByTsVistor(
+								crreateSideOnlyVisitor(Array.isArray(side) ? side : [side], {
+									rules: siteOnlyConfig,
+								}),
+							),
 						];
 						if (/\.tsx?($|\?)/.test(id)) {
 							factory.push((context) => {

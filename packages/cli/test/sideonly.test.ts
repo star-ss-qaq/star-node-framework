@@ -7,14 +7,26 @@ import {
 	visitEachChild,
 	Visitor,
 } from "typescript";
-import { createTransformTool } from "@thestarweb/ts-helper";
+import {
+	createTransformerFactoryByTsVistor,
+	createTransformTool,
+} from "@thestarweb/ts-helper";
 import { crreateSideOnlyVisitor } from "../src/ts-compiler/macro/index.js";
 
 describe("测试SideOnly相关功能是否能正常工作", () => {
 	const sideOnly = crreateSideOnlyVisitor(
 		//@ts-ignore
 		["currentSide"],
-		{},
+		{
+			rules: [
+				{
+					import: "hello",
+					name: ["Aa", "default"],
+					side: "currentSide",
+					type: "exclude",
+				},
+			],
+		},
 	);
 	function f(t: string) {
 		return t
@@ -26,20 +38,10 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 	}
 	function check(source: string, res: string) {
 		const t = createTransformTool([
-			(context) => (node) => {
-				const visitor: Visitor = (node) => {
-					return visitEachChild(
-						// @ts-ignore
-						sideOnly(node, context.factory, {}),
-						visitor,
-						context,
-					);
-				};
-				return visitor(node) as SourceFile;
-			},
+			createTransformerFactoryByTsVistor(sideOnly),
 		]);
 		const { code } = t(source);
-		expect(f(code)).toBe(res);
+		expect(f(code)).toBe(f(res));
 	}
 	test("SFSiteOnly函数版本", async () => {
 		check("const a=SFSiteOnly('currentSide','hello');", "const a='hello';");
@@ -121,5 +123,19 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 	test("属性饰器", async () => {
 		check("class A{@SFSideOnly('currentSide')a:string;}", "class A{a:string;}");
 		check("class A{@SFSideOnly('otherSide')a:string;}", "class A{}");
+	});
+	test("自定义规则", async () => {
+		check(
+			"import { Aa } from 'hello';class A{@Aa('currentSide')a:string;}",
+			"import { Aa } from 'hello';class A{}",
+		);
+		check(
+			"import AWA from 'hello';class A{@AWA('currentSide')a:string;}",
+			"import AWA from 'hello';class A{}",
+		);
+		check(
+			"import { Ba } from 'hello';class A{@Ba()a:string;}",
+			"import { Ba } from 'hello';class A{@Ba()a:string;}",
+		);
 	});
 });
