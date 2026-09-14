@@ -4,6 +4,8 @@ import {
 	isIdentifier,
 	isLiteralTypeNode,
 	isNumericLiteral,
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	isStringLiteral,
 	isTupleTypeNode,
 	SyntaxKind,
@@ -20,6 +22,18 @@ export function parseExpressionToValue<T = any>(node: Expression): T {
 		return node.elements.map(parseExpressionToValue) as any;
 	if (isIdentifier(node)) {
 		return node.escapedText as T;
+	}
+	if (isObjectLiteralExpression(node)) {
+		const ret: any = {};
+		node.properties.forEach((i) => {
+			if (
+				isPropertyAssignment(i) &&
+				(isIdentifier(i.name) || isStringLiteral(i.name))
+			) {
+				ret[i.name.text] = parseExpressionToValue(i.initializer);
+			}
+		});
+		return ret;
 	}
 	throw new Error(`can not parse expression with node kind ${node.kind}`);
 }

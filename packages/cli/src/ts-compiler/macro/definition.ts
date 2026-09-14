@@ -1,4 +1,4 @@
-import { MethodRemoveMode } from "./types.js";
+import { MethodRemoveOption } from "./types.js";
 
 declare global {
 	interface StarFrameworkSideConfig {}
@@ -23,10 +23,10 @@ declare global {
 	function SFSiteOnly(
 		side: StarFrameworkSideSwith,
 		/**
-		 * 对于MethodDecorator，不匹配时时删除还是修改成一个抛出异常的方法
-		 * @default delete
+		 * 对于MethodDecorator,设置删除的模式
+		 * @default 'all'
 		 */
-		mode: MethodRemoveMode,
+		mode: MethodRemoveOption,
 	): MethodDecorator;
 
 	/**

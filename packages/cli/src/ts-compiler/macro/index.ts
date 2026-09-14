@@ -3,14 +3,9 @@ import {
 	Node,
 	MethodDeclaration,
 	isCallExpression,
-	isDecorator,
 	isIdentifier,
 	isStringLiteral,
-	PropertyDeclaration,
-	ClassDeclaration,
 	isMethodDeclaration,
-	Expression,
-	NodeArray,
 	SyntaxKind,
 	ModifierLike,
 	isPropertyDeclaration,
@@ -25,160 +20,70 @@ import {
 import {
 	parseExpressionToValue,
 	parseLiteralTypeNodeToValue,
-	type ScopeHelper,
 	ScopeVarType,
 	setTSVisriorConfig,
 } from "@thestarweb/ts-helper";
 import "./definition.js";
-import {
-	FromArg,
-	FromArgWithSelf,
-	SiteOnlyConfig,
-	SiteOnlyConfigRule,
-} from "./types.js";
+import { SiteOnlyConfig, SiteOnlyConfigRule } from "./types.js";
+import { isKeepInSide } from "./utils/side-check.js";
+import { shouldRemoveAsDeclaration } from "./utils/declaration-helper.js";
+import { shouldRemoverByComment } from "./utils/comment.js";
+import { removeMethod } from "./utils/remove-method.js";
 export * from "./types.js";
 const defaultRule: SiteOnlyConfigRule[] = [
 	{
 		import: "",
 		name: "SFSideOnly",
 		side: { arg: 0 },
-		mode: { arg: 1 },
+		whenDecorator: { alwaysRemoveSelf: true },
+		whenClassDecorator: { alwaysRemoveSelf: true },
+		whenMethodDeclaration: {
+			alwaysRemoveSelf: true,
+			removeMode: { arg: 1, default: "all" },
+		},
+		whenPropertyDeclaration: { alwaysRemoveSelf: true },
 		type: "include",
 		importent: Number.MAX_VALUE,
-		removeSelf: true,
 	},
 	{
 		import: "",
 		name: "SFSideOmit",
 		side: { arg: 0 },
-		mode: { arg: 1 },
+		whenDecorator: { alwaysRemoveSelf: true },
+		whenClassDecorator: { alwaysRemoveSelf: true },
+		whenMethodDeclaration: {
+			alwaysRemoveSelf: true,
+			removeMode: { arg: 1, default: "all" },
+		},
+		whenPropertyDeclaration: { alwaysRemoveSelf: true },
 		type: "exclude",
 		importent: Number.MAX_VALUE,
-		removeSelf: true,
 	},
 ];
 
 export function crreateSideOnlyVisitor(
-	side: StarFrameworkSide[],
+	currentSide: StarFrameworkSide[],
 	config: SiteOnlyConfig = {},
 ) {
 	const rule = [...defaultRule, ...(config.rules || [])];
-	function isKeepInSide<T, F>(
-		reqSide: StarFrameworkSide | StarFrameworkSide[],
-		type: "exclude" | "include" | "SFSiteOnly" | "SFSiteOmit",
-		keepValue: T = true as any,
-		omitValue: F = false as any,
-	) {
-		const isMatchSide = Array.isArray(reqSide)
-			? reqSide.some((i) => side.includes(i))
-			: side.includes(reqSide);
-		// include且isMatchSide时或exclude且!isMatchSide
-		const isKeep =
-			isMatchSide !== (type === "exclude" || type === "SFSiteOmit");
-		return isKeep ? keepValue : omitValue;
-	}
-	function shouldRemove(
-		node: MethodDeclaration | PropertyDeclaration | ClassDeclaration,
-		scopeHelper: ScopeHelper,
-	) {
-		const removeDecorator = new Set<ModifierLike>();
-		const res = node.modifiers
-			?.map((m) => {
-				if (isDecorator(m)) {
-					let name = "";
-					const args: NodeArray<Expression>[] = [];
-					const toRel = <T extends FromArgWithSelf<any>>(
-						a: T,
-					): T extends FromArg<infer R> ? R : T => {
-						if (a && typeof a === "object" && "arg" in a) {
-							const { arg } = a;
-							if (Array.isArray(arg)) {
-								return parseExpressionToValue(args[arg[0]][arg[1]]);
-							}
-							return parseExpressionToValue(args[0][arg as number]);
-						}
-						return a as any;
-					};
-					let t = m.expression;
-					while (isCallExpression(t)) {
-						args.push(t.arguments);
-						t = t.expression;
-					}
-					const witchCall = scopeHelper.parseExpression(t);
-					if (witchCall.type === ScopeVarType.Import) {
-						const { filePath, varPath } = witchCall;
-						const name = varPath.join(".") || "*";
-						const item = rule.find(
-							(r) =>
-								(Array.isArray(r.import)
-									? r.import.includes(filePath)
-									: r.import === filePath) &&
-								(Array.isArray(r.name)
-									? r.name.includes(name)
-									: r.name === name),
-						);
-						if (item) {
-							const reqSide = toRel(item.side);
-							const shouldRemove = isKeepInSide(
-								reqSide,
-								item.type || "exclude",
-								false,
-								true,
-							);
-							const mode = toRel(item.mode || "delete") || "delete";
-							if (item.removeSelf) {
-								removeDecorator.add(m);
-							}
-							return {
-								importent: item.importent || 0,
-								shouldRemove,
-								mode,
-							};
-						}
-					}
-				}
-				return null;
-			})
-			.filter(Boolean)
-			.sort((a, b) => (b!.importent || 0) - (a!.importent || 0));
-		return {
-			mode: res?.[0]?.shouldRemove ? res[0].mode : "",
-			newDecorator: node.modifiers?.filter((i) => !removeDecorator.has(i)),
-		};
-	}
+
 	let sourceFile: SourceFile;
-	function shouldRemoverByComment(node: Node) {
-		try {
-			const text = sourceFile.getFullText();
-			let code = text.substring(node.pos, node.end);
-			const lines = code.replaceAll("\r", "\n").split("\n");
-			for (let line of lines) {
-				const metch = /^[ \t]*\/\/[ \t]*@side-(only|omit) (.+)/.exec(line);
-				if (metch) {
-					const [, mode, prop] = metch;
-					const [sideStrArr] = prop.split(" ");
-					return isKeepInSide(
-						sideStrArr.split(",") as StarFrameworkSide[],
-						mode == "only" ? "SFSiteOnly" : "SFSiteOmit",
-						false,
-						true,
-					);
-				}
-				if (!/^[ \t]*\/\//.test(line) && line) break;
-			}
-		} catch {}
-		return false;
-	}
 	return setTSVisriorConfig(
 		(node, factory, scopeHelper) => {
 			if (isSourceFile(node)) {
 				sourceFile = node;
-			} else if (shouldRemoverByComment(node)) {
+			} else if (shouldRemoverByComment(currentSide, node)) {
 				return undefined as any;
 			}
 			if (isClassDeclaration(node)) {
-				const t = shouldRemove(node, scopeHelper);
-				if (t.mode) {
+				const t = shouldRemoveAsDeclaration(
+					currentSide,
+					rule,
+					node,
+					"whenClassDecorator",
+					scopeHelper,
+				);
+				if (t.shouldRemove) {
 					return factory.updateClassDeclaration(
 						node,
 						t.newDecorator,
@@ -198,45 +103,24 @@ export function crreateSideOnlyVisitor(
 					);
 				}
 			} else if (isMethodDeclaration(node)) {
-				const t = shouldRemove(node, scopeHelper);
-				if (t.mode) {
-					if (t.mode === "throw") {
-						return factory.updateMethodDeclaration(
-							node,
-							t.newDecorator,
-							node.asteriskToken,
-							node.name,
-							node.questionToken,
-							node.typeParameters,
-							[
-								factory.createParameterDeclaration(
-									[],
-									factory.createToken(SyntaxKind.DotDotDotToken),
-									"prop",
-									undefined,
-									factory.createArrayTypeNode(
-										factory.createToken(SyntaxKind.AnyKeyword),
-									),
-								),
-							],
-							node.type,
-							factory.createBlock([
-								factory.createThrowStatement(
-									factory.createNewExpression(
-										factory.createIdentifier("Error"),
-										undefined,
-										[
-											factory.createStringLiteral(
-												"can not call this function in this side!",
-											),
-										],
-									),
-								),
-							]),
-						);
-					} else {
-						return [];
-					}
+				const t = shouldRemoveAsDeclaration(
+					currentSide,
+					rule,
+					node,
+					"whenMethodDeclaration",
+					scopeHelper,
+				);
+				if (t.shouldRemove) {
+					const config = t.rawRule.whenMethodDeclaration;
+					const removeMode = config?.removeMode
+						? t.toRel(config.removeMode)
+						: undefined;
+					return removeMethod(
+						removeMode || "all",
+						node,
+						factory,
+						t.newDecorator,
+					);
 				} else if (t.newDecorator?.length != node.modifiers?.length) {
 					return factory.updateMethodDeclaration(
 						node,
@@ -251,8 +135,14 @@ export function crreateSideOnlyVisitor(
 					);
 				}
 			} else if (isPropertyDeclaration(node)) {
-				const t = shouldRemove(node, scopeHelper);
-				if (t.mode) {
+				const t = shouldRemoveAsDeclaration(
+					currentSide,
+					rule,
+					node,
+					"whenPropertyDeclaration",
+					scopeHelper,
+				);
+				if (t.shouldRemove) {
 					return [];
 				} else if (t.newDecorator?.length != node.modifiers?.length) {
 					return factory.updatePropertyDeclaration(
@@ -274,6 +164,7 @@ export function crreateSideOnlyVisitor(
 							StarFrameworkSide | StarFrameworkSide[]
 						>(node.typeArguments[0]);
 						return isKeepInSide(
+							currentSide,
 							side,
 							name,
 							node.typeArguments[1],
@@ -295,7 +186,7 @@ export function crreateSideOnlyVisitor(
 								}
 							}
 						});
-						const key = side.find((i) => map[i]);
+						const key = currentSide.find((i) => map[i]);
 						return key
 							? map[key]
 							: factory.createToken(SyntaxKind.NeverKeyword);
@@ -311,6 +202,7 @@ export function crreateSideOnlyVisitor(
 							StarFrameworkSide | StarFrameworkSide[]
 						>(node.arguments[0]);
 						return isKeepInSide(
+							currentSide,
 							side,
 							name,
 							node.arguments[1],
@@ -331,7 +223,7 @@ export function crreateSideOnlyVisitor(
 								}
 							}
 						});
-						const key = side.find((i) => map[i]);
+						const key = currentSide.find((i) => map[i]);
 						return key ? map[key] : factory.createIdentifier("undefined");
 					}
 				}

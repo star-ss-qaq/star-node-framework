@@ -24,6 +24,7 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 					name: ["Aa", "default"],
 					side: "currentSide",
 					type: "exclude",
+					whenDecorator: { enable: true },
 				},
 			],
 		},
@@ -116,7 +117,7 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 		check("class A{@SFSideOnly('currentSide')a(){}}", "class A{a(){}}");
 		check("class A{@SFSideOnly('otherSide')a(){}}", "class A{}");
 		check(
-			"class A{@SFSideOnly('otherSide','throw')a(){}}",
+			"class A{@SFSideOnly('otherSide',{prop:true,body:'throw'})a(){}}",
 			'class A{a(...prop:any[]){throw new Error("can not call this function in this side!");}}',
 		);
 	});
@@ -124,7 +125,7 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 		check("class A{@SFSideOnly('currentSide')a:string;}", "class A{a:string;}");
 		check("class A{@SFSideOnly('otherSide')a:string;}", "class A{}");
 	});
-	test("自定义规则", async () => {
+	test("自定义修饰器规则", async () => {
 		check(
 			"import { Aa } from 'hello';class A{@Aa('currentSide')a:string;}",
 			"import { Aa } from 'hello';class A{}",

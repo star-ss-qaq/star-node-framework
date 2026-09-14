@@ -1,6 +1,29 @@
-export type FromArg<T> = { arg: number | [number, number] };
+export type FromArg<T> = { arg: number | [number, number]; default?: T };
 export type FromArgWithSelf<T> = T | FromArg<T>;
-export type MethodRemoveMode = "delete" | "throw";
+
+export type MethodRemoveOption =
+	| "all"
+	| { prop?: boolean; body?: boolean | "throw"; returnType?: boolean };
+
+interface DecoratorHandle {
+	/**
+	 * @default false
+	 */
+	alwaysRemoveSelf?: FromArgWithSelf<boolean>;
+	/**
+	 * @default true
+	 */
+	enable?: boolean;
+}
+interface ClassDecoratorHandle extends DecoratorHandle {}
+interface PropertyDecoratorHandle extends DecoratorHandle {}
+interface MethodDecoratorHandle extends DecoratorHandle {
+	removeMode?: FromArgWithSelf<MethodRemoveOption>;
+}
+interface CallHandle {
+	mode?: FromArgWithSelf<"replace" | "remove">;
+}
+
 export interface SiteOnlyConfigRule {
 	/**
 	 * 从哪导入
@@ -20,22 +43,20 @@ export interface SiteOnlyConfigRule {
 	 */
 	type?: "include" | "exclude";
 	/**
-	 * 移除的方式
-	 * - delete 删除修饰的方法
-	 * - throw 保留定义，但是目前实际使用还是有些差异，不建议使用，需要之后再做规范
-	 * @default delete
+	 * 作为修饰时需要做啥,如果声明了特定修饰器的工作那么以特定模式为准
 	 */
-	mode?: FromArgWithSelf<MethodRemoveMode>;
+	whenDecorator?: DecoratorHandle;
+	whenClassDecorator?: ClassDecoratorHandle;
+	whenPropertyDeclaration?: PropertyDecoratorHandle;
+	whenMethodDeclaration?: MethodDecoratorHandle;
+	whenCall?: CallHandle;
+	whenNew?: CallHandle;
 	/**
 	 * 规则优先级
 	 * 当多个修饰器规则同时作用于一个目标时有效
 	 */
 	importent?: number;
-	/**
-	 * 色否移除修饰器本身，这个也需要再确认使用场景
-	 * @default false
-	 */
-	removeSelf?: boolean;
+	call?: { replase: { import: string; name: string } };
 }
 export interface SiteOnlyConfig {
 	rules?: SiteOnlyConfigRule[];
