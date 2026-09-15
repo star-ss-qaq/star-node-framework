@@ -1,10 +1,12 @@
 import {
 	parseExpressionToValue,
 	ScopeHelper,
+	type ScopeVar,
 	ScopeVarType,
 } from "@thestarweb/ts-helper";
 import { Expression, isCallExpression, NodeArray } from "typescript";
 import { FromArg, FromArgWithSelf, SiteOnlyConfigRule } from "../types.js";
+import { findRule } from "./find-rule.js";
 
 export function isKeepInSide<T, F>(
 	currentSide: StarFrameworkSide[],
@@ -23,63 +25,48 @@ export function isKeepInSide<T, F>(
 export function shouldRemove(
 	currentSide: StarFrameworkSide[],
 	filterRule: SiteOnlyConfigRule[],
-	m: Expression,
-	scopeHelper: ScopeHelper,
+	v: ScopeVar,
 ) {
-	if (filterRule.length > 0) {
-		const args: NodeArray<Expression>[] = [];
-		const toRel = <T extends FromArgWithSelf<any>>(
-			a: T,
-		): T extends FromArg<infer R> ? R : T => {
-			console.log(a);
-			if (a && typeof a === "object" && "arg" in a) {
-				const { arg } = a;
-				if (Array.isArray(arg)) {
-					return (
-						parseExpressionToValue(args[arg[0]][arg[1]]) ||
-						(a as FromArg<any>).default
-					);
-				}
+	const args: NodeArray<Expression>[] = [];
+	const toRel = <T extends FromArgWithSelf<any>>(
+		a: T,
+	): T extends FromArg<infer R> ? R : T => {
+		if (a && typeof a === "object" && "arg" in a) {
+			const { arg } = a;
+			if (Array.isArray(arg)) {
 				return (
-					parseExpressionToValue(args[0][arg as number]) ||
+					parseExpressionToValue(args[arg[0]][arg[1]]) ||
 					(a as FromArg<any>).default
 				);
 			}
-			return a as any;
-		};
-		let t = m;
-		// TODO 理论上这里从哪call的也需要优化追踪,当然 这并不是什么非常需要的东西
-		while (isCallExpression(t)) {
-			args.push(t.arguments);
-			t = t.expression;
-		}
-		const witchCall = scopeHelper.parseExpression(t);
-		if (witchCall.type === ScopeVarType.Import) {
-			const { filePath, varPath } = witchCall;
-			const name = varPath.join(".") || "*";
-			const item = filterRule.find(
-				(r) =>
-					(Array.isArray(r.import)
-						? r.import.includes(filePath)
-						: r.import === filePath) &&
-					(Array.isArray(r.name) ? r.name.includes(name) : r.name === name),
+			return (
+				parseExpressionToValue(args[0][arg as number]) ||
+				(a as FromArg<any>).default
 			);
-			if (item) {
-				const reqSide = toRel(item.side);
-				const shouldRemove = isKeepInSide(
-					currentSide,
-					reqSide,
-					item.type || "exclude",
-					false,
-					true,
-				);
-				return {
-					importent: item.importent || 0,
-					shouldRemove,
-					raw: item,
-					toRel,
-				};
-			}
 		}
+		return a as any;
+	};
+	let t = v;
+	while (t.type === ScopeVarType.FunctionReturn) {
+		const { rawExpression, bindScope } = t;
+		args.push(t.rawExpression.arguments);
+		t = bindScope.parseExpression(rawExpression.expression);
+	}
+	const item = findRule(filterRule, t);
+	if (item) {
+		const reqSide = toRel(item.side);
+		const shouldRemove = isKeepInSide(
+			currentSide,
+			reqSide,
+			item.type || "exclude",
+			false,
+			true,
+		);
+		return {
+			importent: item.importent || 0,
+			shouldRemove,
+			raw: item,
+			toRel,
+		};
 	}
 }

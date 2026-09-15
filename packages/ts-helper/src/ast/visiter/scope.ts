@@ -8,6 +8,8 @@ import {
 	isIdentifier,
 	isObjectBindingPattern,
 	isPropertyAccessExpression,
+	isQualifiedName,
+	QualifiedName,
 	SyntaxKind,
 } from "typescript";
 import { Scope, ScopeVar, ScopeVarType } from "./type.js";
@@ -100,7 +102,7 @@ export class ScopeHelper {
 	constructor(private _parent?: ScopeHelper) {
 		this.scope = Object.create(_parent?.scope || null);
 	}
-	parseExpression(node: Expression | undefined): ScopeVar {
+	parseExpression(node: Expression | QualifiedName | undefined): ScopeVar {
 		if (!node) {
 			return defalutUnknow;
 		}
@@ -117,6 +119,8 @@ export class ScopeHelper {
 			}
 			return {
 				type: ScopeVarType.FunctionReturn,
+				rawExpression: node,
+				bindScope: this,
 			};
 		} else if (isIdentifier(node)) {
 			const v = parseExpressionToValue(node);
@@ -126,6 +130,11 @@ export class ScopeHelper {
 		} else if (isPropertyAccessExpression(node)) {
 			const name = parseExpressionToValue(node.name);
 			return findFromScopeVar(name, this.parseExpression(node.expression));
+		} else if (isQualifiedName(node)) {
+			return findFromScopeVar(
+				parseExpressionToValue(node.right),
+				this.parseExpression(node.left),
+			);
 		}
 		return defalutUnknow;
 	}

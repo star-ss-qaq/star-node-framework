@@ -43,6 +43,9 @@ export async function loadViteConfig() {
 			siteOnlyConfig.push(...i.siteOnlyConfig);
 		}
 	});
+	const sideOnly = crreateSideOnlyVisitor({
+		rules: siteOnlyConfig,
+	});
 	function getModeMainCode(mode: SFModeConfig) {
 		return [
 			`import main from "sf:app-main";`,
@@ -103,9 +106,7 @@ export async function loadViteConfig() {
 							environmentNameToConfig[this.environment.name]?.config.side || [];
 						const factory: TransformerFactory<SourceFile>[] = [
 							createTransformerFactoryByTsVistor(
-								crreateSideOnlyVisitor(Array.isArray(side) ? side : [side], {
-									rules: siteOnlyConfig,
-								}),
+								sideOnly(Array.isArray(side) ? side : [side]),
 							),
 						];
 						if (/\.tsx?($|\?)/.test(id)) {

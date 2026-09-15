@@ -7,6 +7,7 @@ import {
 	isImportDeclaration,
 	isNewExpression,
 	isStringLiteral,
+	isTypeReferenceNode,
 	ScriptTarget,
 } from "typescript";
 import {
@@ -155,6 +156,57 @@ describe("visiter工具", () => {
 							expect(
 								scope.parseExpression(node.expression),
 								"识别属性访问",
+							).toEqual(globalADefain);
+						}
+						return node;
+					},
+					{
+						enableScop: true,
+						globalScop: {
+							global: globalDefain,
+						},
+					},
+				),
+			),
+		]);
+	});
+	test("能追踪类型定义", async () => {
+		const globalADefain: ScopeVar = {
+			type: ScopeVarType.Customize,
+			meta: "test",
+		};
+		const globalDefain: ScopeVar = {
+			type: ScopeVarType.Record,
+			value: { a: globalADefain },
+		};
+		withTransform("let a:global;", [
+			createTransformerFactoryByTsVistor(
+				setTSVisriorConfig(
+					(node, f, scope) => {
+						if (isTypeReferenceNode(node)) {
+							expect(scope.parseExpression(node.typeName), "带.的访问").toEqual(
+								globalDefain,
+							);
+						}
+						return node;
+					},
+					{
+						enableScop: true,
+						globalScop: {
+							global: globalDefain,
+						},
+					},
+				),
+			),
+		]);
+		withTransform("let a:global.a;", [
+			createTransformerFactoryByTsVistor(
+				setTSVisriorConfig(
+					(node, f, scope) => {
+						if (isTypeReferenceNode(node)) {
+							expect(
+								scope.parseExpression(node.typeName),
+								"识别直接访问",
 							).toEqual(globalADefain);
 						}
 						return node;

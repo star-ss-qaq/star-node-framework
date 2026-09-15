@@ -14,21 +14,19 @@ import {
 import { crreateSideOnlyVisitor } from "../src/ts-compiler/macro/index.js";
 
 describe("测试SideOnly相关功能是否能正常工作", () => {
-	const sideOnly = crreateSideOnlyVisitor(
-		//@ts-ignore
-		["currentSide"],
-		{
-			rules: [
-				{
-					import: "hello",
-					name: ["Aa", "default"],
-					side: "currentSide",
-					type: "exclude",
-					whenDecorator: { enable: true },
-				},
-			],
-		},
-	);
+	const sideOnly = crreateSideOnlyVisitor({
+		rules: [
+			{
+				import: "hello",
+				name: ["Aa", "default"],
+				//@ts-ignore
+				side: "currentSide",
+				type: "exclude",
+				whenDecorator: { enable: true },
+				whenCallExpression: { mode: "remove" },
+			},
+		],
+	});
 	function f(t: string) {
 		return t
 			.replaceAll("\r", "")
@@ -37,57 +35,84 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 			.replaceAll(/[ \t]+(\W)/g, "$1")
 			.replaceAll(/[ \t]+/g, " ");
 	}
-	function check(source: string, res: string) {
+	function check(source: string, res: string, message?: string) {
 		const t = createTransformTool([
-			createTransformerFactoryByTsVistor(sideOnly),
+			createTransformerFactoryByTsVistor(
+				sideOnly(
+					//@ts-ignore
+					["currentSide"],
+				),
+			),
 		]);
 		const { code } = t(source);
-		expect(f(code)).toBe(f(res));
+		expect(f(code), message).toBe(f(res));
 	}
-	test("SFSiteOnly函数版本", async () => {
-		check("const a=SFSiteOnly('currentSide','hello');", "const a='hello';");
-		check("const a=SFSiteOnly('outherSide','hello');", "const a=undefined;");
+	test("side-only注释版本", async () => {
+		check(
+			"export const a = 1;\n// @side-only currentSide\nexport const b = 2;",
+			"export const a = 1;\n// @side-only currentSide\nexport const b = 2;",
+			"side匹配时，不要移除",
+		);
+		check(
+			"export const a = 1;\n// @side-only outherSide\nexport const b = 2;",
+			"export const a = 1;",
+			"side不匹配时，需要移除",
+		);
+	});
+	test("side-omit注释版本", async () => {
+		check(
+			"export const a = 1;\n// @side-omit currentSide\nexport const b = 2;",
+			"export const a = 1;",
+		);
+		check(
+			"export const a = 1;\n// @side-omit outherSide\nexport const b = 2;",
+			"export const a = 1;\n// @side-omit outherSide\nexport const b = 2;",
+		);
+	});
+	test("SFSideOnly函数版本", async () => {
+		check("const a=SFSideOnly('currentSide','hello');", "const a='hello';");
+		check("const a=SFSideOnly('outherSide','hello');", "const a=undefined;");
 
 		check(
-			"const a=SFSiteOnly(['outherSide','currentSide'],'hello');",
+			"const a=SFSideOnly(['outherSide','currentSide'],'hello');",
 			"const a='hello';",
 		);
 		check(
-			"const a=SFSiteOnly(['notSide','outherSide'],'hello');",
+			"const a=SFSideOnly(['notSide','outherSide'],'hello');",
 			"const a=undefined;",
 		);
 	});
-	test("SFSiteOnly类型定义版本", async () => {
-		check("let a:SFSiteOnly<'currentSide',string>;", "let a:string;");
-		check("let a:SFSiteOnly<'outherSide',string>;", "let a:never;");
+	test("SFSideOnly类型定义版本", async () => {
+		check("let a:SFSideOnly<'currentSide',string>;", "let a:string;");
+		check("let a:SFSideOnly<'outherSide',string>;", "let a:never;");
 		check(
-			"let a:SFSiteOnly<['currentSide','outherSide'],string>;",
+			"let a:SFSideOnly<['currentSide','outherSide'],string>;",
 			"let a:string;",
 		);
-		check("let a:SFSiteOnly<['outherSide','qaq'],string>;", "let a:never;");
+		check("let a:SFSideOnly<['outherSide','qaq'],string>;", "let a:never;");
 	});
 
-	test("SFSiteOmit函数版本", async () => {
-		check("const a=SFSiteOmit('currentSide','hello');", "const a=undefined;");
-		check("const a=SFSiteOmit('outherSide','hello');", "const a='hello';");
+	test("SFSideOmit函数版本", async () => {
+		check("const a=SFSideOmit('currentSide','hello');", "const a=undefined;");
+		check("const a=SFSideOmit('outherSide','hello');", "const a='hello';");
 
 		check(
-			"const a=SFSiteOmit(['outherSide','currentSide'],'hello');",
+			"const a=SFSideOmit(['outherSide','currentSide'],'hello');",
 			"const a=undefined;",
 		);
 		check(
-			"const a=SFSiteOmit(['notSide','outherSide'],'hello');",
+			"const a=SFSideOmit(['notSide','outherSide'],'hello');",
 			"const a='hello';",
 		);
 	});
 	test("SFSiteOmit类型定义版本", async () => {
-		check("let a:SFSiteOmit<'currentSide',string>;", "let a:never;");
-		check("let a:SFSiteOmit<'outherSide',string>;", "let a:string;");
+		check("let a:SFSideOmit<'currentSide',string>;", "let a:never;");
+		check("let a:SFSideOmit<'outherSide',string>;", "let a:string;");
 		check(
-			"let a:SFSiteOmit<['currentSide','outherSide'],string>;",
+			"let a:SFSideOmit<['currentSide','outherSide'],string>;",
 			"let a:never;",
 		);
-		check("let a:SFSiteOmit<['outherSide','qaq'],string>;", "let a:string;");
+		check("let a:SFSideOmit<['outherSide','qaq'],string>;", "let a:string;");
 	});
 
 	test("SFSiteSwith函数版本", async () => {
@@ -137,6 +162,17 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 		check(
 			"import { Ba } from 'hello';class A{@Ba()a:string;}",
 			"import { Ba } from 'hello';class A{@Ba()a:string;}",
+		);
+	});
+	test("自定义调用规则", async () => {
+		undefined;
+		check(
+			"import { Aa, Bb } from 'hello';const a = Aa();const b=Bb();",
+			"import { Aa, Bb } from 'hello';const a = null;const b=Bb();",
+		);
+		check(
+			"import aa from 'hello';import bb from 'hello2';const a = aa();const b=bb();",
+			"import aa from 'hello';import bb from 'hello2';const a = null;const b=bb();",
 		);
 	});
 });

@@ -1,4 +1,4 @@
-import { Node, NodeFactory } from "typescript";
+import { CallExpression, Node, NodeFactory } from "typescript";
 import type { ScopeHelper } from "./scope.js";
 
 export enum ScopeVarType {
@@ -39,7 +39,11 @@ export type ScopeVar =
 			type: ScopeVarType.Array;
 			value: ScopeVar[];
 	  }
-	| { type: ScopeVarType.FunctionReturn }
+	| {
+			type: ScopeVarType.FunctionReturn;
+			rawExpression: CallExpression;
+			bindScope: ScopeHelper;
+	  }
 	| { type: ScopeVarType.NewObject }
 	| {
 			type: ScopeVarType.Customize;

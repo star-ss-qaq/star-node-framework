@@ -12,14 +12,17 @@ import {
 	TypeNode,
 } from "typescript";
 
-export function parseExpressionToValue<T = any>(node: Expression): T {
+export function parseExpressionToValue<T = any>(
+	node: Expression,
+	throwError = false,
+): T {
 	if (!node) return undefined as any;
 	if (isStringLiteral(node)) return node.text as any;
 	if (isNumericLiteral(node)) return Number(node.text) as any;
 	if (node.kind === SyntaxKind.FalseKeyword) return false as any;
 	if (node.kind === SyntaxKind.TrueKeyword) return true as any;
 	if (isArrayLiteralExpression(node))
-		return node.elements.map(parseExpressionToValue) as any;
+		return node.elements.map((node) => parseExpressionToValue(node)) as any;
 	if (isIdentifier(node)) {
 		return node.escapedText as T;
 	}
@@ -35,7 +38,10 @@ export function parseExpressionToValue<T = any>(node: Expression): T {
 		});
 		return ret;
 	}
-	throw new Error(`can not parse expression with node kind ${node.kind}`);
+	if (throwError) {
+		throw new Error(`can not parse expression with node kind ${node.kind}`);
+	}
+	return undefined as any;
 }
 
 export function parseLiteralTypeNodeToValue<T = any>(node: TypeNode): T {

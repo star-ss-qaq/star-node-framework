@@ -23,7 +23,11 @@ export function shouldRemoveAsDeclaration(
 	const res = node.modifiers
 		?.map((m) => {
 			if (isDecorator(m)) {
-				const res = shouldRemove(currentSide, rule, m.expression, scopeHelper);
+				const res = shouldRemove(
+					currentSide,
+					rule,
+					scopeHelper.parseExpression(m.expression),
+				);
 				if (res) {
 					const item = res.raw[type] || res.raw.whenDecorator;
 					if (item && item.enable !== false) {
