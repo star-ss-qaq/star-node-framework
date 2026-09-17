@@ -55,10 +55,10 @@ export async function createHttpServer(config: ServerConfig) {
 			}
 			try {
 				const ret = await instance.package.instances.onRequert(
-					req.method?.toLocaleUpperCase() || "GET",
+					req.method?.toUpperCase() || "GET",
 					url,
 					req.headers,
-					req,
+					Readable.toWeb(req) as any,
 					{ prefix: "/" },
 				);
 				if (ret) {

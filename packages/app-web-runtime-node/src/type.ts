@@ -29,7 +29,7 @@ export interface ServerInstance {
 		method: string,
 		url: string | URL,
 		header: any,
-		body: Readable,
+		body: ReadableStream<Uint8Array>,
 		context: RequestContext,
 	) => Promise<
 		| {
