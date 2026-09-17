@@ -12,8 +12,10 @@ import {
 	ServerRuntimeContext,
 } from "@thestarweb/star-framework-web-runtime-node";
 import { Method } from "../route/types.js";
+import { JSONBody } from "./body/json.js";
 
 export function createServerFactory(object: any) {
+	const handles = [JSONBody];
 	return (context: ServerRuntimeContext) => {
 		const routes = parseRoute(object);
 		const serverRender = createServerRender(context);
@@ -41,7 +43,15 @@ export function createServerFactory(object: any) {
 
 					interceptors.push(...getInterceptors(obj, propertyKey));
 
-					if (reqHeader["content-type"]) {
+					const paramType = paramMeta.getParamMetadata(obj, propertyKey);
+					if (paramType.types.body) {
+						for (const h of handles) {
+							const handle = h(reqHeader, paramType.types.body.type);
+							if (handle) {
+								body = await handle(rawBody);
+								break;
+							}
+						}
 					}
 
 					call = async (req: CallProp) => {
