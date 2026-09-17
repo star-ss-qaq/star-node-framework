@@ -26,12 +26,10 @@ export class MookRes {
 	): void {
 		throw new Error("Method not implemented.");
 	}
-	writeHead(
-		statusCode: unknown,
-		statusMessage?: unknown,
-		headers?: unknown,
-	): this {
-		throw new Error("Method not implemented.");
+	writeHead(statusCode: any, statusMessage?: unknown, headers?: any): this {
+		this.statusCode = statusCode;
+		if (headers) this.setHeaders(headers);
+		return this;
 	}
 	writeProcessing(callback?: () => void): void {
 		throw new Error("Method not implemented.");
