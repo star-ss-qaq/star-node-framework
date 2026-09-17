@@ -69,3 +69,24 @@ export function getMetadata(
 	}
 	return defalutValue;
 }
+
+export function getMetadataAll<T>(
+	obj: any,
+	mateKey: PropertyKey,
+	propertyKey: PropertyKey | undefined,
+): T[] {
+	if (typeof obj === "function" && !propertyKey) {
+		obj = obj.prototype;
+	}
+	const res: T[] = [];
+	do {
+		if (Object.hasOwn(obj, mateRootStorageKey)) {
+			const map = obj[mateRootStorageKey][propertyKey || ""];
+			if (map?.has(mateKey)) {
+				res.push(map.get(mateKey));
+			}
+		}
+		obj = Object.getPrototypeOf(obj);
+	} while (obj);
+	return res;
+}

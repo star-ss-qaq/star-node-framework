@@ -2,7 +2,7 @@ import {
 	getEnvironmentName,
 	type SFDevHook,
 } from "@thestarweb/star-framework-cli";
-import { Interceptor } from "../interceptor/index.js";
+import { addInterceptor, Interceptor } from "../interceptor/index.js";
 import { middlewareToInterceptor } from "../interceptor/index.js";
 
 import type { ViteDevServer } from "vite";
@@ -25,13 +25,12 @@ export function devServer(html: string): SFDevHook {
 		instances: undefined as any,
 	};
 	const devInterceptor: Interceptor = (req, next) => {
-		// if (req.url.pathname === "/main.js") {
-		// 	return new ResponseWithMeta(mainContent, {
-		// 		header: { "content-type": "text/javascript" },
-		// 	});
-		// }
 		return viteInterceptor(req, next);
 	};
+	function handleIns(obj: any) {
+		addInterceptor(devInterceptor, obj._rawObject);
+		return obj;
+	}
 	return {
 		async onViteServerInited(vite) {
 			viteInterceptor = middlewareToInterceptor(vite.middlewares);
@@ -42,8 +41,7 @@ export function devServer(html: string): SFDevHook {
 			context.indexHtml = await vite.transformIndexHtml("index.html", html);
 		},
 		async start(main) {
-			ins.instances = main(context);
-			(ins.instances as any)._addGlobalInterceptor(devInterceptor);
+			ins.instances = handleIns(main(context));
 			server = await createHttpServer({
 				instances: [
 					{
@@ -55,8 +53,7 @@ export function devServer(html: string): SFDevHook {
 		},
 		async hotReload(main) {
 			if (server) {
-				ins.instances = main(context);
-				(ins.instances as any)._addGlobalInterceptor(devInterceptor);
+				ins.instances = handleIns(main(context));
 				console.log("hot updated");
 			}
 		},

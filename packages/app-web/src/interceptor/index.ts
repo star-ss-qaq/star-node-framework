@@ -1,4 +1,4 @@
-import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
+import { getMetadataAll, initMetadata } from "@thestarweb/star-framework-utils";
 import { Interceptor } from "./types.js";
 export * from "./types.js";
 export { middlewareToInterceptor } from "./middleware-to-interceptor/index.js";
@@ -12,6 +12,15 @@ export function AddInterceptor(
 		);
 	};
 }
+export function addInterceptor(
+	interceptor: Interceptor | Interceptor[],
+	target: any,
+	propertyKey?: PropertyKey,
+) {
+	initMetadata(target, metaKey, propertyKey, [] as Interceptor[]).push(
+		...[interceptor].flat(2),
+	);
+}
 export function getInterceptors(target: object, propertyKey?: PropertyKey) {
-	return getMetadata(target, metaKey, propertyKey, []) as Interceptor[];
+	return getMetadataAll<Interceptor[]>(target, metaKey, propertyKey).flat();
 }

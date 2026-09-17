@@ -19,7 +19,6 @@ export function createServerFactory(object: any) {
 	return (context: ServerRuntimeContext) => {
 		const routes = parseRoute(object);
 		const serverRender = createServerRender(context);
-		const globalInterceptor: Interceptor[] = [];
 		const ins: ServerInstance = {
 			async onRequert(method, url, reqHeader, rawBody, context) {
 				const urlObj =
@@ -30,7 +29,7 @@ export function createServerFactory(object: any) {
 					getInterceptors(info.obj),
 				);
 
-				interceptors.unshift(...globalInterceptor, serverRender);
+				interceptors.unshift(serverRender);
 
 				let body: any = null;
 				let call: (
@@ -103,11 +102,8 @@ export function createServerFactory(object: any) {
 				};
 			},
 			// @ts-ignore
-			_addGlobalInterceptor(i) {
-				globalInterceptor.push(i);
-			},
+			_rawObject: object,
 		};
-
 		return ins;
 	};
 }
