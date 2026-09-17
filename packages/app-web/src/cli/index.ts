@@ -52,12 +52,15 @@ export function SFWebPluging({
 				},
 			},
 		},
-		siteOnlyConfig: [
+		sideOnlyConfig: [
 			{
 				import: "@thestarweb/star-framework-app-web",
 				name: ["Get", "Post", "Put", "Delete"],
 				side: "server",
 				type: "include",
+				whenMethodDeclaration: {
+					enable: true,
+				},
 			},
 		],
 		vitePlugin: {

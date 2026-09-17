@@ -24,7 +24,7 @@ export async function loadViteConfig() {
 		{ plugin: SFPluging; mode: string; config: SFModeConfig }
 	> = {};
 	const customEnvironment: any = {};
-	const siteOnlyConfig: SiteOnlyConfigRule[] = [];
+	const sideOnlyConfig: SiteOnlyConfigRule[] = [];
 	config.pluging.forEach((i) => {
 		i.mode &&
 			Object.entries(i.mode).forEach(([mode, config]) => {
@@ -39,12 +39,12 @@ export async function loadViteConfig() {
 					},
 				};
 			});
-		if (i.siteOnlyConfig) {
-			siteOnlyConfig.push(...i.siteOnlyConfig);
+		if (i.sideOnlyConfig) {
+			sideOnlyConfig.push(...i.sideOnlyConfig);
 		}
 	});
 	const sideOnly = crreateSideOnlyVisitor({
-		rules: siteOnlyConfig,
+		rules: sideOnlyConfig,
 	});
 	function getModeMainCode(mode: SFModeConfig) {
 		return [

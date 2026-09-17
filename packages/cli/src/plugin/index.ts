@@ -41,5 +41,5 @@ export interface SFPluging {
 	vitePlugin?: Plugin | Plugin[];
 	onAnyModeBuild?: (mode: string, buildRes: BuildRes) => any;
 	onAllModeBuildEnd?: (modes: string[], res: Record<string, BuildRes>) => any;
-	siteOnlyConfig?: SiteOnlyConfigRule[];
+	sideOnlyConfig?: SiteOnlyConfigRule[];
 }

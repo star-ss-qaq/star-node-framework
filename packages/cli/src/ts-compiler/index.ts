@@ -1,1 +1,1 @@
-export { SiteOnlyConfigRule, SiteOnlyConfig } from "./macro/index.js";
+export { type SiteOnlyConfigRule, type SiteOnlyConfig } from "./macro/index.js";
