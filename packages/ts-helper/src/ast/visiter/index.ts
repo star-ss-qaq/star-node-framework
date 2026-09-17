@@ -101,5 +101,10 @@ export function setTSVisriorConfig(
 ): TSVisrior {
 	return Object.assign(v, config);
 }
-export { ScopeVarType, ScopeVar, TSVisrior, TSVisriorConfig } from "./type.js";
+export {
+	ScopeVarType,
+	type ScopeVar,
+	type TSVisrior,
+	type TSVisriorConfig,
+} from "./type.js";
 export { ScopeHelper } from "./scope.js";
