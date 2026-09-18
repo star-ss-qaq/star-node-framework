@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { ParamMetaHelper, RootParamType } from "../src/index.js";
+import { ParamMetaHelper, ParamTypeEnum, RootParamType } from "../src/index.js";
 
 describe("测试创建Decorator的能力", () => {
 	test("默认支持path", async () => {
@@ -12,8 +12,8 @@ describe("测试创建Decorator的能力", () => {
 		}
 		const typeinfo = {
 			type: {
-				type: "object",
-				properties: { a: { type: "string" } },
+				type: ParamTypeEnum.Object,
+				properties: { a: { type: ParamTypeEnum.String } },
 				required: ["a"],
 				additionalProperties: undefined,
 				constructor: undefined,
@@ -40,7 +40,7 @@ describe("测试创建Decorator的能力", () => {
 		}
 		const typeinfo = {
 			type: {
-				type: "string",
+				type: ParamTypeEnum.String,
 			},
 			required: true,
 		};
@@ -62,8 +62,8 @@ describe("测试创建Decorator的能力", () => {
 		expect(httpParamMeta.getParamMetadata(A.prototype, "test").types).toEqual({
 			body: {
 				type: {
-					type: "object",
-					properties: { a: { type: "string" } },
+					type: ParamTypeEnum.Object,
+					properties: { a: { type: ParamTypeEnum.String } },
 					required: ["a"],
 					additionalProperties: undefined,
 					constructor: undefined,

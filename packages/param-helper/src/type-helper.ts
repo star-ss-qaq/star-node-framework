@@ -7,15 +7,15 @@ import {
 } from "@deepkit/type";
 import {
 	AnyParamType,
-	ArrayBuffParamType,
 	ArrayParamType,
 	BooleanParamType,
-	DateParamType,
 	EnumParamType,
 	NeverParamType,
 	NumberParamType,
 	ObjectParamType,
 	ParamType,
+	ParamTypeEnum,
+	RawClassParamType,
 	StringParamType,
 } from "./types.js";
 
@@ -31,14 +31,26 @@ function pureAndFreeze<T>(obj: T): T {
 	return Object.freeze(ret);
 }
 
-const defaultNeverType = pureAndFreeze<NeverParamType>({ type: "never" });
-const defaultAnyType = pureAndFreeze<AnyParamType>({ type: "any" });
-const defaultStringType = pureAndFreeze<StringParamType>({ type: "string" });
-const defaultNumberType = pureAndFreeze<NumberParamType>({ type: "number" });
-const defaultBooleanType = pureAndFreeze<BooleanParamType>({ type: "boolean" });
-const defaultDateType = pureAndFreeze<DateParamType>({ type: "date" });
-const defaultArrayBufferType = pureAndFreeze<ArrayBuffParamType>({
-	type: "arrayBuffer",
+const defaultNeverType = pureAndFreeze<NeverParamType>({
+	type: ParamTypeEnum.Never,
+});
+const defaultAnyType = pureAndFreeze<AnyParamType>({ type: ParamTypeEnum.Any });
+const defaultStringType = pureAndFreeze<StringParamType>({
+	type: ParamTypeEnum.String,
+});
+const defaultNumberType = pureAndFreeze<NumberParamType>({
+	type: ParamTypeEnum.Number,
+});
+const defaultBooleanType = pureAndFreeze<BooleanParamType>({
+	type: ParamTypeEnum.Boolean,
+});
+const defaultDateType = pureAndFreeze<RawClassParamType>({
+	type: ParamTypeEnum.RawClass,
+	constructor: Date,
+});
+const defaultArrayBufferType = pureAndFreeze<RawClassParamType>({
+	type: ParamTypeEnum.RawClass,
+	constructor: ArrayBuffer,
 });
 
 const systemClassRules: [
@@ -50,7 +62,7 @@ const systemClassRules: [
 	[
 		Set,
 		(getTypeParam) => ({
-			type: "array",
+			type: ParamTypeEnum.Array,
 			items: getTypeParam(0) || defaultAnyType,
 			metchType: Set,
 		}),
@@ -58,7 +70,7 @@ const systemClassRules: [
 	[
 		Map,
 		(getTypeParam) => ({
-			type: "object",
+			type: ParamTypeEnum.Object,
 			properties: {},
 			required: [],
 			additionalProperties: getTypeParam(1) || defaultAnyType,
@@ -73,9 +85,9 @@ function mergeUnionType(types: ParamType[]): ParamType {
 	const typesMap: Record<ParamType["type"], ParamType[]> = Object.create(null);
 	function unpackType(types: readonly ParamType[]) {
 		types.forEach((t) => {
-			if (t.type === "anyOf") {
+			if (t.type === ParamTypeEnum.AnyOf) {
 				unpackType(t.anyOf);
-			} else if (t.type !== "never") {
+			} else if (t.type !== ParamTypeEnum.Never) {
 				if (!(t.type in typesMap)) {
 					typesMap[t.type] = [];
 				}
@@ -85,35 +97,43 @@ function mergeUnionType(types: ParamType[]): ParamType {
 	}
 	unpackType(types);
 	// 如果有any类型，那么直接返回any类型，因为any类型可以匹配所有类型
-	if (typesMap.any) return defaultAnyType;
+	if (typesMap[ParamTypeEnum.Any]) return defaultAnyType;
 	// 没有单独参数的目前都统一使用同一个（暂时不支持校验参数等）
-	(["number", "string", "boolean", "date", "arrayBuffer"] as const).forEach(
-		(type) => {
-			if (typesMap[type]?.length > 1) {
-				typesMap[type].length = 1;
-			}
-		},
-	);
-	if (typesMap.enum) {
+	(
+		[ParamTypeEnum.Number, ParamTypeEnum.String, ParamTypeEnum.Boolean] as const
+	).forEach((type) => {
+		if (typesMap[type]?.length > 1) {
+			typesMap[type].length = 1;
+		}
+	});
+	if (typesMap[ParamTypeEnum.Enum]) {
 		const unMergeableValue = [
-			...new Set(typesMap.enum.flatMap((t) => (t as EnumParamType).values)),
+			...new Set(
+				typesMap[ParamTypeEnum.Enum].flatMap(
+					(t) => (t as EnumParamType).values,
+				),
+			),
 		].filter((v) => {
 			const valueType = typeof v;
-			if (typesMap[valueType as keyof typeof typesMap]?.length > 0) {
-				switch (valueType) {
-					default:
-						// 默认全部可以合并到对应的类型中
-						return false;
-				}
+			switch (valueType) {
+				case "number":
+					if (typesMap[ParamTypeEnum.Number]) return false;
+					break;
+				case "string":
+					if (typesMap[ParamTypeEnum.String]) return false;
+					break;
+				case "boolean":
+					if (typesMap[ParamTypeEnum.Boolean]) return false;
+					break;
 			}
 			return true;
 		});
-		typesMap.enum =
+		typesMap[ParamTypeEnum.Enum] =
 			unMergeableValue.length > 0
 				? // 如果有无法合并的枚举值，那么就把这些值单独放到一个枚举类型中
 					[
 						{
-							type: "enum",
+							type: ParamTypeEnum.Enum,
 							values: pureAndFreeze(unMergeableValue),
 						},
 					]
@@ -128,7 +148,7 @@ function mergeUnionType(types: ParamType[]): ParamType {
 		return finalList[0];
 	}
 	return {
-		type: "anyOf",
+		type: ParamTypeEnum.AnyOf,
 		anyOf: pureAndFreeze(finalList),
 	};
 }
@@ -163,7 +183,7 @@ export function toParamType(
 				return error("literal value cannot be object or array");
 			}
 			return warp({
-				type: "enum",
+				type: ParamTypeEnum.Enum,
 				values: pureAndFreeze([type.literal]),
 			});
 		case ReflectionKind.any:
@@ -177,12 +197,15 @@ export function toParamType(
 			return defaultBooleanType;
 		case ReflectionKind.enum:
 			return warp({
-				type: "enum",
+				type: ParamTypeEnum.Enum,
 				values: pureAndFreeze(type.values),
 				enum: type.enum,
 			});
 		case ReflectionKind.array:
-			return warp({ type: "array", items: toParamType(type.type, p) });
+			return warp({
+				type: ParamTypeEnum.Array,
+				items: toParamType(type.type, p),
+			});
 		case ReflectionKind.class:
 			const { classType } = type;
 			let rule = systemClassRules.find(([superCls]) => classType === superCls);
@@ -259,7 +282,7 @@ export function toParamType(
 				}
 			}
 			return warp({
-				type: "object",
+				type: ParamTypeEnum.Object,
 				properties: pureAndFreeze(properties),
 				required: pureAndFreeze(required),
 				additionalProperties,
@@ -283,17 +306,20 @@ export function mergeType(
 		return mergeType(
 			rawType,
 			pureAndFreeze({
-				type: "object",
+				type: ParamTypeEnum.Object,
 				properties: pureAndFreeze({ [path]: addType! }),
 				required: pureAndFreeze(required ? [path] : []),
 			}),
 			p,
 		);
-	if (rawType?.type === "never" || addType?.type === "never") {
+	if (
+		rawType?.type === ParamTypeEnum.Never ||
+		addType?.type === ParamTypeEnum.Never
+	) {
 		return defaultNeverType;
 	}
-	if (!rawType || rawType.type === "any") return addType!;
-	if (!addType || addType.type === "any") return rawType!;
+	if (!rawType || rawType.type === ParamTypeEnum.Any) return addType!;
+	if (!addType || addType.type === ParamTypeEnum.Any) return rawType!;
 	if (rawType.type !== addType.type) {
 		throw new ParamTypeError(
 			`${p} is required to be ${rawType.type} and ${addType.type} at same time, but they are not compatible`,
@@ -325,12 +351,13 @@ export function mergeType(
 		);
 	}
 	switch (rawType.type) {
-		case "string":
-		case "number":
-		case "boolean":
-		case "integer":
+		case ParamTypeEnum.String:
+		case ParamTypeEnum.Number:
+		case ParamTypeEnum.Boolean:
+		case ParamTypeEnum.Int:
+		case ParamTypeEnum.BigInt:
 			return rawType;
-		case "array":
+		case ParamTypeEnum.Array:
 			const at = addType as ArrayParamType;
 			const mergeWithArray = (rt: ParamType[], at: ParamType[]): ParamType => {
 				if (rt.length !== at.length) {
@@ -342,7 +369,7 @@ export function mergeType(
 					mergeType(itemType, at[index], `${p}[${index}]`),
 				);
 				return pureAndFreeze({
-					type: "array",
+					type: ParamTypeEnum.Array,
 					items: pureAndFreeze(merged),
 				});
 			};
@@ -359,10 +386,10 @@ export function mergeType(
 				return mergeWithDefaul(at.items, rawType.items);
 			}
 			return pureAndFreeze({
-				type: "array",
+				type: ParamTypeEnum.Array,
 				items: mergeType(rawType.items, at.items, p),
 			});
-		case "object":
+		case ParamTypeEnum.Object:
 			const a = addType as ObjectParamType;
 			const allProperties = [
 				...new Set([
@@ -371,7 +398,7 @@ export function mergeType(
 				]),
 			];
 			return pureAndFreeze({
-				type: "object",
+				type: ParamTypeEnum.Object,
 				properties: pureAndFreeze(
 					Object.fromEntries(
 						allProperties.map((key) => [
@@ -388,7 +415,7 @@ export function mergeType(
 					...new Set([...rawType.required, ...a.required]),
 				]),
 			});
-		case "enum":
+		case ParamTypeEnum.Enum:
 		// TODO
 	}
 	throw new Error(`can not merge type at ${p}`);

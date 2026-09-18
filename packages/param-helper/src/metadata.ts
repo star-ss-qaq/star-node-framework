@@ -11,6 +11,7 @@ import {
 	ArrayParamType,
 	ObjectParamType,
 	ParamType,
+	ParamTypeEnum,
 } from "./types.js";
 import { mergeType, toParamType } from "./type-helper.js";
 import { buildType } from "./type-build.js";
@@ -181,7 +182,7 @@ export class ParamMetaHelper<
 			}
 			if (!meta[paramRawMeta.from]) {
 				meta[paramRawMeta.from] = {
-					type: { type: "any" },
+					type: { type: ParamTypeEnum.Any },
 					required: false,
 				};
 			}
@@ -191,7 +192,7 @@ export class ParamMetaHelper<
 			const fromType = this.paramConfig[paramRawMeta.from];
 			if (
 				isMustObjectRootParamType(fromType) &&
-				currentType.type !== "object" &&
+				currentType.type !== ParamTypeEnum.Object &&
 				!paramRawMeta.path
 			) {
 				paramRawMeta.path = p.name;

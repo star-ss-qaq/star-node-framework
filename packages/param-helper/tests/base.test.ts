@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { ParamMetaHelper, RootParamType } from "../src/index.js";
+import { ParamMetaHelper, ParamTypeEnum, RootParamType } from "../src/index.js";
 
 const paramMeta = new ParamMetaHelper("default", { body: RootParamType.Any });
 const Body = paramMeta.createDecorator("body");
@@ -13,8 +13,11 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "object",
-					properties: { a: { type: "string" }, b: { type: "number" } },
+					type: ParamTypeEnum.Object,
+					properties: {
+						a: { type: ParamTypeEnum.String },
+						b: { type: ParamTypeEnum.Number },
+					},
 					required: ["a"],
 					additionalProperties: undefined,
 					constructor: undefined,
@@ -31,8 +34,11 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "anyOf",
-					anyOf: [{ type: "string" }, { type: "number" }],
+					type: ParamTypeEnum.AnyOf,
+					anyOf: [
+						{ type: ParamTypeEnum.String },
+						{ type: ParamTypeEnum.Number },
+					],
 				},
 				required: true,
 			},
@@ -61,7 +67,7 @@ describe("参数工具测试", () => {
 		).toEqual({
 			body: {
 				type: {
-					type: "string",
+					type: ParamTypeEnum.String,
 				},
 				required: true,
 			},
@@ -72,7 +78,7 @@ describe("参数工具测试", () => {
 		).toEqual({
 			body: {
 				type: {
-					type: "enum",
+					type: ParamTypeEnum.Enum,
 					values: ["a", "b", "c", 1],
 				},
 				required: true,
@@ -84,7 +90,7 @@ describe("参数工具测试", () => {
 		).toEqual({
 			body: {
 				type: {
-					type: "string",
+					type: ParamTypeEnum.String,
 				},
 				required: true,
 			},
@@ -95,11 +101,11 @@ describe("参数工具测试", () => {
 		).toEqual({
 			body: {
 				type: {
-					type: "anyOf",
+					type: ParamTypeEnum.AnyOf,
 					anyOf: [
-						{ type: "number" },
+						{ type: ParamTypeEnum.Number },
 						{
-							type: "enum",
+							type: ParamTypeEnum.Enum,
 							values: Object.freeze(["a", "b"]),
 						},
 					],
@@ -113,11 +119,11 @@ describe("参数工具测试", () => {
 		).toEqual({
 			body: {
 				type: {
-					type: "anyOf",
+					type: ParamTypeEnum.AnyOf,
 					anyOf: [
-						{ type: "string" },
+						{ type: ParamTypeEnum.String },
 						{
-							type: "enum",
+							type: ParamTypeEnum.Enum,
 							values: Object.freeze([1]),
 						},
 					],
@@ -177,7 +183,7 @@ describe("参数工具测试", () => {
 		const neverBody = {
 			body: {
 				type: {
-					type: "never",
+					type: ParamTypeEnum.Never,
 				},
 				required: false,
 			},
@@ -197,9 +203,9 @@ describe("参数工具测试", () => {
 		expect(paramMeta.getParamMetadata(A.prototype, "test5").types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {
-						a: { type: "never" },
+						a: { type: ParamTypeEnum.Never },
 					},
 					required: [],
 				},
@@ -223,12 +229,12 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {
-						a: { type: "string" },
-						b: { type: "string" },
-						c: { type: "string" },
-						d: { type: "string" },
+						a: { type: ParamTypeEnum.String },
+						b: { type: ParamTypeEnum.String },
+						c: { type: ParamTypeEnum.String },
+						d: { type: ParamTypeEnum.String },
 					},
 					required: ["a", "b"],
 				},
@@ -247,9 +253,9 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {
-						a: { type: "string" },
+						a: { type: ParamTypeEnum.String },
 					},
 					required: ["a"],
 					constructor: B,
@@ -266,8 +272,8 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "array",
-					items: { type: "string" },
+					type: ParamTypeEnum.Array,
+					items: { type: ParamTypeEnum.String },
 					metchType: Set,
 				},
 				required: true,
@@ -282,11 +288,11 @@ describe("参数工具测试", () => {
 		expect(types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {},
 					required: [],
 					additionalProperties: {
-						type: "string",
+						type: ParamTypeEnum.String,
 					},
 				},
 				required: true,
@@ -303,8 +309,8 @@ describe("参数工具测试", () => {
 		expect(paramMeta.getParamMetadata(A.prototype, "test1").types).toEqual({
 			body: {
 				type: {
-					type: "array",
-					items: { type: "string" },
+					type: ParamTypeEnum.Array,
+					items: { type: ParamTypeEnum.String },
 					constructor: B,
 					metchType: Set,
 				},
@@ -314,8 +320,8 @@ describe("参数工具测试", () => {
 		expect(paramMeta.getParamMetadata(A.prototype, "test2").types).toEqual({
 			body: {
 				type: {
-					type: "array",
-					items: { type: "string" },
+					type: ParamTypeEnum.Array,
+					items: { type: ParamTypeEnum.String },
 					constructor: C,
 					metchType: Set,
 				},
@@ -333,12 +339,12 @@ describe("参数工具测试", () => {
 		expect(paramMeta.getParamMetadata(A.prototype, "test1").types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {},
 					required: [],
 					constructor: B,
 					additionalProperties: {
-						type: "string",
+						type: ParamTypeEnum.String,
 					},
 				},
 				required: true,
@@ -347,12 +353,12 @@ describe("参数工具测试", () => {
 		expect(paramMeta.getParamMetadata(A.prototype, "test2").types).toEqual({
 			body: {
 				type: {
-					type: "object",
+					type: ParamTypeEnum.Object,
 					properties: {},
 					required: [],
 					constructor: C,
 					additionalProperties: {
-						type: "string",
+						type: ParamTypeEnum.String,
 					},
 				},
 				required: true,
@@ -360,21 +366,15 @@ describe("参数工具测试", () => {
 		});
 	});
 	test("不相容参数需要报错", async () => {
+		class B {}
+		class C {}
 		class A {
 			test1(@Body() body: { a: string }, @Body("a") a: number) {}
 			test2(@Body() body: { a: string }, @Body() b: { a: number }) {}
 			test3(@Body() body: A, @Body() b: B) {}
 		}
-		class B {}
-		class C {}
-		expect(() =>
-			paramMeta.getParamMetadata(A.prototype, "test1"),
-		).toThrowError();
-		expect(() =>
-			paramMeta.getParamMetadata(A.prototype, "test2"),
-		).toThrowError();
-		expect(() =>
-			paramMeta.getParamMetadata(A.prototype, "test3"),
-		).toThrowError();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test1")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test2")).toThrow();
+		expect(() => paramMeta.getParamMetadata(A.prototype, "test3")).toThrow();
 	});
 });

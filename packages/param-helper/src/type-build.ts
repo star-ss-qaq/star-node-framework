@@ -1,4 +1,4 @@
-import { ParamType } from "./types.js";
+import { ParamType, ParamTypeEnum } from "./types.js";
 
 export type ParamTypeTransformer = Partial<
 	Omit<
@@ -13,7 +13,7 @@ export type ParamTypeTransformer = Partial<
 >;
 
 export const defaultTransformer: ParamTypeTransformer = {
-	number: (value) => {
+	[ParamTypeEnum.Number]: (value) => {
 		if (
 			typeof value === "string" &&
 			/^[+-]?[\d+|\.]+$/.test(value) &&
@@ -29,7 +29,7 @@ export const defaultTransformer: ParamTypeTransformer = {
 			}
 		}
 	},
-	integer: (value) => {
+	[ParamTypeEnum.Int]: (value) => {
 		if (typeof value === "string" && /^[+-]?\d+$/.test(value)) {
 			const num = parseInt(value);
 			if (
@@ -63,11 +63,11 @@ export function buildType(
 		throwError(`need ${type.type}, but got ${String(data)}`);
 	};
 	switch (type.type) {
-		case "never":
+		case ParamTypeEnum.Never:
 			throwError("it can not set any type value");
-		case "any":
+		case ParamTypeEnum.Any:
 			return data;
-		case "anyOf":
+		case ParamTypeEnum.AnyOf:
 			// 这个略微复杂
 			const errs = ["no type metch for it:"];
 			for (let mayType of type.anyOf) {
@@ -81,7 +81,7 @@ export function buildType(
 			}
 			throwError(errs.join("\n\t"));
 			return;
-		case "array": {
+		case ParamTypeEnum.Array: {
 			const value: any[] = transformandCheckOrThrow((v) => Array.isArray(v));
 			const itemType = type.items;
 			if (Array.isArray(itemType)) {
@@ -98,35 +98,35 @@ export function buildType(
 				buildType(itemType, item, transformer, `${path}[${index}]`),
 			);
 		}
-		case "string":
+		case ParamTypeEnum.String:
 			return transformandCheckOrThrow((value) => typeof value === "string");
-		case "number":
+		case ParamTypeEnum.Number:
 			return transformandCheckOrThrow((value) => typeof value === "number");
-		case "integer":
+		case ParamTypeEnum.Int:
 			return transformandCheckOrThrow(
 				(value) => typeof value === "number" && value % 1 === 0,
 			);
-		case "boolean":
+		case ParamTypeEnum.Boolean:
 			return transformandCheckOrThrow((value) => typeof value === "boolean");
-		case "enum":
+		case ParamTypeEnum.Enum:
 			return transformandCheckOrThrow((value) => type.values.includes(value));
-		case "arrayBuffer": {
-			const ret = transformandCheckOrThrow(
-				(value) => value instanceof ArrayBuffer,
-			);
-			if (type.constructor) {
-				Object.setPrototypeOf(ret, type.constructor);
-			}
-			return ret;
-		}
-		case "date": {
-			const ret = transformandCheckOrThrow((value) => value instanceof Date);
-			if (type.constructor) {
-				Object.setPrototypeOf(ret, type.constructor);
-			}
-			return ret;
-		}
-		case "object":
+		// case "arrayBuffer": {
+		// 	const ret = transformandCheckOrThrow(
+		// 		(value) => value instanceof ArrayBuffer,
+		// 	);
+		// 	if (type.constructor) {
+		// 		Object.setPrototypeOf(ret, type.constructor);
+		// 	}
+		// 	return ret;
+		// }
+		// case "date": {
+		// 	const ret = transformandCheckOrThrow((value) => value instanceof Date);
+		// 	if (type.constructor) {
+		// 		Object.setPrototypeOf(ret, type.constructor);
+		// 	}
+		// 	return ret;
+		// }
+		case ParamTypeEnum.Object:
 			const obj = transformandCheckOrThrow(
 				(value) => value && typeof value === "object",
 			);

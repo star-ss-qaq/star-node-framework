@@ -1,19 +1,23 @@
-import { ParamType } from "@thestarweb/star-framework-param-helper";
+import {
+	dumpTypeNameBase,
+	ParamType,
+	ParamTypeEnum,
+} from "@thestarweb/star-framework-param-helper";
 import { getCommands, Type } from "./command.js";
 import { callWhithParam, getParam } from "./params.js";
 
 function dumpInfo(type: ParamType): string {
 	switch (type.type) {
-		case "anyOf":
+		case ParamTypeEnum.AnyOf:
 			return type.anyOf.map(dumpInfo).join("|");
-		case "array":
+		case ParamTypeEnum.Array:
 			if (Array.isArray(type.items)) {
 				return type.items.map((t) => dumpInfo(t)).join(" ");
 			} else {
 				return `...${dumpInfo(type.items)}`;
 			}
 	}
-	return type.type;
+	return dumpTypeNameBase(type);
 }
 
 function showHelpFor(obj: object, propertyKey?: PropertyKey) {
@@ -32,7 +36,7 @@ function showHelpFor(obj: object, propertyKey?: PropertyKey) {
 			res.push("Options:", "");
 			const { required, type } = param.types.options;
 			Object.keys(type.properties).forEach((i) => {
-				if (type.properties[i].type === "never") {
+				if (type.properties[i].type === ParamTypeEnum.Never) {
 					return;
 				}
 				const argInfo = dumpInfo(type.properties[i]);
@@ -93,10 +97,10 @@ async function callOn(
 			const end = () => {
 				if (currentFlag) {
 					switch (param.types.options!.type.properties[currentFlag].type) {
-						case "array":
+						case ParamTypeEnum.Array:
 							p.options[currentFlag] = currentV;
 							break;
-						case "boolean":
+						case ParamTypeEnum.Boolean:
 							if (currentV.length === 0) {
 								p.options[currentFlag] = true;
 							} else if (

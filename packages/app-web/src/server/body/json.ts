@@ -1,4 +1,7 @@
-import { ParamType } from "@thestarweb/star-framework-param-helper";
+import {
+	ParamType,
+	ParamTypeEnum,
+} from "@thestarweb/star-framework-param-helper";
 import { mergeUint8Array, ReaderHelper } from "./helper.js";
 import { bodyParse } from "./types.js";
 
@@ -30,7 +33,7 @@ const charCodeComma = ",".charCodeAt(0);
 const charCodeColon = ":".charCodeAt(0);
 const decoder = new TextDecoder();
 
-let defAny: ParamType = { type: "any" };
+let defAny: ParamType = { type: ParamTypeEnum.Any };
 export const JSONBody: bodyParse = (headrer, targetType) => {
 	if (headrer["content-type"]?.startsWith("application/json")) {
 		return (stream) => {
@@ -102,7 +105,7 @@ export const JSONBody: bodyParse = (headrer, targetType) => {
 			}
 			async function readArray(targetType: ParamType, path: string[]) {
 				let t: ParamType | ParamType[] = defAny;
-				if (targetType.type == "array") {
+				if (targetType.type == ParamTypeEnum.Array) {
 					t = targetType.items;
 				}
 				const res = [];

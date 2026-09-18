@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { ParamMetaHelper, RootParamType } from "../src/index.js";
+import { ParamMetaHelper, ParamTypeEnum, RootParamType } from "../src/index.js";
 
 describe("测试命名空间", () => {
 	test("两个命名空间应该相互独立", async () => {
@@ -16,8 +16,11 @@ describe("测试命名空间", () => {
 		}
 		const typeinfo = {
 			type: {
-				type: "object",
-				properties: { a: { type: "string" }, b: { type: "number" } },
+				type: ParamTypeEnum.Object,
+				properties: {
+					a: { type: ParamTypeEnum.String },
+					b: { type: ParamTypeEnum.Number },
+				},
 				required: ["a"],
 				additionalProperties: undefined,
 				constructor: undefined,

@@ -1,46 +1,56 @@
 import { expect, describe, test } from "vitest";
-import { buildType } from "../src/index.js";
+import { buildType, ParamTypeEnum } from "../src/index.js";
 
 describe("测试类型校验与自动转换", () => {
 	test("最基础的验证", async () => {
 		expect(
-			() => buildType({ type: "number" }, "anc"),
+			() => buildType({ type: ParamTypeEnum.Number }, "anc"),
 			"不能将字符串转换成数字",
 		).toThrow();
 		expect(
-			() => buildType({ type: "integer" }, 1.1),
+			() => buildType({ type: ParamTypeEnum.Int }, 1.1),
 			"不能将浮点转换成整数",
 		).toThrow();
 		expect(
-			() => buildType({ type: "enum", values: ["123"] }, "anc"),
+			() => buildType({ type: ParamTypeEnum.Enum, values: ["123"] }, "anc"),
 			"不能将枚举之外的内容转换给枚举",
 		).toThrow();
 		expect(
-			buildType({ type: "enum", values: ["123"] }, "123"),
+			buildType({ type: ParamTypeEnum.Enum, values: ["123"] }, "123"),
 			"枚举包含的类型应该可以通过验证",
 		).toBe("123");
 	});
 	test("默认支持字符串转换", async () => {
-		expect(buildType({ type: "number" }, "123.1"), "数字类型可以转换").toBe(
-			123.1,
-		);
-		expect(buildType({ type: "integer" }, "123"), "整数类型可以转换").toBe(123);
+		expect(
+			buildType({ type: ParamTypeEnum.Number }, "123.1"),
+			"数字类型可以转换",
+		).toBe(123.1);
+		expect(
+			buildType({ type: ParamTypeEnum.Number }, "123"),
+			"整数类型可以转换",
+		).toBe(123);
 	});
 	test("对象的验证", async () => {
 		expect(
-			buildType({ type: "object", properties: {}, required: [] }, {}),
+			buildType(
+				{ type: ParamTypeEnum.Object, properties: {}, required: [] },
+				{},
+			),
 			"妈妈组条件的对象应该能正常转换",
 		).toEqual({});
 		expect(
-			buildType({ type: "object", properties: {}, required: [] }, { a: "" }),
+			buildType(
+				{ type: ParamTypeEnum.Object, properties: {}, required: [] },
+				{ a: "" },
+			),
 			"多余字段需要抛弃",
 		).toEqual({});
 		expect(
 			() =>
 				buildType(
 					{
-						type: "object",
-						properties: { a: { type: "number" } },
+						type: ParamTypeEnum.Object,
+						properties: { a: { type: ParamTypeEnum.Number } },
 						required: [],
 					},
 					{ a: "" },
@@ -51,8 +61,11 @@ describe("测试类型校验与自动转换", () => {
 			() =>
 				buildType(
 					{
-						type: "object",
-						properties: { a: { type: "string" }, b: { type: "number" } },
+						type: ParamTypeEnum.Object,
+						properties: {
+							a: { type: ParamTypeEnum.String },
+							b: { type: ParamTypeEnum.Number },
+						},
 						required: ["b"],
 					},
 					{ a: "" },
@@ -63,14 +76,26 @@ describe("测试类型校验与自动转换", () => {
 	test("组合类型的验证", async () => {
 		expect(
 			buildType(
-				{ type: "anyOf", anyOf: [{ type: "number" }, { type: "boolean" }] },
+				{
+					type: ParamTypeEnum.AnyOf,
+					anyOf: [
+						{ type: ParamTypeEnum.Number },
+						{ type: ParamTypeEnum.Boolean },
+					],
+				},
 				"123.1",
 			),
 			"数字类型可以转换",
 		).toBe(123.1);
 		expect(
 			buildType(
-				{ type: "anyOf", anyOf: [{ type: "number" }, { type: "boolean" }] },
+				{
+					type: ParamTypeEnum.AnyOf,
+					anyOf: [
+						{ type: ParamTypeEnum.Number },
+						{ type: ParamTypeEnum.Boolean },
+					],
+				},
 				true,
 			),
 			"同时也要能支持布尔类型",
@@ -78,7 +103,13 @@ describe("测试类型校验与自动转换", () => {
 		expect(
 			() =>
 				buildType(
-					{ type: "anyOf", anyOf: [{ type: "number" }, { type: "boolean" }] },
+					{
+						type: ParamTypeEnum.AnyOf,
+						anyOf: [
+							{ type: ParamTypeEnum.Number },
+							{ type: ParamTypeEnum.Boolean },
+						],
+					},
 					"",
 				),
 			"如果不满足任何一个，要抛出异常",
@@ -86,16 +117,16 @@ describe("测试类型校验与自动转换", () => {
 		expect(
 			buildType(
 				{
-					type: "anyOf",
+					type: ParamTypeEnum.AnyOf,
 					anyOf: [
 						{
-							type: "object",
-							properties: { a: { type: "string" } },
+							type: ParamTypeEnum.Object,
+							properties: { a: { type: ParamTypeEnum.String } },
 							required: ["a"],
 						},
 						{
-							type: "object",
-							properties: { b: { type: "string" } },
+							type: ParamTypeEnum.Object,
+							properties: { b: { type: ParamTypeEnum.String } },
 							required: ["b"],
 						},
 					],
@@ -108,10 +139,10 @@ describe("测试类型校验与自动转换", () => {
 	test("需要支持map", async () => {
 		const map: Map<string, any> = buildType(
 			{
-				type: "object",
+				type: ParamTypeEnum.Object,
 				properties: {},
 				required: [],
-				additionalProperties: { type: "string" },
+				additionalProperties: { type: ParamTypeEnum.String },
 				metchType: Map,
 			},
 			{ a: "1", b: "2" },
@@ -123,10 +154,10 @@ describe("测试类型校验与自动转换", () => {
 			() =>
 				buildType(
 					{
-						type: "object",
+						type: ParamTypeEnum.Object,
 						properties: {},
 						required: [],
-						additionalProperties: { type: "string" },
+						additionalProperties: { type: ParamTypeEnum.String },
 						metchType: Map,
 					},
 					{ a: 1 },
