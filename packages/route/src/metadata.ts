@@ -26,6 +26,16 @@ export type RouteMetadataRouteType<R extends RouteMetadata, M> =
 			: never
 		: never;
 
+export type ResloveRouteMetaType<
+	T extends string,
+	CommonOption extends {},
+	TypeOption extends Partial<Record<T, Record<string, any>>>,
+	SubRouteOption extends {},
+> = RouteInfo<
+	Partial<{} & CommonOption & TypeOption[T]>,
+	Partial<SubRouteOption>
+>;
+
 export class RouteMetadata<
 	T extends string = string,
 	CommonOption extends {} = {},
@@ -69,19 +79,14 @@ export class RouteMetadata<
 			});
 		};
 	}
-	routeFinder(
+	private _routeFinder(
 		objInfo: RouteObjectInfo<SubRouteOption>,
+		callback: <TT extends T | "__SF:NotFind">(
+			type: TT,
+			path: string,
+			t: ResloveRouteMetaType<T, CommonOption, TypeOption, SubRouteOption>,
+		) => void,
 		parents: RouteObjectCallInfo<SubRouteOption>[] = [],
-		routers: {
-			[K in T]?: RadixRouter<
-				RouteInfo<
-					Partial<{} & CommonOption & TypeOption[K]>,
-					Partial<SubRouteOption>
-				>
-			>;
-		} & {
-			"__SF:NotFind": RadixRouter<RouteInfo<any, Partial<SubRouteOption>>>;
-		} = { "__SF:NotFind": createRouter() },
 	) {
 		const metadata = getMetadata<RouteMeta[]>(
 			objInfo.obj,
@@ -96,20 +101,17 @@ export class RouteMetadata<
 			const { type } = element;
 			if (element.isSubRoute) {
 				if (!path.endsWith("/")) path += "/";
-				this.routeFinder(
+				this._routeFinder(
 					{
 						obj: (objInfo.obj as any)[element.fnKey],
 						path,
 						context: element.context,
 					},
+					callback,
 					allRoute,
-					routers,
 				);
 			} else {
-				if (!(type in routers)) {
-					routers[type as T] = createRouter() as any;
-				}
-				routers[type as T]!.insert(path, {
+				callback(type as T, path, {
 					allRoute,
 					finalRoute: {
 						propertyKey: element.fnKey,
@@ -121,8 +123,46 @@ export class RouteMetadata<
 			}
 		});
 		let path = objInfo.path || "";
-		routers["__SF:NotFind"].insert(`${path}*`, {
+		callback("__SF:NotFind", `${path}**`, {
 			allRoute: [...parents, { ...objInfo, propertyKey: "" }],
+		});
+	}
+	routeFinder(objInfo: RouteObjectInfo<SubRouteOption>) {
+		const routers: {
+			[K in T]?: RadixRouter<
+				RouteInfo<
+					Partial<{} & CommonOption & TypeOption[K]>,
+					Partial<SubRouteOption>
+				>
+			>;
+		} & {
+			"__SF:NotFind": RadixRouter<RouteInfo<any, Partial<SubRouteOption>>>;
+		} = { "__SF:NotFind": createRouter() };
+		this._routeFinder(objInfo, (type, path, meta) => {
+			if (!(type in routers)) {
+				routers[type] = createRouter() as any;
+			}
+			routers[type]!.insert(path, meta);
+		});
+		return routers;
+	}
+	routeFinderFlat(obj: object) {
+		const routers: {
+			[K in T]?: Map<
+				string,
+				RouteInfo<
+					Partial<{} & CommonOption & TypeOption[K]>,
+					Partial<SubRouteOption>
+				>
+			>;
+		} & {
+			"__SF:NotFind"?: Map<string, RouteInfo<any, Partial<SubRouteOption>>>;
+		} = {};
+		this._routeFinder({ obj, path: "/" }, (type, path, meta) => {
+			if (!routers[type]) {
+				routers[type] = new Map() as any;
+			}
+			routers[type]!.set(path, meta);
 		});
 		return routers;
 	}
@@ -136,10 +176,3 @@ export class RouteMetadata<
 		};
 	}
 }
-const a = new RouteMetadata<
-	"get" | "post",
-	{ common: 1 },
-	{ get: { get: 1 }; post: { post: 1 } },
-	{ subRoute: 1 }
->("t1");
-const b = a.parse({})("get", "/");
