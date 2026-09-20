@@ -34,6 +34,10 @@ export const Put = routeMetadata.route("PUT");
 export const Delete = routeMetadata.route("DELETE");
 export const SubRoute = routeMetadata.subRoute.bind(routeMetadata);
 
+export function getFlatRoute(obj: object) {
+	return routeMetadata.routeFinderFlat(obj);
+}
+
 export function parseRoute(obj: object) {
 	return routeMetadata.parse(obj);
 }

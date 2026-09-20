@@ -10,6 +10,8 @@ import {
 	createHttpServer,
 	ParsedPackage,
 } from "@thestarweb/star-framework-web-runtime-node";
+import { dumpRouteType } from "../server/dump-api-type.js";
+import { join } from "path";
 
 export function devServer(html: string): SFDevHook {
 	let server: Awaited<ReturnType<typeof createHttpServer>>;
@@ -29,6 +31,9 @@ export function devServer(html: string): SFDevHook {
 	};
 	function handleIns(obj: any) {
 		addInterceptor(devInterceptor, obj._rawObject);
+		const file = join(process.cwd(), "./route-type.ts");
+		_vite?.watcher.unwatch(file);
+		dumpRouteType(file, obj._rawObject);
 		return obj;
 	}
 	return {
