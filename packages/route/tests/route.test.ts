@@ -111,7 +111,7 @@ describe("路由测试", () => {
 					propertyKey: "",
 				},
 			],
-			params: { _0: "123" },
+			params: { _: "123" },
 		});
 		const ret2 = route("post", "/foo/bar");
 		expect(ret2).toEqual({
@@ -127,7 +127,7 @@ describe("路由测试", () => {
 					propertyKey: "",
 				},
 			],
-			params: { _0: "bar" },
+			params: { _: "bar" },
 		});
 	});
 	test("需要支持元数据", async () => {
