@@ -37,6 +37,7 @@ export async function loadViteConfig() {
 						noExternal: true,
 					},
 					build: {
+						sourcemap: true,
 						outDir: join("dist", i.name, mode),
 						...config.environments?.build,
 					},
@@ -107,14 +108,12 @@ export async function loadViteConfig() {
 			{
 				name: "ts",
 				enforce: "pre",
-
 				transform: {
-					filter: { id: /(j|t|m)sx?$/ },
+					filter: { id: /(m|c)?(j|t)sx?$/ },
 					handler(code: string, id: string, op) {
 						if (!["js", "jsx", "ts", "tsx"].includes(op?.moduleType as any)) {
 							return;
 						}
-						// if (!/(j|t|m)sx?$/.test(id)) return;
 						const side =
 							environmentNameToConfig[this.environment.name]?.config.side || [];
 						const factory: TransformerFactory<SourceFile>[] = [
