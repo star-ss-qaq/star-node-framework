@@ -20,6 +20,7 @@ export async function loadConfig() {
 			entry: join(process.cwd(), userConfig.entry || "src/index.ts"),
 			pluging: userConfig.pluging || [],
 			useDi: userConfig.useDi ?? true,
+			vitePlugin: userConfig.vitePlugin || [],
 		};
 		Object.freeze(loadedConfig);
 	}

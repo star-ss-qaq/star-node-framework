@@ -121,6 +121,7 @@ export async function loadViteConfig() {
 				},
 			},
 			...config.pluging.flatMap((i) => i.vitePlugin).filter(Boolean),
+			...config.vitePlugin,
 		],
 		resolve: {
 			alias: {},
