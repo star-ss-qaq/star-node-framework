@@ -7,10 +7,13 @@ export async function createRenderContext(
 	dataFn: () => any,
 ) {
 	if (route.finalRoute?.context?.render) {
+		const { obj, propertyKey } = route.finalRoute;
 		let view = route.finalRoute.context.render;
 		const layouts = route.allRoute.flatMap((r) => getLayots(r.obj));
 		const [data] = await Promise.all([
-			dataFn(),
+			typeof (obj as any)[propertyKey] === "function"
+				? dataFn()
+				: (obj as any)[propertyKey],
 			view.fetchResource?.(),
 			...layouts.map((l) => l.fetchResource?.()),
 		]);

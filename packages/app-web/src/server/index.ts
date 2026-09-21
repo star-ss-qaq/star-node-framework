@@ -42,23 +42,27 @@ export function createServerFactory(object: any) {
 
 					interceptors.push(...getInterceptors(obj, propertyKey));
 
-					const paramType = paramMeta.getParamMetadata(obj, propertyKey);
-					if (paramType.types.body) {
-						for (const h of handles) {
-							const handle = h(reqHeader, paramType.types.body.type);
-							if (handle) {
-								body = await handle(rawBody);
-								break;
+					if (typeof (obj as any)[propertyKey] === "function") {
+						const paramType = paramMeta.getParamMetadata(obj, propertyKey);
+						if (paramType.types.body) {
+							for (const h of handles) {
+								const handle = h(reqHeader, paramType.types.body.type);
+								if (handle) {
+									body = await handle(rawBody);
+									break;
+								}
 							}
 						}
-					}
 
-					call = async (req: CallProp) => {
-						const rawData = await paramMeta.call(obj, propertyKey, req);
-						return ResponseWithMeta.isResponseWithMeta(rawData)
-							? rawData
-							: new ResponseWithMeta(rawData);
-					};
+						call = async (req: CallProp) => {
+							const rawData = await paramMeta.call(obj, propertyKey, req);
+							return ResponseWithMeta.isResponseWithMeta(rawData)
+								? rawData
+								: new ResponseWithMeta(rawData);
+						};
+					} else {
+						call = () => new ResponseWithMeta((obj as any)[propertyKey]);
+					}
 				}
 
 				const handle = interceptors.reduceRight<

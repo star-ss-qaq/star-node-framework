@@ -15,7 +15,7 @@ export function SFWebPluging({
 	htmlPath = join(__dir, "../../resource/default-index.html"),
 } = {}): SFPluging {
 	const fullDistPath = join(process.cwd(), distPath);
-	const fullUnpackDistPath = join(distPath, ".unpack");
+	const fullUnpackDistPath = join(fullDistPath, ".unpack");
 
 	let html = "";
 	try {
@@ -60,6 +60,16 @@ export function SFWebPluging({
 				type: "include",
 				whenMethodDeclaration: {
 					enable: true,
+				},
+			},
+			{
+				import: "@thestarweb/star-framework-app-web",
+				name: ["View"],
+				side: "server",
+				type: "include",
+				whenMethodDeclaration: {
+					enable: true,
+					removeMode: { prop: true, body: "throw" },
 				},
 			},
 		],

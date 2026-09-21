@@ -22,30 +22,38 @@ export async function dumpRouteType(file: string, obj: object) {
 		routes[type as keyof typeof routes]!.forEach((meta, path) => {
 			if (!meta.finalRoute) return;
 			data.push(`\t\t\t${JSON.stringify(path)}:{`);
-			data.push(`\t\t\t\tprop:{`);
-			const param = paramMeta.getParamMetadata(
-				meta.finalRoute.obj,
-				meta.finalRoute.propertyKey,
-			);
-			if (param.types.body) {
+			const { obj, propertyKey } = meta.finalRoute;
+			if (typeof (obj as any)[propertyKey] === "function") {
+				data.push(`\t\t\t\tprop:{`);
+				const param = paramMeta.getParamMetadata(
+					meta.finalRoute.obj,
+					meta.finalRoute.propertyKey,
+				);
+				if (param.types.body) {
+					data.push(
+						`\t\t\t\t\tbody${param.types.body.required ? "" : "?"}:${dumpTSType(param.types.body.type)},`,
+					);
+				}
+				if (param.types.query) {
+					data.push(
+						`\t\t\t\t\tbody${param.types.query.required ? "" : "?"}:${dumpTSType(param.types.query.type)},`,
+					);
+				}
+				if (param.types.header) {
+					data.push(
+						`\t\t\t\t\tbody${param.types.header.required ? "" : "?"}:${dumpTSType(param.types.header.type)},`,
+					);
+				}
+				data.push(`\t\t\t\t},`);
 				data.push(
-					`\t\t\t\t\tbody${param.types.body.required ? "" : "?"}:${dumpTSType(param.types.body.type)},`,
+					`\t\t\t\treturn:ReturnType<App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}>`,
+				);
+			} else {
+				data.push(`\t\t\t\tprop:{},`);
+				data.push(
+					`\t\t\t\treturn:App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}`,
 				);
 			}
-			if (param.types.query) {
-				data.push(
-					`\t\t\t\t\tbody${param.types.query.required ? "" : "?"}:${dumpTSType(param.types.query.type)},`,
-				);
-			}
-			if (param.types.header) {
-				data.push(
-					`\t\t\t\t\tbody${param.types.header.required ? "" : "?"}:${dumpTSType(param.types.header.type)},`,
-				);
-			}
-			data.push(`\t\t\t\t},`);
-			data.push(
-				`\t\t\t\treturn:ReturnType<App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}>`,
-			);
 			data.push(`\t\t\t},`);
 		});
 		data.push(`\t\t}`);

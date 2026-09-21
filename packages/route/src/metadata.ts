@@ -47,12 +47,18 @@ export class RouteMetadata<
 		this.subRoute.bind(this);
 	}
 	private readonly routeMetaKey: string;
-	route<M extends T>(type: M) {
+	_route<
+		R extends
+			| MethodDecorator
+			| PropertyDecorator
+			| (MethodDecorator & PropertyDecorator),
+		M extends T,
+	>(type: M) {
 		const { routeMetaKey } = this;
 		return function (
 			path?: string,
 			context?: Partial<CommonOption & TypeOption[M]>,
-		): MethodDecorator {
+		) {
 			return function (target: any, propertyKey: string | symbol) {
 				initMetadata<RouteMeta[]>(target, routeMetaKey, undefined, []).push({
 					type,
@@ -61,8 +67,18 @@ export class RouteMetadata<
 					context,
 					isSubRoute: false,
 				});
-			};
+			} as R;
 		};
+	}
+
+	route<M extends T>(type: M) {
+		return this._route<MethodDecorator & PropertyDecorator, M>(type);
+	}
+	dynRoute<M extends T>(type: M) {
+		return this._route<MethodDecorator, M>(type);
+	}
+	staticRoute<M extends T>(type: M) {
+		return this._route<PropertyDecorator, M>(type);
 	}
 	subRoute(
 		path?: string,
