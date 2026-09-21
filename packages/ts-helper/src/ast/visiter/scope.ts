@@ -75,7 +75,7 @@ function parseLeft(
 
 function findFromScopeVar(path: string[], init?: ScopeVar): ScopeVar {
 	if (!init) return defalutUnknow;
-	if (path.length === 0) return init;
+	if (!path || path.length === 0) return init;
 	switch (init.type) {
 		case ScopeVarType.Array: {
 			const [current, ...next] = path;
