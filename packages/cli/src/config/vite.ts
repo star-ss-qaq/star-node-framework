@@ -33,6 +33,9 @@ export async function loadViteConfig() {
 				customEnvironment[envName] = {
 					input: "sf:main",
 					...config.environments,
+					resolve: {
+						noExternal: true,
+					},
 					build: {
 						outDir: join("dist", i.name, mode),
 						...config.environments?.build,
@@ -59,6 +62,16 @@ export async function loadViteConfig() {
 		input: "sf:main",
 		build: {
 			minify: false,
+			rolldownOptions: {
+				treeshake: {
+					moduleSideEffects: [
+						// { test: /\.css$/, sideEffects: true },
+						{ test: /^sf:/, sideEffects: true },
+						// { test: /polyfill/, sideEffects: true },
+						{ test: /.*/, sideEffects: false },
+					],
+				},
+			},
 		},
 		plugins: [
 			{
