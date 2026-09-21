@@ -36,6 +36,34 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 			context.updateTree(newcontext);
 		}
 	});
+	const addedEl = new WeakSet<HTMLAnchorElement>();
+	function handleAClick(ev: MouseEvent) {
+		const target = ev.target as HTMLAnchorElement;
+		if (target.download || target.target || ev.defaultPrevented) return;
+		const rawHref = target.getAttribute("href");
+		if (!rawHref || rawHref.startsWith("#")) return;
+		const route = routes("GET", target.pathname);
+		if (route.finalRoute) {
+			history.pushState(null, "", target.href.substring(target.origin.length));
+			ev.preventDefault();
+		}
+	}
+	window.addEventListener(
+		"click",
+		(ev) => {
+			if (ev.target instanceof HTMLElement) {
+				let el: HTMLElement | null = ev.target as HTMLElement;
+				while (el && el !== document.body) {
+					if (el instanceof HTMLAnchorElement && !addedEl.has(el)) {
+						addedEl.add(el);
+						el.addEventListener("click", handleAClick, true);
+					}
+					el = el.parentElement;
+				}
+			}
+		},
+		true,
+	);
 	const routesElements = findRouteDom();
 	routesElements.forEach((el) => {
 		context.hydrate(el as HTMLElement);
