@@ -18,7 +18,6 @@ import {
 } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { load, LoadableType } from "@thestarweb/star-framework-utils";
-import { LazyHydrationWrapper } from "vue3-lazy-hydration";
 
 export class VueRender implements IRender {
 	comp!: Component;
