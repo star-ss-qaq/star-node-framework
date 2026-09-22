@@ -8,7 +8,7 @@ export function renderVDomToString(
 		) => null | undefined | ((dom: HTMLVNode) => string);
 		customizeChildrenRender?: (
 			dom: HTMLVElement,
-		) => null | undefined | ((dom: HTMLVElement) => string);
+		) => null | undefined | ((dom: HTMLVElement, raw: () => string) => string);
 	},
 ): string;
 export function renderVDomToString(
@@ -19,7 +19,13 @@ export function renderVDomToString(
 		) => null | undefined | ((dom: HTMLVNode) => string | Promise<string>);
 		customizeChildrenRender?: (
 			dom: HTMLVElement,
-		) => null | undefined | ((dom: HTMLVElement) => string | Promise<string>);
+		) =>
+			| null
+			| undefined
+			| ((
+					dom: HTMLVElement,
+					raw: () => string | Promise<string>,
+			  ) => string | Promise<string>);
 	},
 ): string | Promise<string>;
 export function renderVDomToString(
@@ -30,7 +36,10 @@ export function renderVDomToString(
 		) => null | undefined | ((dom: HTMLVNode) => string | Promise<string>);
 		customizeChildrenRender?: (
 			dom: HTMLVElement,
-		) => null | undefined | ((dom: HTMLVElement) => string | Promise<string>);
+		) =>
+			| null
+			| undefined
+			| ((dom: HTMLVElement, raw: () => any) => string | Promise<string>);
 	} = {},
 ): string | Promise<string> {
 	if (Array.isArray(vDom)) {
@@ -50,7 +59,9 @@ export function renderVDomToString(
 				.join("");
 			const customizeChildrenRender = config.customizeChildrenRender?.(vDom);
 			const children = customizeChildrenRender
-				? customizeChildrenRender(vDom)
+				? customizeChildrenRender(vDom, () =>
+						renderVDomToString(vDom.children, config),
+					)
 				: renderVDomToString(vDom.children, config);
 			const render = (children: string) =>
 				`<${vDom.tagName}${attt}>${children}</${vDom.tagName}>`;

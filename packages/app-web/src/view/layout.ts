@@ -1,13 +1,20 @@
 import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
 import { IRender } from "./render/render.js";
+import { ViewInfo, ViewMeta } from "./types.js";
 
 const mateKey = "$sf:app-web:view:layout";
 
-export function Layout(render: IRender): ClassDecorator {
+export function Layout(
+	render: IRender,
+	meta?: ViewInfo<ViewMeta>["meta"],
+): ClassDecorator {
 	return function (target) {
-		initMetadata<IRender[]>(target, mateKey, undefined, []).push(render);
+		initMetadata<ViewInfo<ViewMeta>[]>(target, mateKey, undefined, []).push({
+			render,
+			meta,
+		});
 	};
 }
 export function getLayots(target: any) {
-	return getMetadata<IRender[]>(target, mateKey, undefined, []);
+	return getMetadata<ViewInfo<ViewMeta>[]>(target, mateKey, undefined, []);
 }

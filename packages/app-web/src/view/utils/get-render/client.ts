@@ -1,5 +1,6 @@
 import { parseRoute } from "../../../route/index.js";
 import { RenderContext } from "../../render/index.js";
+import { ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
 import { createRenderContext } from "./common.js";
 
@@ -14,6 +15,10 @@ function listenerRoute(callback: () => void) {
 	});
 }
 
+function handleMeta(meta: ViewMeta) {
+	document.title = meta.title;
+}
+
 export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	const route = routes("GET", location.pathname);
 	const getData = async () => {
@@ -24,10 +29,11 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 		return undefined;
 	};
 	const context = await createRenderContext(route, getData);
-
+	handleMeta(context.meta);
 	listenerRoute(async () => {
 		const route = routes("GET", location.pathname);
-		createRenderContext(route, getData, context);
+		const c = await createRenderContext(route, getData, context);
+		handleMeta(c.meta);
 	});
 	const addedEl = new WeakSet<HTMLAnchorElement>();
 	function handleAClick(ev: MouseEvent) {
@@ -59,6 +65,6 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	);
 	const routesElements = findRouteDom();
 	routesElements.forEach((el) => {
-		context.hydrate(el as HTMLElement, {});
+		context.render.hydrate(el as HTMLElement, {});
 	});
 };

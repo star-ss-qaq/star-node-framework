@@ -1,5 +1,4 @@
 import { parseHtmlToVDom } from "../html/index.js";
-import { IRender } from "./render.js";
 import { SFVDomRender } from "./sf-v-dom-render.js";
 
 export class HTMLRender extends SFVDomRender {

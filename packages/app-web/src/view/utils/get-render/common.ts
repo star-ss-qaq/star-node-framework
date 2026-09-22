@@ -1,3 +1,4 @@
+import { title } from "node:process";
 import { RouteType } from "../../../route/index.js";
 import {
 	SFRawDataContext,
@@ -5,6 +6,7 @@ import {
 } from "../../data-context/index.js";
 import { getLayots } from "../../layout.js";
 import { RenderContext } from "../../render/index.js";
+import { ViewMeta } from "../../types.js";
 
 function createRawDataContext(route: RouteType<"GET">) {
 	const routeRawcontext = new SFRawDataContext(route);
@@ -22,8 +24,10 @@ function createRawDataContext(route: RouteType<"GET">) {
 	};
 }
 
-export type RootRenderContext = RenderContext & {
-	__rawSystemContext: ReturnType<typeof createRawDataContext>;
+export type RootRenderContext = {
+	render: RenderContext;
+	rawSystemDataContext: ReturnType<typeof createRawDataContext>;
+	meta: ViewMeta;
 };
 
 export async function createRenderContext(
@@ -32,38 +36,59 @@ export async function createRenderContext(
 	leastContext?: RootRenderContext,
 ): Promise<RootRenderContext> {
 	const rawDataContext =
-		leastContext?.__rawSystemContext || createRawDataContext(route);
+		leastContext?.rawSystemDataContext || createRawDataContext(route);
 	let newContext: RenderContext;
-	if (route.finalRoute?.context?.render) {
+	let meta: ViewMeta;
+	if (route.finalRoute?.context?.view) {
 		const { obj, propertyKey } = route.finalRoute;
-		let view = route.finalRoute.context.render;
+		let view = route.finalRoute.context.view;
 		const layouts = route.allRoute.flatMap((r) => getLayots(r.obj));
 		const [data] = await Promise.all([
 			typeof (obj as any)[propertyKey] === "function"
 				? dataFn()
 				: (obj as any)[propertyKey],
-			view.fetchResource?.(),
-			...layouts.map((l) => l.fetchResource?.()),
+			view.render.fetchResource?.(),
+			...layouts.map((l) => l.render.fetchResource?.()),
 		]);
-		let render = RenderContext.create(rawDataContext.createChild(), view, data);
-		newContext = layouts.reduceRight((previousValue, currentValue) => {
-			return RenderContext.create(
-				rawDataContext.createChild(),
-				currentValue,
-				undefined,
-				previousValue,
-			);
-		}, render);
+		let render = RenderContext.create(
+			rawDataContext.createChild(),
+			view.render,
+			data,
+		);
+		let baseData =
+			typeof view.meta === "function"
+				? view.meta(data)
+				: view.meta || { title: "" };
+		({ newContext, meta } = layouts.reduceRight(
+			({ newContext, meta }, currentValue) => {
+				return {
+					newContext: RenderContext.create(
+						rawDataContext.createChild(),
+						currentValue.render,
+						undefined,
+						newContext,
+					),
+					meta:
+						typeof currentValue.meta === "function"
+							? currentValue.meta(meta)
+							: currentValue.meta || meta,
+				};
+			},
+			{ newContext: render, meta: baseData },
+		));
 	} else {
 		newContext = RenderContext.createNoop(rawDataContext.createChild());
+		meta = { title: "" };
 	}
 	if (leastContext) {
-		leastContext.updateTree(newContext);
+		leastContext.render.updateTree(newContext);
 		rawDataContext.update(route);
+		newContext = leastContext.render;
 	}
-	return (
-		leastContext ||
-		Object.assign(newContext, { __rawSystemContext: rawDataContext })
-	);
+	return {
+		render: newContext,
+		rawSystemDataContext: rawDataContext,
+		meta,
+	};
 }
 export const routeElementSelector = "sf-route";

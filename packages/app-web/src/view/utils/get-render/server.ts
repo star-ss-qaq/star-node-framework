@@ -28,16 +28,18 @@ export const createServerRender: (
 	return async (prop, next) => {
 		const nextPromise = next(prop);
 		const { accept, "sec-fetch-dest": fetchDest } = prop.header;
-		const render =
+		const rootContext =
 			prop.method === "GET" &&
-			(prop.route.finalRoute?.context as any)?.render &&
+			(prop.route.finalRoute?.context as any)?.view &&
 			(accept?.includes("text/html") || ["document"].includes(fetchDest))
 				? await createRenderContext(prop.route, async () => {
 						const ret = await nextPromise;
 						return ret.data;
 					})
 				: undefined;
-		if (render) {
+		console.log(rootContext);
+		if (rootContext) {
+			const { render, meta } = rootContext;
 			const nextRet = await nextPromise;
 			const res = await render.warpRenderToString({});
 			return new ResponseWithMeta(
@@ -45,6 +47,18 @@ export const createServerRender: (
 					customizeChildrenRender: (dom) => {
 						if (dom.tagName === routeElementSelector) {
 							return () => res;
+						}
+						if (dom.tagName === "head") {
+							return (dom, raw) => {
+								let res = [raw()];
+								res.push(`<title>${meta.title}</title>`);
+								if (meta.htmlMeta) {
+									Object.entries(meta.htmlMeta).forEach(([k, v]) =>
+										res.push(`<meta name="${k}" content="${v}">`),
+									);
+								}
+								return res.join("");
+							};
 						}
 					},
 				}),
