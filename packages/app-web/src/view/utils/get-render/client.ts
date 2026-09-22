@@ -23,18 +23,11 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 		}
 		return undefined;
 	};
-	const context =
-		(await createRenderContext(route, getData)) || RenderContext.createNoop();
+	const context = await createRenderContext(route, getData);
 
-	let currentRenderID = 0;
 	listenerRoute(async () => {
-		const thisRenderId = ++currentRenderID;
 		const route = routes("GET", location.pathname);
-		const newcontext =
-			(await createRenderContext(route, getData)) || RenderContext.createNoop();
-		if (thisRenderId === currentRenderID) {
-			context.updateTree(newcontext);
-		}
+		createRenderContext(route, getData, context);
 	});
 	const addedEl = new WeakSet<HTMLAnchorElement>();
 	function handleAClick(ev: MouseEvent) {
@@ -66,6 +59,6 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	);
 	const routesElements = findRouteDom();
 	routesElements.forEach((el) => {
-		context.hydrate(el as HTMLElement);
+		context.hydrate(el as HTMLElement, {});
 	});
 };

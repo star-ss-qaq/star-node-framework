@@ -12,6 +12,9 @@ export {
 	RenderContext,
 	type RenderInstance,
 	type WarpRenderInstance,
+	type RenderDataContext,
+	SFDataContext,
+	SFRawDataContext,
 } from "./view/index.js";
 // @side-only server
 export { createServerFactory } from "./server/index.js";

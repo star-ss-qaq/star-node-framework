@@ -30,6 +30,7 @@ export const createServerRender: (
 		const { accept, "sec-fetch-dest": fetchDest } = prop.header;
 		const render =
 			prop.method === "GET" &&
+			(prop.route.finalRoute?.context as any)?.render &&
 			(accept?.includes("text/html") || ["document"].includes(fetchDest))
 				? await createRenderContext(prop.route, async () => {
 						const ret = await nextPromise;
@@ -38,7 +39,7 @@ export const createServerRender: (
 				: undefined;
 		if (render) {
 			const nextRet = await nextPromise;
-			const res = await render.warpRenderToString();
+			const res = await render.warpRenderToString({});
 			return new ResponseWithMeta(
 				renderVDomToString(htmlVDdom, {
 					customizeChildrenRender: (dom) => {

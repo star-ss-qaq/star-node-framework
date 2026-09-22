@@ -1,10 +1,12 @@
 import {
+	type RenderDataContext,
 	WarpRenderInstance,
 	type IRender,
 	type RenderContext,
 	type RenderInstance,
 } from "@thestarweb/star-framework-app-web";
 import {
+	App,
 	Component,
 	createApp,
 	createSSRApp,
@@ -14,10 +16,10 @@ import {
 	onUpdated,
 	ref,
 	shallowRef,
-	watch,
 } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { load, LoadableType } from "@thestarweb/star-framework-utils";
+import { routeKey, sfContextToRef } from "./data-context/index.js";
 
 export class VueRender implements IRender {
 	comp!: Component;
@@ -25,8 +27,16 @@ export class VueRender implements IRender {
 	async fetchResource() {
 		this.comp = await load(this.compLoader);
 	}
-	async renderToString(prop: any, child: RenderContext) {
+	_makeContext(context: RenderDataContext, app: App) {
+		app.provide(routeKey, sfContextToRef(context.system.route));
+	}
+	async renderToString(
+		context: RenderDataContext,
+		prop: any,
+		child: RenderContext,
+	) {
 		const app = createApp(this.comp, prop);
+		this._makeContext(context, app);
 		app.component(
 			"sf-route",
 			defineAsyncComponent(async () => {
@@ -34,7 +44,7 @@ export class VueRender implements IRender {
 				if (subRender instanceof VueRender) {
 					return h(subRender.comp, prop);
 				}
-				const str = await child.warpRenderToString();
+				const str = await child.warpRenderToString({});
 				return h("div", {
 					innerHTML: str,
 				});
@@ -47,15 +57,19 @@ export class VueRender implements IRender {
 	}
 	_mount(
 		dom: HTMLElement,
+		context: RenderDataContext,
 		prop: any,
 		chrild: RenderContext,
 		hydrate: boolean,
 	): RenderInstance {
 		const refProp = shallowRef(prop);
 		const refChild = shallowRef(chrild);
-		const app = (hydrate ? createSSRApp : createApp)(() =>
-			h(this.comp, refProp.value),
-		);
+		const app = (hydrate ? createSSRApp : createApp)({
+			setup: () => {
+				return () => h(this.comp, refProp.value);
+			},
+		});
+		this._makeContext(context, app);
 		app.component("sf-route", {
 			setup: () => {
 				const divRef = ref<HTMLDivElement>();
@@ -64,7 +78,7 @@ export class VueRender implements IRender {
 					ins?.unMount();
 					ins = null;
 					if (!(refChild.value.render instanceof VueRender)) {
-						ins = chrild[hydrate ? "hydrate" : "mount"](divRef.value!);
+						ins = chrild[hydrate ? "hydrate" : "mount"](divRef.value!, {});
 					}
 				};
 				onMounted(() => {
@@ -92,10 +106,20 @@ export class VueRender implements IRender {
 			updateChild: (newChild) => (refChild.value = newChild),
 		};
 	}
-	mount(dom: HTMLElement, prop: any, chrild: RenderContext) {
-		return this._mount(dom, prop, chrild, false);
+	mount(
+		dom: HTMLElement,
+		context: RenderDataContext,
+		prop: any,
+		chrild: RenderContext,
+	) {
+		return this._mount(dom, context, prop, chrild, false);
 	}
-	hydrate(dom: HTMLElement, prop: any, chrild: RenderContext) {
-		return this._mount(dom, prop, chrild, true);
+	hydrate(
+		dom: HTMLElement,
+		context: RenderDataContext,
+		prop: any,
+		chrild: RenderContext,
+	) {
+		return this._mount(dom, context, prop, chrild, true);
 	}
 }

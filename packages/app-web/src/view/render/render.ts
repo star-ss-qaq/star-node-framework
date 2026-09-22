@@ -1,3 +1,9 @@
+import {
+	forkDataContextRecord,
+	RenderDataContext,
+	SystemRenderDataContext,
+	UserRenderDataContext,
+} from "../data-context/index.js";
 import { parseHtmlToVDom } from "../html/parse-html-to-v-dom.js";
 import { findRouteDom } from "../utils/index.js";
 
@@ -11,6 +17,7 @@ export class WarpRenderInstance {
 		public readonly conetxt: RenderContext,
 		public readonly dom: HTMLElement,
 		public readonly rawInstance: RenderInstance,
+		public readonly dataContext: RenderDataContext,
 	) {
 		this.conetxt._instances.push(this);
 	}
@@ -26,27 +33,43 @@ export class WarpRenderInstance {
 
 export interface IRender {
 	fetchResource?(): Promise<void> | void;
-	renderToString?(prop: any, chrild: RenderContext): string | Promise<string>;
-	mount?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
-	hydrate?(dom: HTMLElement, prop: any, chrild: RenderContext): RenderInstance;
+	renderToString?(
+		dataContext: RenderDataContext,
+		prop: any,
+		chrild: RenderContext,
+	): string | Promise<string>;
+	mount?(
+		dom: HTMLElement,
+		dataContext: RenderDataContext,
+		prop: any,
+		chrild: RenderContext,
+	): RenderInstance;
+	hydrate?(
+		dom: HTMLElement,
+		dataContext: RenderDataContext,
+		prop: any,
+		chrild: RenderContext,
+	): RenderInstance;
 }
 export class RenderContext {
 	private constructor(
+		private _systemDataContext: SystemRenderDataContext,
 		private _render: IRender,
 		private _prop: any,
 		// 结尾始终要跟一个空的RenderContext
 		// 原因：比如一个layout命中了 但是下面的页面没有命中，但是layout切换页面时，layout本身不应该重新渲染，所以需要一开始给它一个占位的空姐点，然后更新这个空节点
 		private _child?: RenderContext,
 	) {}
-	public static createNoop() {
-		return new RenderContext({}, {});
+	public static createNoop(systemDataContext: SystemRenderDataContext) {
+		return new RenderContext(systemDataContext, {}, {});
 	}
 	public static create(
+		systemDataContext: SystemRenderDataContext,
 		render: IRender,
 		prop: any,
-		child: RenderContext = this.createNoop(),
+		child: RenderContext = this.createNoop(systemDataContext),
 	) {
-		return new RenderContext(render, prop, child);
+		return new RenderContext(systemDataContext, render, prop, child);
 	}
 	get render() {
 		return this._render;
@@ -57,9 +80,18 @@ export class RenderContext {
 	get child() {
 		return this._child;
 	}
-	async warpRenderToString() {
+	async warpRenderToString(dataContext: UserRenderDataContext) {
 		if (this._child) {
-			return (await this.render.renderToString?.(this.prop, this._child)) || "";
+			return (
+				(await this.render.renderToString?.(
+					{
+						system: forkDataContextRecord(this._systemDataContext),
+						user: forkDataContextRecord(dataContext),
+					},
+					this.prop,
+					this._child,
+				)) || ""
+			);
 		}
 		return "";
 	}
@@ -67,35 +99,58 @@ export class RenderContext {
 	 * @internal
 	 */
 	_instances: WarpRenderInstance[] = [];
-	mount(dom: HTMLElement) {
+	mount(dom: HTMLElement, dataContext: UserRenderDataContext) {
 		let instance: RenderInstance = {};
+		const fullDataContext = {
+			system: forkDataContextRecord(this._systemDataContext),
+			user: forkDataContextRecord(dataContext),
+		};
 		if (this._child) {
 			if (this.render.mount) {
-				instance = this.render.mount(dom, this.prop, this._child);
+				instance = this.render.mount(
+					dom,
+					fullDataContext,
+					this.prop,
+					this._child,
+				);
 			} else if (this.render.renderToString) {
 				Promise.resolve(
-					this.render.renderToString(this.prop, this._child),
+					this.render.renderToString(fullDataContext, this.prop, this._child),
 				).then((html) => (dom.innerHTML = html));
 			}
 		}
-		return new WarpRenderInstance(this, dom, instance);
+		return new WarpRenderInstance(this, dom, instance, fullDataContext);
 	}
-	hydrate(dom: HTMLElement) {
+	hydrate(dom: HTMLElement, dataContext: UserRenderDataContext) {
 		let instance: RenderInstance = {};
+		const fullDataContext = {
+			system: forkDataContextRecord(this._systemDataContext),
+			user: forkDataContextRecord(dataContext),
+		};
 		if (this._child) {
 			if (this.render.hydrate) {
-				instance = this.render.hydrate(dom, this.prop, this._child);
+				instance = this.render.hydrate(
+					dom,
+					fullDataContext,
+					this.prop,
+					this._child,
+				);
 			} else if (this.render.renderToString) {
 				// const vDom = parseHtmlToVDom(
 				// 	this.render.renderToString(this.prop, this._child),
 				// );
 				const routeDoms = findRouteDom(dom);
-				routeDoms.forEach((r) => this.child!.hydrate(r));
+				routeDoms.forEach((r) => this.child!.hydrate(r, dataContext));
 			} else if (this.render.mount) {
-				instance = this.render.mount(dom, this.prop, this._child);
+				instance = this.render.mount(
+					dom,
+					fullDataContext,
+					this.prop,
+					this._child,
+				);
 			}
 		}
-		return new WarpRenderInstance(this, dom, instance);
+		return new WarpRenderInstance(this, dom, instance, fullDataContext);
 	}
 	unmountAll() {
 		this._instances.forEach((i) => i.unMount());
@@ -154,7 +209,7 @@ export class RenderContext {
 			await Promise.all(
 				this._instances.map(async (i) => {
 					i.unMount();
-					await this.mount(i.dom);
+					await this.mount(i.dom, i.dataContext.user);
 				}),
 			);
 		} else {

@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type": "module",
+  "sideEffects":false,
   "scripts": {
     "build": "tspc -p tsconfig.build.json",
     "dev": "tspc -p tsconfig.build.json --watch",

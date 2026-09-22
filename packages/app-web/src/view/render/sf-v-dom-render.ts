@@ -1,3 +1,4 @@
+import { RenderDataContext } from "../data-context/index.js";
 import { renderVDomToString } from "../html/render-v-dom-to-string.js";
 import { HTMLVNode } from "../html/types.js";
 import { IRender, RenderContext } from "./render.js";
@@ -21,11 +22,11 @@ export class SFVDomRender implements IRender {
 			this.dom = this.domFn;
 		}
 	}
-	renderToString(prop: any, chrild: RenderContext) {
+	renderToString(context: RenderDataContext, prop: any, chrild: RenderContext) {
 		return renderVDomToString(this.dom, {
 			customizeChildrenRender: (el) => {
 				if (el.tagName === "sf-route") {
-					return () => chrild.warpRenderToString();
+					return () => chrild.warpRenderToString(context.user);
 				}
 			},
 		});
