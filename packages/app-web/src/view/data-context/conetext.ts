@@ -9,6 +9,9 @@ export class SFDataContext<T> {
 		return this._root.createChild();
 	}
 	watch(callback: (newValue: T) => void, updateNow = false) {
+		if (this.callbacks.size === 0)
+			// @ts-ignore 2341
+			this._root.children.add(this);
 		this.callbacks.add(callback);
 		if (updateNow) callback(this.value);
 	}
@@ -22,7 +25,6 @@ export class SFRawDataContext<T> {
 		return this._value;
 	}
 	update(newValue: T) {
-		console.log(111);
 		this._value = newValue;
 		const called = new Set();
 		this.children.forEach((i) => {
@@ -39,7 +41,6 @@ export class SFRawDataContext<T> {
 		const child: SFDataContext<T> =
 			// @ts-ignore
 			new SFDataContext(this);
-		this.children.add(child);
 		return child;
 	}
 	distoryChild(child: SFDataContext<T>) {

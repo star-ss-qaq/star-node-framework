@@ -1,6 +1,7 @@
 import {
 	forkDataContextRecord,
 	RenderDataContext,
+	SFDataContext,
 	SystemRenderDataContext,
 	UserRenderDataContext,
 } from "../data-context/index.js";
@@ -27,6 +28,9 @@ export class WarpRenderInstance {
 		} else {
 			this.dom.innerHTML = "";
 		}
+		Object.values(this.dataContext).forEach((o) => {
+			Object.values<any>(o).forEach((c: SFDataContext<any>) => c.distory());
+		});
 		this.conetxt._instances = this.conetxt._instances.filter((i) => i !== this);
 	}
 }
