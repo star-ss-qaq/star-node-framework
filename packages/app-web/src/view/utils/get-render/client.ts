@@ -1,8 +1,12 @@
 import { parseRoute } from "../../../route/index.js";
 import { RenderContext } from "../../render/index.js";
-import { ViewMeta } from "../../types.js";
+import { RenderConfig, ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
-import { createRenderContext } from "./common.js";
+import {
+	createRootRenderContext,
+	ssrToBrowserDataKey,
+	updateRootRenderContext,
+} from "./common.js";
 
 function listenerRoute(callback: () => void) {
 	const rawPush = history.pushState;
@@ -20,6 +24,8 @@ function handleMeta(meta: ViewMeta) {
 }
 
 export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
+	const { config, pageData } = (window as any)[ssrToBrowserDataKey];
+	delete (window as any)[ssrToBrowserDataKey];
 	const route = routes("GET", location.pathname);
 	const getData = async () => {
 		const res = await fetch(location.href);
@@ -28,11 +34,11 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 		}
 		return undefined;
 	};
-	const context = await createRenderContext(route, getData);
+	const context = await createRootRenderContext(config, route, () => pageData);
 	handleMeta(context.meta);
 	listenerRoute(async () => {
 		const route = routes("GET", location.pathname);
-		const c = await createRenderContext(route, getData, context);
+		const c = await updateRootRenderContext(context, route, getData);
 		handleMeta(c.meta);
 	});
 	const addedEl = new WeakSet<HTMLAnchorElement>();

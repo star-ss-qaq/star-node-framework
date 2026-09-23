@@ -12,3 +12,7 @@ export interface ViewInfo<T = any> {
 	render: IRender;
 	meta?: ViewMeta | ((data: T) => ViewMeta);
 }
+
+export interface RenderConfig {
+	baseUrl: string;
+}
