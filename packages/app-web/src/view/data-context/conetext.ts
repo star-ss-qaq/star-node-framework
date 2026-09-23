@@ -47,13 +47,13 @@ export class SFRawDataContext<T> {
 		this.children.delete(child);
 	}
 }
-export function forkDataContextRecord<
-	T extends Record<keyof T, SFDataContext<any>>,
->(data: T): T {
+export function forkDataContextRecord<T extends Record<keyof T, any>>(
+	data: T,
+): T {
 	return Object.fromEntries(
 		Object.entries(data).map(([k, context]) => [
 			k,
-			(context as SFDataContext<any>).fock(),
+			context instanceof SFDataContext ? context.fock() : context,
 		]),
 	) as T;
 }

@@ -29,7 +29,9 @@ export class WarpRenderInstance {
 			this.dom.innerHTML = "";
 		}
 		Object.values(this.dataContext).forEach((o) => {
-			Object.values<any>(o).forEach((c: SFDataContext<any>) => c.distory());
+			Object.values<any>(o).forEach(
+				(c) => c instanceof SFDataContext && c.distory(),
+			);
 		});
 		this.conetxt._instances = this.conetxt._instances.filter((i) => i !== this);
 	}

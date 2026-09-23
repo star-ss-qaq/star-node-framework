@@ -7,10 +7,11 @@ import {
 import { getLayots } from "../../layout.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
+import { SFWebRequest } from "../../../request/index.js";
 
 function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 	const routeRawcontext = new SFRawDataContext(route);
-	const requestRawcontext = new SFRawDataContext(null);
+	const { baseUrl } = config;
 	return {
 		update(route: RouteType<"GET">) {
 			routeRawcontext.update(route);
@@ -18,7 +19,8 @@ function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 		createChild(): SystemRenderDataContext {
 			return {
 				route: routeRawcontext.createChild(),
-				request: requestRawcontext.createChild(),
+				request: new SFWebRequest(baseUrl),
+				baseUrl,
 			};
 		},
 	};

@@ -1,14 +1,9 @@
-import { computed, ComputedRef, inject, shallowRef, ShallowRef } from "vue";
-import { GetSFDataContextType } from "./context-helper.js";
-import { RenderDataContext } from "@thestarweb/star-framework-app-web";
+import { computed } from "vue";
+import { createSystemProvide } from "./context-helper.js";
 
-export const routeKey = Symbol();
-
-export function useRoute() {
-	return inject<
-		ComputedRef<GetSFDataContextType<RenderDataContext["system"]["route"]>>
-	>(
-		routeKey,
-		computed(() => ({ allRoute: [] })),
-	);
-}
+const base = createSystemProvide(
+	"route",
+	computed(() => ({ allRoute: [] })),
+);
+export const provideRoute = base.provide;
+export const useRoute = base.use;

@@ -36,12 +36,12 @@ export async function dumpRouteType(file: string, obj: object) {
 				}
 				if (param.types.query) {
 					data.push(
-						`\t\t\t\t\tbody${param.types.query.required ? "" : "?"}:${dumpTSType(param.types.query.type)},`,
+						`\t\t\t\t\tquery${param.types.query.required ? "" : "?"}:${dumpTSType(param.types.query.type)},`,
 					);
 				}
 				if (param.types.header) {
 					data.push(
-						`\t\t\t\t\tbody${param.types.header.required ? "" : "?"}:${dumpTSType(param.types.header.type)},`,
+						`\t\t\t\t\theader${param.types.header.required ? "" : "?"}:${dumpTSType(param.types.header.type)},`,
 					);
 				}
 				data.push(`\t\t\t\t},`);

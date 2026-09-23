@@ -19,7 +19,7 @@ import {
 } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { load, LoadableType } from "@thestarweb/star-framework-utils";
-import { routeKey, sfContextToRef } from "./data-context/index.js";
+import { provideSystemContext } from "./data-context/index.js";
 
 export class VueRender implements IRender {
 	comp!: Component;
@@ -28,7 +28,7 @@ export class VueRender implements IRender {
 		this.comp = await load(this.compLoader);
 	}
 	_makeContext(context: RenderDataContext, app: App) {
-		app.provide(routeKey, sfContextToRef(context.system.route));
+		provideSystemContext(context, app);
 	}
 	async renderToString(
 		context: RenderDataContext,
