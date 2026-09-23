@@ -17,7 +17,7 @@ import { BuildRes, SFPluging } from "../plugin/index.js";
 import { callWithHook } from "./call-with-hook.js";
 import { TypeInfo } from "./type.js";
 import { RolldownOutput } from "rolldown";
-import { join } from "path";
+import { isAbsolute, join } from "path";
 
 class SFCli {
 	private _allTypes?: Map<string, SFPluging[]>;
@@ -148,7 +148,9 @@ class SFCli {
 				const buildRes: BuildRes = {
 					main: [],
 					assets: [],
-					distPath: join(process.cwd(), e.config.build.outDir),
+					distPath: isAbsolute(e.config.build.outDir)
+						? e.config.build.outDir
+						: join(process.cwd(), e.config.build.outDir),
 				};
 				res.output.forEach((o) => {
 					if ((o as any).isEntry) {
