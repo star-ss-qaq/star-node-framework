@@ -1,3 +1,4 @@
+import { dumpTypeNameBase } from "./dump-type-name.js";
 import { ParamType, ParamTypeEnum } from "./types.js";
 
 export type ParamTypeTransformer = Partial<
@@ -60,7 +61,7 @@ export function buildType(
 			)(data, type);
 			if (checker(newValue)) return newValue;
 		}
-		throwError(`need ${type.type}, but got ${String(data)}`);
+		throwError(`need ${dumpTypeNameBase(type)}, but got ${String(data)}`);
 	};
 	switch (type.type) {
 		case ParamTypeEnum.Never:
@@ -166,7 +167,7 @@ export function buildType(
 			} else {
 				retObj = Object.fromEntries(entries);
 			}
-			if (Object.hasOwn(type, "constructor")) {
+			if (Object.hasOwn(type, "constructor") && type.constructor) {
 				Object.setPrototypeOf(retObj, type.constructor);
 			}
 			return retObj;
