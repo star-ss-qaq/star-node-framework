@@ -52,13 +52,14 @@ export type ScopeVar =
 	| { type: ScopeVarType.Unknow };
 export type Scope = Record<string, ScopeVar>;
 
-export interface TSVisriorConfig {
-	enableScop?: boolean;
-	globalScop?: Scope;
-}
-export type TSVisrior = (<T extends Node>(
+export type TSVisriorFn = <T extends Node>(
 	node: T,
 	factory: NodeFactory,
 	scope: ScopeHelper,
-) => T | Node[]) &
-	TSVisriorConfig;
+) => T | Node[];
+export interface TSVisrior {
+	enableScop?: boolean;
+	globalScop?: Scope;
+	before?: TSVisriorFn;
+	after?: TSVisriorFn;
+}

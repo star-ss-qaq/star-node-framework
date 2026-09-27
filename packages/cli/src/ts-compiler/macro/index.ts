@@ -1,26 +1,7 @@
-import {
-	Node,
-	MethodDeclaration,
-	isCallExpression,
-	isIdentifier,
-	isStringLiteral,
-	SyntaxKind,
-	ModifierLike,
-	isTypeReferenceNode,
-	isObjectLiteralExpression,
-	isPropertyAssignment,
-	SourceFile,
-	isSourceFile,
-} from "typescript";
-import {
-	parseExpressionToValue,
-	ScopeVarType,
-	setTSVisriorConfig,
-	TSVisrior,
-} from "@thestarweb/ts-helper";
+import { SyntaxKind, SourceFile, isSourceFile } from "typescript";
+import { ScopeVarType, type TSVisrior } from "@thestarweb/ts-helper";
 import "./definition.js";
 import { SiteOnlyConfig, TypeVisitor } from "./types.js";
-import { isKeepInSide } from "./utils/side-check.js";
 import { shouldRemoverByComment } from "./utils/comment.js";
 import { systemConfig } from "./system-config.js";
 import { createClassHandle } from "./handles/class.js";
@@ -40,37 +21,34 @@ export function crreateSideOnlyVisitor(config: SiteOnlyConfig = {}) {
 		[SyntaxKind.CallExpression]: createCallExpressionHandle(rule),
 	};
 	let sourceFile: SourceFile;
-	return (currentSide: StarFrameworkSide[]) =>
-		setTSVisriorConfig(
-			(node, factory, scopeHelper) => {
-				if (isSourceFile(node)) {
-					sourceFile = node;
-				} else if (shouldRemoverByComment(currentSide, node)) {
-					return undefined as any;
-				}
-				if (handelMap[node.kind]) {
-					return handelMap[node.kind]!(currentSide, node, factory, scopeHelper);
-				}
-				return node;
-			},
-			{
-				enableScop: true,
-				globalScop: Object.fromEntries(
-					rule
-						.filter((i) =>
-							Array.isArray(i.import) ? i.import.includes("") : i.import === "",
-						)
-						.flatMap((i) => {
-							return (Array.isArray(i.name) ? i.name : [i.name]).map((j) => [
-								j,
-								{
-									type: ScopeVarType.Import,
-									filePath: "",
-									varPath: [j],
-								},
-							]);
-						}),
-				),
-			},
-		);
+	return (currentSide: StarFrameworkSide[]): TSVisrior => ({
+		enableScop: true,
+		globalScop: Object.fromEntries(
+			rule
+				.filter((i) =>
+					Array.isArray(i.import) ? i.import.includes("") : i.import === "",
+				)
+				.flatMap((i) => {
+					return (Array.isArray(i.name) ? i.name : [i.name]).map((j) => [
+						j,
+						{
+							type: ScopeVarType.Import,
+							filePath: "",
+							varPath: [j],
+						},
+					]);
+				}),
+		),
+		before(node, factory, scopeHelper) {
+			if (isSourceFile(node)) {
+				sourceFile = node;
+			} else if (shouldRemoverByComment(currentSide, node)) {
+				return undefined as any;
+			}
+			if (handelMap[node.kind]) {
+				return handelMap[node.kind]!(currentSide, node, factory, scopeHelper);
+			}
+			return node;
+		},
+	});
 }

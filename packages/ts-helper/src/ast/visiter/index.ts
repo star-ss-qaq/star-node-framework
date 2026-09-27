@@ -11,35 +11,53 @@ import {
 	visitEachChild,
 } from "typescript";
 import { parseExpressionToValue } from "../parse-to-value.js";
-import { ScopeVarType, TSVisrior, TSVisriorConfig } from "./type.js";
+import { ScopeVarType, TSVisrior } from "./type.js";
 import { ScopeHelper } from "./scope.js";
 
 export function tsVisitorHandel(
 	context: TransformationContext,
-	visrior: TSVisrior,
+	visrior: TSVisrior | TSVisrior[],
 	file: SourceFile,
 ) {
-	const { globalScop = {}, enableScop = false } = visrior;
+	if (!Array.isArray(visrior)) return tsVisitorHandel(context, [visrior], file);
+	const enableScop = visrior.some((v) => v.enableScop);
 	let scopes: ScopeHelper[] = [];
 	let currentScope = new ScopeHelper();
-	Object.entries(globalScop).forEach(([k, s]) => {
-		currentScope.scope[k] = s;
+	visrior.forEach((v) => {
+		if (v.globalScop) {
+			Object.entries(v.globalScop).forEach(([k, s]) => {
+				currentScope.scope[k] = s;
+			});
+		}
 	});
-	const innerVisitor = <T extends Node>(node: T): T => {
+	const beforeVisriors = visrior.filter((i) => i.before);
+	const afterVisriors = visrior.filter((i) => i.after);
+	const innerVisitor = <T extends Node>(node: T): T[] => {
 		let flagIsBlock = false;
 		if (enableScop && isBlock(node)) {
 			scopes.push(currentScope);
 			currentScope = new ScopeHelper(currentScope);
 			flagIsBlock = true;
 		}
-
-		const resNode = visitEachChild<T>(
-			visrior(node as any, context.factory, currentScope) as T,
-			innerVisitor,
-			context,
+		const beforeNode = beforeVisriors.reduce(
+			(nodes, visrior) =>
+				nodes.flatMap((node) =>
+					visrior.before!(node, context.factory, currentScope),
+				),
+			[node as any],
 		);
-		if (enableScop && resNode) {
-			(Array.isArray(resNode) ? resNode : [resNode]).forEach((node) => {
+		const resNode = beforeNode.flatMap((node) =>
+			visitEachChild<T>(node, innerVisitor, context),
+		);
+		const afterNode = afterVisriors.reduce(
+			(nodes, visrior) =>
+				nodes.flatMap((node) =>
+					visrior.after!(node, context.factory, currentScope),
+				),
+			resNode.filter(Boolean) as any[],
+		);
+		if (enableScop && afterNode) {
+			afterNode.forEach((node) => {
 				if (isImportDeclaration(node)) {
 					if (node.importClause) {
 						const {
@@ -85,26 +103,16 @@ export function tsVisitorHandel(
 		if (flagIsBlock) {
 			currentScope = scopes.pop()!;
 		}
-		return resNode;
+		return afterNode;
 	};
 
-	return innerVisitor(file);
+	return innerVisitor(file)[0];
 }
 export function createTransformerFactoryByTsVistor(
 	v: TSVisrior,
 ): TransformerFactory<SourceFile> {
 	return (context) => (file) => tsVisitorHandel(context, v, file);
 }
-export function setTSVisriorConfig(
-	v: TSVisrior,
-	config: TSVisriorConfig,
-): TSVisrior {
-	return Object.assign(v, config);
-}
-export {
-	ScopeVarType,
-	type ScopeVar,
-	type TSVisrior,
-	type TSVisriorConfig,
-} from "./type.js";
+
+export { ScopeVarType, type ScopeVar, type TSVisrior } from "./type.js";
 export { ScopeHelper } from "./scope.js";

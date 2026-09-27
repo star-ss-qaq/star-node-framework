@@ -14,8 +14,6 @@ import {
 	createTransformerFactoryByTsVistor,
 	parseExpressionToValue,
 	ScopeVarType,
-	setTSVisriorConfig,
-	TSVisrior,
 	withTransform,
 } from "../src/index.js";
 import { ScopeVar } from "../src/ast/visiter/type.js";
@@ -53,15 +51,17 @@ describe("visiter工具", () => {
 		}
 		const findArr: Type[] = [];
 		withTransform("import a from 'a';", [
-			createTransformerFactoryByTsVistor((node) => {
-				if (isImportDeclaration(node)) {
-					findArr.push(Type.ImportDeclaration);
-				} else if (isIdentifier(node)) {
-					findArr.push(Type.Identifier);
-				} else if (isStringLiteral(node)) {
-					findArr.push(Type.StringLiteral);
-				}
-				return node;
+			createTransformerFactoryByTsVistor({
+				before: (node) => {
+					if (isImportDeclaration(node)) {
+						findArr.push(Type.ImportDeclaration);
+					} else if (isIdentifier(node)) {
+						findArr.push(Type.Identifier);
+					} else if (isStringLiteral(node)) {
+						findArr.push(Type.StringLiteral);
+					}
+					return node;
+				},
 			}),
 		]);
 		expect(findArr).toEqual(Object.values(Type));
@@ -70,67 +70,63 @@ describe("visiter工具", () => {
 		withTransform(
 			"import {A} from 'package-a';import b from 'b-package';import c from 'c';b();new A();",
 			[
-				createTransformerFactoryByTsVistor(
-					setTSVisriorConfig(
-						(node, f, scope) => {
-							if (isCallExpression(node)) {
-								expect(
-									scope.parseExpression(node.expression),
-									"识别默认导出",
-								).toEqual({
-									filePath: "b-package",
-									type: ScopeVarType.Import,
-									varPath: ["default"],
-								});
-							}
-							if (isNewExpression(node)) {
-								expect(
-									scope.parseExpression(node.expression),
-									"识别命名导出",
-								).toEqual({
-									filePath: "package-a",
-									type: ScopeVarType.Import,
-									varPath: ["A"],
-								});
-							}
-							return node;
-						},
-						{ enableScop: true },
-					),
-				),
-			],
-		);
-	});
-	test("能追踪导入变量的变体", async () => {
-		withTransform("import * as a from 'package-a';a.a();const b=a.b;new b()", [
-			createTransformerFactoryByTsVistor(
-				setTSVisriorConfig(
-					(node, f, scope) => {
+				createTransformerFactoryByTsVistor({
+					enableScop: true,
+					before: (node, f, scope) => {
 						if (isCallExpression(node)) {
 							expect(
 								scope.parseExpression(node.expression),
-								"识别import*然后访问属性",
+								"识别默认导出",
 							).toEqual({
-								filePath: "package-a",
+								filePath: "b-package",
 								type: ScopeVarType.Import,
-								varPath: ["a"],
+								varPath: ["default"],
 							});
 						}
 						if (isNewExpression(node)) {
 							expect(
 								scope.parseExpression(node.expression),
-								"识别绑定到别的变量",
+								"识别命名导出",
 							).toEqual({
 								filePath: "package-a",
 								type: ScopeVarType.Import,
-								varPath: ["b"],
+								varPath: ["A"],
 							});
 						}
 						return node;
 					},
-					{ enableScop: true },
-				),
-			),
+				}),
+			],
+		);
+	});
+	test("能追踪导入变量的变体", async () => {
+		withTransform("import * as a from 'package-a';a.a();const b=a.b;new b()", [
+			createTransformerFactoryByTsVistor({
+				enableScop: true,
+				before: (node, f, scope) => {
+					if (isCallExpression(node)) {
+						expect(
+							scope.parseExpression(node.expression),
+							"识别import*然后访问属性",
+						).toEqual({
+							filePath: "package-a",
+							type: ScopeVarType.Import,
+							varPath: ["a"],
+						});
+					}
+					if (isNewExpression(node)) {
+						expect(
+							scope.parseExpression(node.expression),
+							"识别绑定到别的变量",
+						).toEqual({
+							filePath: "package-a",
+							type: ScopeVarType.Import,
+							varPath: ["b"],
+						});
+					}
+					return node;
+				},
+			}),
 		]);
 	});
 	test("能追踪自定义的全局变量", async () => {
@@ -143,31 +139,27 @@ describe("visiter工具", () => {
 			value: { a: globalADefain },
 		};
 		withTransform("global();new global.a()", [
-			createTransformerFactoryByTsVistor(
-				setTSVisriorConfig(
-					(node, f, scope) => {
-						if (isCallExpression(node)) {
-							expect(
-								scope.parseExpression(node.expression),
-								"识别直接访问",
-							).toEqual(globalDefain);
-						}
-						if (isNewExpression(node)) {
-							expect(
-								scope.parseExpression(node.expression),
-								"识别属性访问",
-							).toEqual(globalADefain);
-						}
-						return node;
-					},
-					{
-						enableScop: true,
-						globalScop: {
-							global: globalDefain,
-						},
-					},
-				),
-			),
+			createTransformerFactoryByTsVistor({
+				enableScop: true,
+				globalScop: {
+					global: globalDefain,
+				},
+				before: (node, f, scope) => {
+					if (isCallExpression(node)) {
+						expect(
+							scope.parseExpression(node.expression),
+							"识别直接访问",
+						).toEqual(globalDefain);
+					}
+					if (isNewExpression(node)) {
+						expect(
+							scope.parseExpression(node.expression),
+							"识别属性访问",
+						).toEqual(globalADefain);
+					}
+					return node;
+				},
+			}),
 		]);
 	});
 	test("能追踪类型定义", async () => {
@@ -180,45 +172,37 @@ describe("visiter工具", () => {
 			value: { a: globalADefain },
 		};
 		withTransform("let a:global;", [
-			createTransformerFactoryByTsVistor(
-				setTSVisriorConfig(
-					(node, f, scope) => {
-						if (isTypeReferenceNode(node)) {
-							expect(scope.parseExpression(node.typeName), "带.的访问").toEqual(
-								globalDefain,
-							);
-						}
-						return node;
-					},
-					{
-						enableScop: true,
-						globalScop: {
-							global: globalDefain,
-						},
-					},
-				),
-			),
+			createTransformerFactoryByTsVistor({
+				enableScop: true,
+				globalScop: {
+					global: globalDefain,
+				},
+				before: (node, f, scope) => {
+					if (isTypeReferenceNode(node)) {
+						expect(scope.parseExpression(node.typeName), "带.的访问").toEqual(
+							globalDefain,
+						);
+					}
+					return node;
+				},
+			}),
 		]);
 		withTransform("let a:global.a;", [
-			createTransformerFactoryByTsVistor(
-				setTSVisriorConfig(
-					(node, f, scope) => {
-						if (isTypeReferenceNode(node)) {
-							expect(
-								scope.parseExpression(node.typeName),
-								"识别直接访问",
-							).toEqual(globalADefain);
-						}
-						return node;
-					},
-					{
-						enableScop: true,
-						globalScop: {
-							global: globalDefain,
-						},
-					},
-				),
-			),
+			createTransformerFactoryByTsVistor({
+				enableScop: true,
+				globalScop: {
+					global: globalDefain,
+				},
+				before: (node, f, scope) => {
+					if (isTypeReferenceNode(node)) {
+						expect(
+							scope.parseExpression(node.typeName),
+							"识别直接访问",
+						).toEqual(globalADefain);
+					}
+					return node;
+				},
+			}),
 		]);
 	});
 });
