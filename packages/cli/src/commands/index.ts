@@ -108,6 +108,9 @@ class SFCli {
 		if (!isRunnableDevEnvironment(env)) {
 			throw new Error("Environment配置异常");
 		}
+		// TODO 理论上服务器也要走一遍，但是目前commonjs兼容存在问题，且不好解决
+		// @ts-ignore
+		env.config.resolve.noExternal = undefined;
 		await hook.onViteEnvironmentLoaded?.(env);
 		async function loadMainMoudle() {
 			let app: any = null;
