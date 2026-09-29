@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type": "module",
+  "private": true,
   "scripts": {},
   "bin": {
     "sf-dev-env": "./active.js"

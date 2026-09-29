@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { DIContainer, Inject, Module, diCreate } from "../src";
+import { DIContainer, Inject, Module, diCreate } from "../src/index.js";
 
 describe("DI容器测试", () => {
 	test("能够创建第一个实例", async () => {

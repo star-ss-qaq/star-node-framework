@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tspc -p tsconfig.build.json",
     "dev": "tspc -p tsconfig.build.json --watch",
