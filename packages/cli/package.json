@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-cli",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Star Framework CLI",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -17,8 +17,8 @@
     "sf-cli": "./bin/sf-cli.js"
   },
   "dependencies": {
-    "@thestarweb/star-framework-di": "^0.0.1",
-    "@thestarweb/ts-helper": "^0.0.1",
+    "@thestarweb/star-framework-di": "^0.2.0",
+    "@thestarweb/ts-helper": "^0.2.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "vite": "^8.2.1"
@@ -29,5 +29,6 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "8161c026c503fbe0a7a825d9c1efbd7e527705c4"
 }

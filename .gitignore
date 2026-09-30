@@ -3,3 +3,4 @@ package-lock.json
 dist
 templates/web/route-type.ts
 *.log
+.npmrc

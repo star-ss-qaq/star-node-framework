@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-utils",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Star Node Framework utils",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -22,5 +22,6 @@
   "license": "ISC",
   "dependencies": {
     "tslib": "^2.8.1"
-  }
+  },
+  "gitHead": "8161c026c503fbe0a7a825d9c1efbd7e527705c4"
 }

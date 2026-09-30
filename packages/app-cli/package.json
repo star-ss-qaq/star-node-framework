@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-app-cli",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Star Framework DI",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -16,8 +16,8 @@
   "dependencies": {
     "@deepkit/type": "^1.0.19",
     "@deepkit/type-compiler": "^1.0.0",
-    "@thestarweb/star-framework-param-helper": "^0.0.1",
-    "@thestarweb/star-framework-utils": "^0.0.1",
+    "@thestarweb/star-framework-param-helper": "^0.2.0",
+    "@thestarweb/star-framework-utils": "^0.2.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
@@ -26,5 +26,6 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "8161c026c503fbe0a7a825d9c1efbd7e527705c4"
 }
