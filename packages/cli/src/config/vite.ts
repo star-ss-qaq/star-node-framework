@@ -1,4 +1,4 @@
-import { UserConfig, Visitor } from "vite";
+import { mergeConfig, UserConfig, Visitor } from "vite";
 import { loadConfig } from "./loadConfig.js";
 import {
 	createTransformerFactoryByTsVistor,
@@ -32,9 +32,31 @@ export async function loadViteConfig() {
 				environmentNameToConfig[envName] = { plugin: i, mode, config };
 				customEnvironment[envName] = {
 					input: "sf:main",
-					...config.environments,
 					resolve: {
 						noExternal: true,
+					},
+					optimizeDeps: {
+						rolldownOptions: {
+							plugins: [
+								{
+									name: "ts",
+									enforce: "pre",
+									transform: {
+										filter: { id: /(m|c)?(j|t)sx?$/ },
+										handler(code: string, id: string) {
+											const side = config.side || [];
+											const factory: TransformerFactory<SourceFile>[] = [
+												createTransformerFactoryByTsVistor(
+													sideOnly(Array.isArray(side) ? side : [side]),
+												),
+											];
+											const data = withTransform(code, factory, id);
+											return data;
+										},
+									},
+								},
+							],
+						},
 					},
 					build: {
 						sourcemap: true,
@@ -42,6 +64,10 @@ export async function loadViteConfig() {
 						...config.environments?.build,
 					},
 				};
+				customEnvironment[envName] = mergeConfig(
+					customEnvironment[envName],
+					config.environments || {},
+				);
 			});
 		if (i.sideOnlyConfig) {
 			sideOnlyConfig.push(...i.sideOnlyConfig);
@@ -58,6 +84,9 @@ export async function loadViteConfig() {
 		].join("\n");
 	}
 	viteConfig = {
+		define: {
+			"process.env.SF_DEV": "''",
+		},
 		environments: customEnvironment,
 		// @ts-ignore
 		input: "sf:main",
