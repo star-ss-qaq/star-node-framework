@@ -1,0 +1,28 @@
+{
+  "name": "@thestarweb/star-framework-template-web",
+  "version": "0.0.1",
+  "description": "Star Node Framework template for web applications",
+  "main": "dist/index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "npx sf-cli dev --type sf-web:server",
+    "build": "sf-cli build"
+  },
+  "dependencies": {
+    "@deepkit/type": "^1.0.19",
+    "@oxc-project/runtime": "^0.149.0",
+    "@thestarweb/star-framework-app-web": "^0.2.4",
+    "@thestarweb/star-framework-app-web-vue": "^0.2.4",
+    "@thestarweb/star-framework-cli": "^0.2.4",
+    "@thestarweb/star-framework-di": "^0.2.6",
+    "vue": "^3.5.41"
+  },
+  "peerDependencies": {
+    "@deepkit/type": "^1.0.19"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1"
+  },
+  "license": "ISC"
+}
