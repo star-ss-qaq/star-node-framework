@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-app-web",
-  "version": "0.2.0",
+  "version": "0.2.6",
   "description": "Star Framework Web App",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -16,11 +16,11 @@
   "dependencies": {
     "@deepkit/type": "^1.0.19",
     "@deepkit/type-compiler": "^1.0.0",
-    "@thestarweb/star-framework-cli": "^0.2.0",
-    "@thestarweb/star-framework-param-helper": "^0.2.0",
-    "@thestarweb/star-framework-route": "^0.2.0",
-    "@thestarweb/star-framework-utils": "^0.2.0",
-    "@thestarweb/star-framework-web-runtime-node": "^0.2.0",
+    "@thestarweb/star-framework-cli": "^0.2.6",
+    "@thestarweb/star-framework-param-helper": "^0.2.6",
+    "@thestarweb/star-framework-route": "^0.2.6",
+    "@thestarweb/star-framework-utils": "^0.2.6",
+    "@thestarweb/star-framework-web-runtime-node": "^0.2.6",
     "node-mocks-http": "^1.18.1",
     "qs": "6.15.3",
     "tslib": "^2.8.1",
@@ -37,5 +37,5 @@
     "vitest": "^4.1.9"
   },
   "license": "ISC",
-  "gitHead": "8161c026c503fbe0a7a825d9c1efbd7e527705c4"
+  "gitHead": "f4c56b714b72aea352f1a165b91e1044ac989353"
 }
