@@ -79,6 +79,7 @@ export function createServerFactory(object: any) {
 					url: urlObj,
 					method: method as Method,
 					route,
+					param: route.params,
 				});
 				let res: ReadableStream | Readable | null;
 				if (data instanceof ReadableStream) {

@@ -25,7 +25,7 @@ export class SFVDomRender implements IRender {
 	renderToString(context: RenderDataContext, prop: any, chrild: RenderContext) {
 		return renderVDomToString(this.dom, {
 			customizeChildrenRender: (el) => {
-				if (el.tagName === "sf-route") {
+				if (el.tagName === "pageData") {
 					return () => chrild.warpRenderToString(context.user);
 				}
 			},
