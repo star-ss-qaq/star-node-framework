@@ -42,7 +42,7 @@ export class VueRender implements IRender {
 			defineAsyncComponent(async () => {
 				const subRender = child.render;
 				if (subRender instanceof VueRender) {
-					return h(subRender.comp, prop);
+					return h(subRender.comp, child.prop);
 				}
 				const str = await child.warpRenderToString({});
 				return h("div", {
@@ -89,7 +89,7 @@ export class VueRender implements IRender {
 				});
 				return () => {
 					if (refChild.value.render instanceof VueRender) {
-						return h(refChild.value.render.comp);
+						return h(refChild.value.render.comp, refChild.value.prop);
 					}
 					return h("div", {
 						ref: divRef,
