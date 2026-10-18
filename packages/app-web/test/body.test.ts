@@ -20,8 +20,8 @@ test("JSONBody", async () => {
 	await check("null", null);
 	await check("true", true);
 	await check("false", false);
-	await check("arrar 空数组", []);
-	await check("arrar 有内容数组", ["ewf"]);
+	await check("array 空数组", []);
+	await check("array 有内容数组", ["ewf"]);
 	await check("object 空对象", {});
 	await check("object 有内容的对象", { a: "123456" });
 	await check("整数", 123);
