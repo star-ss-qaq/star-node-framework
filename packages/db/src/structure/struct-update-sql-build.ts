@@ -1,5 +1,5 @@
 import { IDrive } from "../drive/i-drive.js";
-import { ColumnTypeConvertor } from "../types/db-type-onvertor.js";
+import { ColumnTypeConvertor } from "../types/db-type-convertor.js";
 import {
 	ColumnSchema,
 	DBColumnDifference,
@@ -8,7 +8,7 @@ import {
 	DBTableDifference,
 } from "../types/schema.js";
 
-export class StructureUpdateSqlBuild {
+export class StructUpdateSqlBuild {
 	constructor(private exec: (data: any) => void) {}
 	handleDb(diff: DBDifference) {
 		switch (diff.change) {
@@ -91,13 +91,13 @@ export class StructureUpdateSqlBuild {
 		return res.join(" ");
 	}
 }
-export class StructureUpdateSqlBuildWithNoHierarchy extends StructureUpdateSqlBuild {
+export class StructUpdateSqlBuildWithNoHierarchy extends StructUpdateSqlBuild {
 	constructor(diff: DBDifference[], exec: (data: any) => void) {
 		super(exec);
 		diff.forEach((i) => i.tables.forEach((j) => this.handleTable(j)));
 	}
 }
-export class StructureUpdateSqlBuildWithHierarchy extends StructureUpdateSqlBuild {
+export class StructUpdateSqlBuildWithHierarchy extends StructUpdateSqlBuild {
 	constructor(diff: DBDifference[], exec: (data: any) => void) {
 		super(exec);
 		diff.forEach((i) => this.handleDb(i));
@@ -108,9 +108,21 @@ export function defaultDBDifferenceToSql(
 	Builder: new (
 		diff: DBDifference[],
 		exec: (data: any) => void,
-	) => any = StructureUpdateSqlBuildWithHierarchy,
+	) => any = StructUpdateSqlBuildWithHierarchy,
 ) {
 	const res: any[] = [];
 	new Builder(diff, res.push.bind(res));
 	return res.join(";\n");
+}
+export function defaultDBDifferenceApply(
+	diff: DBDifference[],
+	exec: (sql: any) => Promise<any>,
+	Builder: new (
+		diff: DBDifference[],
+		exec: (data: any) => void,
+	) => any = StructUpdateSqlBuildWithHierarchy,
+) {
+	let p: Promise<any> = Promise.resolve();
+	new Builder(diff, (prop) => (p = p.then(() => exec(prop))));
+	return p;
 }

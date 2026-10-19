@@ -1,5 +1,5 @@
 import { hasDbHierarchy, IDrive } from "../drive/i-drive.js";
-import { ColumnTypeConvertor } from "../types/db-type-onvertor.js";
+import { ColumnTypeConvertor } from "../types/db-type-convertor.js";
 import {
 	ColumnSchema,
 	DBDifference,

@@ -17,4 +17,7 @@ export abstract class QueryRunner {
 		this._isDestroyed = true;
 		this._destroy();
 	}
+	[Symbol.dispose]() {
+		this.destroy();
+	}
 }

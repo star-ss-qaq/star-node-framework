@@ -3,7 +3,7 @@ import { QueryRunner } from "../query-runner/index.js";
 import {
 	defaultDBDifferenceToSql,
 	StructureUpdateSqlBuild,
-} from "../structure/structure-update-sql-build.js";
+} from "../structure/struct-update-sql-build.js";
 import {
 	DBDifference,
 	DBDifferenceType,
