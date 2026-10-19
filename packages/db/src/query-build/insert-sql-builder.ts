@@ -5,23 +5,24 @@ import { RelTableInCode, SQL } from "./types.js";
 import { QueryBuilderUtils } from "./utils/index.js";
 
 export class InsertQueryBuild<
+	DB_HIERARCHY extends boolean,
 	S extends InstanceSchema,
 	TABLE extends RelTableInfo<any, any, any>,
 > {
 	constructor(
-		private utils: QueryBuilderUtils,
+		private utils: QueryBuilderUtils<DB_HIERARCHY>,
 		private readonly _mainTable: RelTableInCode,
 	) {}
 	_data: (
 		| TABLE["fieldsTypes"]
-		| SelectQueryBuild<S, any, TABLE["fieldsTypes"]>
+		| SelectQueryBuild<any, S, any, TABLE["fieldsTypes"]>
 	)[] = [];
 	_hasSubQuery = false;
 	data(...data: TABLE["fieldsInsertTypes"][]) {
 		this._data.push(...data);
 		return this;
 	}
-	dataFromQuery(data: SelectQueryBuild<S, any, TABLE["fieldsTypes"]>) {
+	dataFromQuery(data: SelectQueryBuild<any, S, any, TABLE["fieldsTypes"]>) {
 		this._data.push(data);
 		this._hasSubQuery = true;
 		return this;
@@ -43,12 +44,14 @@ export class InsertQueryBuild<
 				return `(SELECT ${keys
 					.map((k) => {
 						if (k in i) {
-							bindings.push(this.utils.handleCodeValueToDb(columns[k], i[k]));
+							bindings.push(
+								this.utils.commonUtils.handleCodeValueToDb(columns[k], i[k]),
+							);
 							return `? as ${k}`;
 						}
 						if ("defaultValue" in columns[k]) {
 							bindings.push(
-								this.utils.handleCodeValueToDb(
+								this.utils.commonUtils.handleCodeValueToDb(
 									columns[k],
 									columns[k].defaultValue,
 								),
@@ -68,12 +71,14 @@ export class InsertQueryBuild<
 					`(${keys
 						.map((k) => {
 							if (k in i) {
-								bindings.push(this.utils.handleCodeValueToDb(columns[k], i[k]));
+								bindings.push(
+									this.utils.commonUtils.handleCodeValueToDb(columns[k], i[k]),
+								);
 								return "?";
 							}
 							if ("defaultValue" in columns[k]) {
 								bindings.push(
-									this.utils.handleCodeValueToDb(
+									this.utils.commonUtils.handleCodeValueToDb(
 										columns[k],
 										columns[k].defaultValue,
 									),

@@ -24,14 +24,14 @@ export interface SQL {
 }
 export type AnyTableInput<S extends InstanceSchema> =
 	| GetAllTableNamesWithAlias<S>
-	| readonly [SelectQueryBuild<any, any, any>, string];
+	| readonly [SelectQueryBuild<any, any, any, any>, string];
 export type ResolveAnyTableInfoWithAlias<
 	S extends InstanceSchema,
 	TABLE extends AnyTableInput<S>,
 > =
 	TABLE extends GetAllTableNamesWithAlias<S>
 		? ResolveTableInfoWithAlias<S, TABLE>
-		: TABLE extends readonly [SelectQueryBuild<any, any, any>, string]
+		: TABLE extends readonly [SelectQueryBuild<any, any, any, any>, string]
 			? {
 					[k in TABLE[1]]: {
 						fieldsTypes: Awaited<ReturnType<TABLE[0]["one"]>>;
@@ -50,7 +50,7 @@ export type RelTableInCode = {
 
 export type TableInfoInCode =
 	| RelTableInCode
-	| { name: string; isQuery: 1; query: SelectQueryBuild<any, any, any> };
+	| { name: string; isQuery: 1; query: SelectQueryBuild<any, any, any, any> };
 
 export type TableFieldsAndName = Record<
 	string,

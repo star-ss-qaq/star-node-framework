@@ -33,6 +33,7 @@ interface ColInfo {
 	colSchema?: ColumnSchema;
 }
 export class SelectQueryBuild<
+	DB_HIERARCHY extends boolean,
 	S extends InstanceSchema,
 	TABLES extends TableInfo,
 	RES extends Record<string, any> = {},
@@ -67,7 +68,7 @@ export class SelectQueryBuild<
 		);
 	}
 	constructor(
-		private utils: QueryBuilderUtils,
+		private utils: QueryBuilderUtils<DB_HIERARCHY>,
 		private readonly _mainTable: TableInfoInCode,
 	) {
 		this._tableCol[_mainTable.name] = this._getTableColMeta(_mainTable);
@@ -79,6 +80,7 @@ export class SelectQueryBuild<
 	addSelect<TT extends AllColumnWithAlias<TABLES>[]>(
 		...fields: TT
 	): SelectQueryBuild<
+		DB_HIERARCHY,
 		S,
 		TABLES,
 		RES & UnionToIntersection<ParseFieldInfo<TABLES, TT[number]>>
@@ -125,7 +127,7 @@ export class SelectQueryBuild<
 	}
 	cleanSelect() {
 		this._columns = {};
-		return this as SelectQueryBuild<S, TABLES, {}>;
+		return this as SelectQueryBuild<DB_HIERARCHY, S, TABLES, {}>;
 	}
 	private _selectWithFn<TT extends AllColumn<TABLES>, A extends string>(
 		fn: string,
@@ -133,7 +135,12 @@ export class SelectQueryBuild<
 		a: A,
 	) {
 		this._columns[a] = { select: `${fn}(${col})` };
-		return this as SelectQueryBuild<S, TABLES, RES & { [k in A]: number }>;
+		return this as SelectQueryBuild<
+			DB_HIERARCHY,
+			S,
+			TABLES,
+			RES & { [k in A]: number }
+		>;
 	}
 	count<TT extends AllColumn<TABLES>, A extends string>(col: TT, a: A) {
 		return this._selectWithFn("COUNT", col, a);
@@ -170,9 +177,10 @@ export class SelectQueryBuild<
 			joinMode: joinMode ? `${joinMode.toLocaleUpperCase()} JOIN` : "JOIN",
 			on: [],
 		};
-		this._joinTable.push(this._lastJoinTable);
+		this._joinTable.push(this._lastJoinTable!);
 		this._tableCol[info.name] = this._getTableColMeta(info);
 		return this as SelectQueryBuild<
+			DB_HIERARCHY,
 			S,
 			TABLES & ResolveAnyTableInfoWithAlias<S, N>,
 			RES
@@ -299,7 +307,7 @@ export class SelectQueryBuild<
 	}
 
 	then(callback: (res: RES[]) => any) {
-		this.utils.queryRunner.queryData(this.toSql()).then((res) => {
+		this.utils.commonUtils.queryData(this.toSql()).then((res) => {
 			callback(
 				res.map(
 					(i) =>
@@ -307,7 +315,7 @@ export class SelectQueryBuild<
 							Object.entries(i).map(([k, v]) => [
 								k,
 								this._columns[k]?.colSchema
-									? this.utils.handleDbValueToCode(
+									? this.utils.commonUtils.handleDbValueToCode(
 											this._columns[k].colSchema,
 											v,
 										)

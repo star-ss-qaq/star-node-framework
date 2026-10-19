@@ -5,11 +5,12 @@ import { QueryBuilderUtils } from "./utils/index.js";
 import { WhereProp } from "./utils/where.js";
 
 export class DeleteQueryBuild<
+	DB_HIERARCHY extends boolean,
 	S extends InstanceSchema,
 	TABLE extends Record<string, RelTableInfo<any, any, any>>,
 > {
 	constructor(
-		private utils: QueryBuilderUtils,
+		private utils: QueryBuilderUtils<DB_HIERARCHY>,
 		private readonly _mainTable: RelTableInCode,
 	) {}
 	private _where: SQL[] = [];

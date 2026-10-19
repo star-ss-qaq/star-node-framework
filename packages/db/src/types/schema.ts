@@ -1,4 +1,5 @@
 export type ColumnType = "number" | "int" | "string" | "int-datetime";
+export type TableType = "default" | "mem";
 
 export interface ColumnSchema {
 	name?: string;
@@ -12,7 +13,7 @@ export interface ColumnSchema {
 }
 export interface TableSchema {
 	name?: string;
-	type?: "default" | "mem";
+	type?: TableType;
 	columns: {
 		[fieldName: string]: ColumnSchema;
 	};
@@ -25,4 +26,38 @@ export interface DBSchema {
 export interface InstanceSchema {
 	database: Record<string, DBSchema>;
 	defaultDatabase: string;
+}
+
+export interface DBTableSchema {
+	type: string;
+	columns: { name: string; type: string }[];
+}
+export enum DBDifferenceType {
+	NONE = 0,
+	ADDED = 1,
+	REMOVED = 2,
+	CHANGED = 3,
+}
+
+export interface DBColumnDifference {
+	name: string;
+	type: string;
+	change: DBDifferenceType;
+	baseSql: string;
+	defaultValue?: any;
+	nullable: boolean;
+}
+
+export interface DBTableDifference {
+	name: string;
+	type: string;
+	change: DBDifferenceType;
+	createSql: string;
+	columns: DBColumnDifference[];
+}
+
+export interface DBDifference {
+	name: string;
+	change: DBDifferenceType;
+	tables: DBTableDifference[];
 }

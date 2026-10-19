@@ -6,6 +6,7 @@ import {
 	ColumnType,
 	InstanceSchema,
 } from "../../types/schema.js";
+import { CommonUtils } from "../../utils.js";
 import {
 	AnyTableInput,
 	RelTableInCode,
@@ -20,10 +21,11 @@ import {
 	WhereProp,
 } from "./where.js";
 
-export class QueryBuilderUtils {
+export class QueryBuilderUtils<DB_HIERARCHY extends boolean> {
 	constructor(
 		private readonly schema: InstanceSchema,
-		private readonly drive: IDrive,
+		private readonly drive: IDrive<DB_HIERARCHY>,
+		public readonly commonUtils: CommonUtils<DB_HIERARCHY>,
 	) {}
 	resolveRelTable(table: GetAllTableNamesWithAlias<any>): RelTableInCode {
 		if (table) {
@@ -43,7 +45,9 @@ export class QueryBuilderUtils {
 						table: s[1],
 						dbSchema,
 						tableSchema,
-						relName: `\`${dbSchema.name || this.formatName(s[0])}\`.\`${tableSchema.name || this.formatName(s[1])}\``,
+						relName: this.drive.noDbHierarchy
+							? `\`${tableSchema.name}\``
+							: `\`${dbSchema.name}\`.\`${tableSchema.name}\``,
 					};
 				}
 			}
@@ -79,41 +83,6 @@ export class QueryBuilderUtils {
 			prop,
 			defaultColValue,
 		);
-	}
-	handles: Partial<
-		Record<
-			ColumnType,
-			{ toDb?: (value: any) => any; toCode?: (value: any) => any }
-		>
-	> = {
-		"int-datetime": {
-			toDb: (value: any) =>
-				value && value instanceof Date
-					? Math.floor(value.valueOf() / 1000)
-					: value,
-			toCode: (value: number) => new Date(value * 1000),
-		},
-	};
-	handleCodeValueToDb(schema: ColumnSchema, value: any) {
-		const fn = this.handles[schema.type]?.toDb;
-		if (fn) {
-			return fn(value);
-		}
-		return value;
-	}
-	handleDbValueToCode(schema: ColumnSchema, value: any) {
-		const fn = this.handles[schema.type]?.toCode;
-		if (fn) {
-			return fn(value);
-		}
-		return value;
-	}
-	defaultRunner: QueryRunner | null = null;
-	get queryRunner() {
-		if (!this.defaultRunner) {
-			this.defaultRunner = this.drive.createQueryRunner();
-		}
-		return this.defaultRunner;
 	}
 }
 export { And, Or, Raw, Column, Value } from "./where.js";

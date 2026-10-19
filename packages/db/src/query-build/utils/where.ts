@@ -16,25 +16,25 @@ type FieldsInfo<T extends Record<string, any>> = {
 };
 
 type SystemTypeForTable<T extends Record<string, any>> = (
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<T>,
 ) => SQL;
 type SystemTypeForColumns<T extends Record<string, any>, CT> = (
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<T>,
 	colName: string,
 	colUserName: string,
 ) => SQL;
 const isSystemValueTypeFlag = Symbol();
 type SystemTypeForValue<T extends Record<string, any>, CT> = ((
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<T>,
 	colName: string,
 	colUserName: string,
 ) => SQL) & { [isSystemValueTypeFlag]: true };
 function markAsSystemValueType(
 	fn: (
-		utils: QueryBuilderUtils,
+		utils: QueryBuilderUtils<any>,
 		tables: FieldsInfo<any>,
 		colName: string,
 		colUserName: string,
@@ -96,7 +96,7 @@ function mergeSql(sqls: SQL[], logic: "AND" | "OR") {
 }
 
 export function buildWhereColOption(
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<any>,
 	colRelName: string,
 	colUserName: string,
@@ -122,7 +122,7 @@ export function buildWhereColOption(
 		sql: `${colRelName} ${op} ?`,
 		bindings: [
 			tables.infos[colUserName].columnSchema
-				? utils.handleCodeValueToDb(
+				? utils.commonUtils.handleCodeValueToDb(
 						tables.infos[colUserName].columnSchema,
 						value,
 					)
@@ -132,7 +132,7 @@ export function buildWhereColOption(
 }
 
 function buildWhereCol(
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<any>,
 	colRelName: string,
 	colUserName: string,
@@ -188,7 +188,7 @@ export function getTablesFieldsInfoAndRelName(
 	return { names, infos };
 }
 function buildWhereConfig(
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<any>,
 	config: WhereConfig<any>,
 ) {
@@ -211,7 +211,7 @@ function buildWhereConfig(
 }
 
 export function buildWhere(
-	utils: QueryBuilderUtils,
+	utils: QueryBuilderUtils<any>,
 	tables: FieldsInfo<any>,
 	prop: WhereProp<any, any>,
 	defaultColValue = false,
@@ -259,7 +259,7 @@ function createLogicMergeOption(logic: "AND" | "OR") {
 	): SystemTypeForColumns<T, CT>;
 	function LogicMerge(...values: any[]) {
 		return (
-			utils: QueryBuilderUtils,
+			utils: QueryBuilderUtils<any>,
 			tables: FieldsInfo<any>,
 			colRelName?: string,
 			colUserName?: string,
@@ -300,7 +300,7 @@ export function Raw<T extends Record<string, any>>(
 		};
 	}
 	return (
-		utils: QueryBuilderUtils,
+		utils: QueryBuilderUtils<any>,
 		tables: FieldsInfo<T>,
 		colName?: string,
 	) => {
@@ -327,7 +327,7 @@ export function Value<T extends Record<string, any>, CT>(
 			sql: "?",
 			bindings: [
 				tables.infos[calUserName].columnSchema
-					? utils.handleCodeValueToDb(
+					? utils.commonUtils.handleCodeValueToDb(
 							tables.infos[calUserName].columnSchema,
 							value,
 						)
