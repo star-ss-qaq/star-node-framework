@@ -9,7 +9,7 @@ import {
 } from "../types/schema.js";
 
 export class StructUpdateSqlBuild {
-	constructor(private exec: (data: any) => void) {}
+	constructor(protected exec: (data: any) => void) {}
 	handleDb(diff: DBDifference) {
 		switch (diff.change) {
 			case DBDifferenceType.ADDED:
@@ -32,7 +32,7 @@ export class StructUpdateSqlBuild {
 		this.exec(`DROP DATABASE \`${diff.name}\``);
 	}
 	handleTable(def: DBTableDifference) {
-		switch (def.change) {
+		switch (def.changeType) {
 			case DBDifferenceType.ADDED:
 				this.handleCreateTable(def);
 				return;
@@ -42,7 +42,13 @@ export class StructUpdateSqlBuild {
 			case DBDifferenceType.CHANGED:
 				this.handleChangeTable(def);
 		}
-		def.columns.forEach((i) => this.handleColumn(i, def));
+		const sorted = [...def.columns].sort((i, j) => {
+			// 我们要把这里的顺序进行修改，确保最后再添加autoIncrement的列
+			const a = i.autoIncrement ? Number.MAX_VALUE : def.columns.indexOf(i);
+			const b = j.autoIncrement ? Number.MAX_VALUE : def.columns.indexOf(j);
+			return a - b;
+		});
+		sorted.forEach((i) => this.handleColumn(i, def));
 	}
 	handleCreateTable(def: DBTableDifference) {
 		this.exec(
@@ -56,7 +62,7 @@ export class StructUpdateSqlBuild {
 		throw new Error("暂不支持对表结构进行修改");
 	}
 	handleColumn(def: DBColumnDifference, tableDef: DBTableDifference) {
-		switch (def.change) {
+		switch (def.changeType) {
 			case DBDifferenceType.ADDED:
 				this.handleColumnAdd(def, tableDef);
 				return;
@@ -83,10 +89,14 @@ export class StructUpdateSqlBuild {
 	}
 	handleColumnBase(def: DBColumnDifference, tableDef: DBTableDifference) {
 		const res = [`\`${def.name}\` ${def.type}`];
-		if (!def.nullable) res.push("NOT");
-		res.push("NULL");
-		if (typeof def.defaultValue !== "undefined") {
-			res.push(`DEFAULT ${JSON.stringify(def.defaultValue)}`);
+		if (def.autoIncrement) {
+			res.push("PRIMARY KEY AUTOINCREMENT");
+		} else {
+			if (!def.nullable) res.push("NOT");
+			res.push("NULL");
+			if (typeof def.defaultValue !== "undefined") {
+				res.push(`DEFAULT ${JSON.stringify(def.defaultValue)}`);
+			}
 		}
 		return res.join(" ");
 	}

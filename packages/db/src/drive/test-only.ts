@@ -1,14 +1,15 @@
 import { SQL } from "../query-build/types.js";
 import { QueryRunner } from "../query-runner/index.js";
+import { defaultDBDifferenceToSql } from "../structure/struct-update-sql-build.js";
 import {
-	defaultDBDifferenceToSql,
-	StructureUpdateSqlBuild,
-} from "../structure/struct-update-sql-build.js";
+	TableTypeConvertor,
+	ColumnTypeConvertor,
+} from "../types/db-type-convertor.js";
 import {
 	DBDifference,
 	DBDifferenceType,
 	DBTableDifference,
-	DBTableSchema,
+	InDBTableSchema,
 } from "../types/schema.js";
 import { IDrive } from "./i-drive.js";
 
@@ -16,29 +17,37 @@ let nextRes: any[] = [];
 
 class TestQueryRunner extends QueryRunner {
 	protected _destroy() {}
-	async _queryData(sql: SQL) {
+	async queryData(sql: SQL) {
 		const ret = nextRes;
 		nextRes = [];
 		return ret;
 	}
-	async _exec(sql: SQL) {
+	async exec(sql: SQL) {
 		return { changed: 0, lastInsertRowid: 0 };
 	}
-}
 
-export class TestOnlyDrive implements IDrive {
-	constructor(config: {}) {}
-	readonly noDbHierarchy = false;
 	showDatabases() {
 		return [];
 	}
 	showTables() {
 		return [];
 	}
-	getDBTableSchema(name: string, db: string): DBTableSchema {
+	getDBTableSchema(name: string, db: string): InDBTableSchema {
 		throw new Error("Method not implemented.");
 	}
-	applyChange(schema: DBDifference[]): void | Promise<void> {
+}
+
+export class TestOnlyDrive implements IDrive {
+	constructor(config: {}) {}
+	tableTypeConvertor: TableTypeConvertor = {
+		default: "DEFAULT",
+		mem: "DEFAULT",
+	};
+	readonly noDbHierarchy = false;
+	applyChange(
+		queryRunner: QueryRunner,
+		schema: DBDifference[],
+	): void | Promise<void> {
 		throw new Error("Method not implemented.");
 	}
 	createQueryRunner(): QueryRunner {

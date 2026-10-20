@@ -10,6 +10,7 @@ export interface ColumnSchema {
 	 * @default false
 	 */
 	nullable?: boolean;
+	autoIncrement?: boolean;
 }
 export interface TableSchema {
 	name?: string;
@@ -17,6 +18,7 @@ export interface TableSchema {
 	columns: {
 		[fieldName: string]: ColumnSchema;
 	};
+	primaryKey?: string | string[];
 }
 export interface DBSchema {
 	name?: string;
@@ -28,9 +30,17 @@ export interface InstanceSchema {
 	defaultDatabase: string;
 }
 
-export interface DBTableSchema {
+export interface InDBColumnSchema extends Required<
+	Omit<ColumnSchema, "type" | "length">
+> {
 	type: string;
-	columns: { name: string; type: string }[];
+}
+
+export interface InDBTableSchema {
+	name: string;
+	type: string;
+	columns: InDBColumnSchema[];
+	primaryKey: string[];
 }
 export enum DBDifferenceType {
 	NONE = 0,
@@ -39,20 +49,18 @@ export enum DBDifferenceType {
 	CHANGED = 3,
 }
 
-export interface DBColumnDifference {
-	name: string;
-	type: string;
-	change: DBDifferenceType;
-	baseSql: string;
-	defaultValue?: any;
-	nullable: boolean;
+export interface DBColumnDifference extends InDBColumnSchema {
+	changeType: DBDifferenceType;
+	changeKey: (keyof InDBColumnSchema)[];
+	currentInDbSchema?: InDBColumnSchema;
 }
 
 export interface DBTableDifference {
 	name: string;
 	type: string;
-	change: DBDifferenceType;
-	createSql: string;
+	changeType: DBDifferenceType;
+	changeKey: "type"[];
+	currentInDbSchema?: InDBTableSchema;
 	columns: DBColumnDifference[];
 }
 
