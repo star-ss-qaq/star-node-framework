@@ -43,7 +43,9 @@ type GetTableColumnsTypeForInset<S extends TableSchema> = Partial<
 				? never
 				: "defaultValue" extends keyof S["columns"][k]
 					? never
-					: k;
+					: S["columns"][k]["autoIncrement"] extends true
+						? never
+						: k;
 		}[keyof S["columns"]]
 	>;
 
