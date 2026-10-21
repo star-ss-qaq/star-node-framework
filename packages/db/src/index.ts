@@ -18,14 +18,38 @@ export class SFDB<
 	readonly commonUtils: CommonUtils<DB_HIERARCHY>;
 	readonly structHelper: StructHelper<DB_HIERARCHY>;
 	constructor(schema: S, connection: ConnectionConfig) {
-		Object.entries(schema.database).forEach(([k, s]) => {
-			if (!s.name) s.name = formatName(k);
-			Object.entries(s.tables).forEach(([k, s]) => {
-				if (!s.name) s.name = formatName(k);
-				Object.entries(s.columns).forEach(([k, s]) => {
-					if (!s.name) s.name = formatName(k);
-				});
-			});
+		Object.entries(schema.database).forEach(([dbCodeName, dbSchema]) => {
+			if (!dbSchema.name) dbSchema.name = formatName(dbCodeName);
+			Object.entries(dbSchema.tables).forEach(
+				([tableCodeName, tableSchema]) => {
+					if (!tableSchema.name) tableSchema.name = formatName(tableCodeName);
+					const aiKeys: string[] = [];
+					Object.entries(tableSchema.columns).forEach(([k, s]) => {
+						if (!s.name) s.name = formatName(k);
+						if (s.autoIncrement) aiKeys.push(k);
+					});
+					if (aiKeys.length > 1) {
+						throw new Error(
+							`一张表最多只支持一个autoIncrement的列，在表${dbCodeName}.${tableCodeName},字段${aiKeys.join(",")}`,
+						);
+					} else if (aiKeys.length === 1) {
+						if (tableSchema.primaryKey) {
+							if (
+								typeof tableSchema.primaryKey === "string"
+									? tableSchema.primaryKey === aiKeys[0]
+									: tableSchema.primaryKey.length !== 1 ||
+										tableSchema.primaryKey[0] !== aiKeys[0]
+							) {
+								throw new Error(
+									`表${dbCodeName}.${tableCodeName}的primaryKey设置字段与autoIncrement冲突。primaryKey必须为autoIncrement字段或不设置`,
+								);
+							}
+						} else {
+							tableSchema.primaryKey = aiKeys;
+						}
+					}
+				},
+			);
 		});
 		if (!(connection.type in RegisteredDriveMap)) {
 			throw new Error(`unknown db drive: ${connection.type}`);

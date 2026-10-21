@@ -1,6 +1,7 @@
 import { QueryRunner } from "../query-runner/index.js";
 import {
 	ColumnTypeConvertor,
+	IndexTypeConvertor,
 	TableTypeConvertor,
 } from "../types/db-type-convertor.js";
 import { DBDifference } from "../types/schema.js";
@@ -15,6 +16,7 @@ export type IDrive<DB_HIERARCHY = true> = {
 	getUpdateSql(schema: DBDifference[]): string;
 	tableTypeConvertor: TableTypeConvertor;
 	columnTypeConvertor?: ColumnTypeConvertor;
+	indexTypeConvertor?: IndexTypeConvertor;
 };
 
 export function hasDbHierarchy(drive: IDrive<any>): drive is IDrive<true> {

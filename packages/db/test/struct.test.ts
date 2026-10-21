@@ -6,7 +6,7 @@ import { checkSql } from "./base/utils.js";
 describe("测试DELETE语句拼接", () => {
 	const db = new SFDB(baseSchema, { type: "test-only" });
 	test("最基础的删除", async () => {
-		expect(db.structHelper.getDbUpdateSql()).toBe(
+		expect(await db.structHelper.getDbUpdateSql()).toBe(
 			[
 				"CREATE DATABASE `test`;",
 				"use `test`;",

@@ -1,5 +1,6 @@
 export type ColumnType = "number" | "int" | "string" | "int-datetime";
 export type TableType = "default" | "mem";
+export type IndexType = "index" | "unique" | "full-text";
 
 export interface ColumnSchema {
 	name?: string;
@@ -19,6 +20,10 @@ export interface TableSchema {
 		[fieldName: string]: ColumnSchema;
 	};
 	primaryKey?: string | string[];
+	indexes?: (
+		| string
+		| { type?: IndexType; columns: string | string[]; name?: string }
+	)[];
 }
 export interface DBSchema {
 	name?: string;
@@ -35,11 +40,17 @@ export interface InDBColumnSchema extends Required<
 > {
 	type: string;
 }
+export interface InDBIndexSchema {
+	name: string;
+	type: string;
+	columns: string[];
+}
 
 export interface InDBTableSchema {
 	name: string;
 	type: string;
 	columns: InDBColumnSchema[];
+	indexes: InDBIndexSchema[];
 	primaryKey: string[];
 }
 export enum DBDifferenceType {
@@ -54,14 +65,19 @@ export interface DBColumnDifference extends InDBColumnSchema {
 	changeKey: (keyof InDBColumnSchema)[];
 	currentInDbSchema?: InDBColumnSchema;
 }
+export interface DBIndexDifference extends InDBIndexSchema {
+	changeType: DBDifferenceType;
+}
 
 export interface DBTableDifference {
 	name: string;
 	type: string;
 	changeType: DBDifferenceType;
-	changeKey: "type"[];
+	changeKey: ("type" | "primaryKey")[];
 	currentInDbSchema?: InDBTableSchema;
 	columns: DBColumnDifference[];
+	indexes: DBIndexDifference[];
+	primaryKey: string[];
 }
 
 export interface DBDifference {
