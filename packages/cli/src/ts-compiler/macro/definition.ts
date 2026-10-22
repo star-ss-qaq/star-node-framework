@@ -67,7 +67,7 @@ declare global {
 	/**
 	 * 宏定义：在指定的环境使用特定分支的值
 	 */
-	function SFSideSwith<T extends Partial<Record<StarFrameworkSide, any>>>(
+	function SFSideSwitch<T extends Partial<Record<StarFrameworkSide, any>>>(
 		t: T,
 	): T extends Record<StarFrameworkSide, infer R>
 		? R
@@ -77,7 +77,7 @@ declare global {
 	/**
 	 * 宏定义：在指定的环境返回指定的类型，便于打包摇树的时候因为一些不必要的class和类型被运行时类型引入
 	 */
-	type SFSideSwith<T extends Partial<Record<StarFrameworkSide, any>>> =
+	type SFSideSwitch<T extends Partial<Record<StarFrameworkSide, any>>> =
 		T extends Record<StarFrameworkSide, infer R>
 			? R
 			: T extends Partial<Record<StarFrameworkSide, infer R>>

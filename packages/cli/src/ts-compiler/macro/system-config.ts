@@ -131,7 +131,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 	},
 	{
 		import: "",
-		name: "SFSiteSwith",
+		name: "SFSideSwitch",
 		side: [],
 		whenTypeReferenceNode: {
 			mode: "customize",
@@ -140,7 +140,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 					node.typeArguments?.length !== 1 ||
 					!isTypeLiteralNode(node.typeArguments[0])
 				) {
-					throw new Error("SFSiteSwith need 1 literal argument");
+					throw new Error("SFSideSwitch need 1 literal argument");
 				}
 				const map: Record<string, TypeNode> = {};
 				node.typeArguments[0].members.forEach((c) => {
@@ -161,7 +161,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 					node.arguments?.length !== 1 ||
 					!isObjectLiteralExpression(node.arguments[0])
 				) {
-					throw new Error("SFSiteSwith need 1 literal argument");
+					throw new Error("SFSideSwitch need 1 literal argument");
 				}
 				const map: Record<string, Expression> = {};
 				node.arguments[0].properties.forEach((c) => {

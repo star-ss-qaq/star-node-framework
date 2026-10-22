@@ -85,7 +85,7 @@ class SFCli {
 						if (hook.hotReload || !isStarted) {
 							clearTimeout(timeout);
 							timeout = setTimeout(async () => {
-								await loadMainMoudle();
+								await loadMainModule();
 							}, 100);
 						} else if (!hasMessageNoHot) {
 							hasMessageNoHot = true;
@@ -112,7 +112,7 @@ class SFCli {
 		// @ts-ignore
 		env.config.resolve.noExternal = undefined;
 		await hook.onViteEnvironmentLoaded?.(env);
-		async function loadMainMoudle() {
+		async function loadMainModule() {
 			let app: any = null;
 			try {
 				app = await callWithHook(
@@ -131,7 +131,10 @@ class SFCli {
 				callWithHook(async (mainModule) => {}, hook.start, app);
 			}
 		}
-		loadMainMoudle();
+		loadMainModule();
+		process.addListener("uncaughtException", (e) =>
+			console.error("uncaughtException", e),
+		);
 	}
 	@Command("build")
 	async build(

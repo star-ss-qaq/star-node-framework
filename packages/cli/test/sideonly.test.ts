@@ -116,17 +116,20 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 	});
 
 	test("SFSiteSwith函数版本", async () => {
-		check("const a=SFSiteSwith({currentSide:'hello'});", "const a='hello';");
-		check("const a=SFSiteSwith({outherSide:'hello'});", "const a=undefined;");
-		check("const a=SFSiteSwith({'currentSide':'hello'});", "const a='hello';");
-		check("const a=SFSiteSwith({'outherSide':'hello'});", "const a=undefined;");
+		check("const a=SFSideSwitch({currentSide:'hello'});", "const a='hello';");
+		check("const a=SFSideSwitch({outherSide:'hello'});", "const a=undefined;");
+		check("const a=SFSideSwitch({'currentSide':'hello'});", "const a='hello';");
+		check(
+			"const a=SFSideSwitch({'outherSide':'hello'});",
+			"const a=undefined;",
+		);
 	});
 	test("SFSiteSwith类型定义版本", async () => {
-		check("let a:SFSiteSwith<{currentSide:string}>;", "let a:string;");
-		check("let a:SFSiteSwith<{outherSide:string}>;", "let a:never;");
+		check("let a:SFSideSwitch<{currentSide:string}>;", "let a:string;");
+		check("let a:SFSideSwitch<{outherSide:string}>;", "let a:never;");
 
-		check("let a:SFSiteSwith<{'currentSide':string}>;", "let a:string;");
-		check("let a:SFSiteSwith<{'outherSide':string}>;", "let a:never;");
+		check("let a:SFSideSwitch<{'currentSide':string}>;", "let a:string;");
+		check("let a:SFSideSwitch<{'outherSide':string}>;", "let a:never;");
 	});
 
 	test("class修饰器", async () => {
