@@ -1,7 +1,7 @@
 import { SFWebRequest } from "../../request/index.js";
 import { RouteType } from "../../route/index.js";
-import { SFDataContext } from "./conetext.js";
-export * from "./conetext.js";
+import { SFDataContext } from "./context.js";
+export * from "./context.js";
 export interface SystemRenderDataContext {
 	route: SFDataContext<RouteType<"GET">>;
 	request: SFWebRequest;

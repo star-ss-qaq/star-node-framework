@@ -34,8 +34,8 @@ const charCodeColon = ":".charCodeAt(0);
 const decoder = new TextDecoder();
 
 let defAny: ParamType = { type: ParamTypeEnum.Any };
-export const JSONBody: bodyParse = (headrer, targetType) => {
-	if (headrer["content-type"]?.startsWith("application/json")) {
+export const JSONBody: bodyParse = (header, targetType) => {
+	if (header["content-type"]?.startsWith("application/json")) {
 		return (stream) => {
 			const helper = new ReaderHelper(stream);
 			function charError(char: number, expectation?: string[]) {

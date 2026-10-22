@@ -63,7 +63,7 @@ export function shouldRemove(
 			true,
 		);
 		return {
-			importent: item.importent || 0,
+			important: item.important || 0,
 			shouldRemove,
 			raw: item,
 			toRel,

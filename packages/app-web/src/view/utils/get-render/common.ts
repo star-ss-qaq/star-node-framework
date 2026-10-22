@@ -4,21 +4,21 @@ import {
 	SFRawDataContext,
 	SystemRenderDataContext,
 } from "../../data-context/index.js";
-import { getLayots } from "../../layout.js";
+import { getLayouts } from "../../layout.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
 import { SFWebRequest } from "../../../request/index.js";
 
 function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
-	const routeRawcontext = new SFRawDataContext(route);
+	const routeRawContext = new SFRawDataContext(route);
 	const { baseUrl } = config;
 	return {
 		update(route: RouteType<"GET">) {
-			routeRawcontext.update(route);
+			routeRawContext.update(route);
 		},
 		createChild(): SystemRenderDataContext {
 			return {
-				route: routeRawcontext.createChild(),
+				route: routeRawContext.createChild(),
 				request: new SFWebRequest(baseUrl),
 				baseUrl,
 			};
@@ -40,7 +40,7 @@ async function createRenderContext(
 	if (route.finalRoute?.context?.view) {
 		const { obj, propertyKey } = route.finalRoute;
 		let view = route.finalRoute.context.view;
-		const layouts = route.allRoute.flatMap((r) => getLayots(r.obj));
+		const layouts = route.allRoute.flatMap((r) => getLayouts(r.obj));
 		const [data] = await Promise.all([
 			typeof (obj as any)[propertyKey] === "function"
 				? dataFn()

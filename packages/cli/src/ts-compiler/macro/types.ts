@@ -108,7 +108,7 @@ export interface SiteOnlyConfigRule {
 	 * 规则优先级
 	 * 当多个修饰器规则同时作用于一个目标时有效
 	 */
-	importent?: number;
+	important?: number;
 	call?: { replase: { import: string; name: string } };
 }
 export interface SiteOnlyConfig {

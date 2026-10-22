@@ -10,7 +10,7 @@ export enum ScopeVarType {
 	FunctionReturn = 6,
 	NewObject = 7, // 暂不使用
 	Customize = 8,
-	Unknow = -1,
+	Unknown = -1,
 }
 export type ScopeVar =
 	| {
@@ -49,17 +49,17 @@ export type ScopeVar =
 			type: ScopeVarType.Customize;
 			meta: any;
 	  }
-	| { type: ScopeVarType.Unknow };
+	| { type: ScopeVarType.Unknown };
 export type Scope = Record<string, ScopeVar>;
 
-export type TSVisriorFn = <T extends Node>(
+export type TSVisitorFn = <T extends Node>(
 	node: T,
 	factory: NodeFactory,
 	scope: ScopeHelper,
 ) => T | Node[];
-export interface TSVisrior {
+export interface TSVisitor {
 	enableScop?: boolean;
 	globalScop?: Scope;
-	before?: TSVisriorFn;
-	after?: TSVisriorFn;
+	before?: TSVisitorFn;
+	after?: TSVisitorFn;
 }

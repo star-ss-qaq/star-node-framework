@@ -1,6 +1,6 @@
 import { Provider } from "./provider.js";
 
-const moduleFlag = "$sf:mopdule";
+const moduleFlag = "$sf:module";
 export interface ModuleMeta {
 	providers?: Provider[];
 }

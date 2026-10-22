@@ -72,7 +72,7 @@ export class ParamMetaHelper<
 	ET = never,
 > {
 	constructor(
-		public readonly namespase: string,
+		public readonly namespace: string,
 		private readonly paramConfig: T,
 	) {}
 	withExMetaType<ET>() {
@@ -87,8 +87,8 @@ export class ParamMetaHelper<
 		exMeta?: ET,
 	) {
 		const meta = initMetadata(target, mateKey, propertyKey);
-		if (!meta[this.namespase]) meta[this.namespase] = Object.create(null);
-		meta[this.namespase][index] = {
+		if (!meta[this.namespace]) meta[this.namespace] = Object.create(null);
+		meta[this.namespace][index] = {
 			from,
 			path,
 			exMeta,
@@ -129,7 +129,7 @@ export class ParamMetaHelper<
 		target: object,
 		propertyKey: PropertyKey,
 	): RawParamMetadata<keyof T, ET> {
-		return getMetadata(target, mateKey, propertyKey)?.[this.namespase] || {};
+		return getMetadata(target, mateKey, propertyKey)?.[this.namespace] || {};
 	}
 
 	getParamMetadata(

@@ -22,11 +22,11 @@ export class SFVDomRender implements IRender {
 			this.dom = this.domFn;
 		}
 	}
-	renderToString(context: RenderDataContext, prop: any, chrild: RenderContext) {
+	renderToString(context: RenderDataContext, prop: any, child: RenderContext) {
 		return renderVDomToString(this.dom, {
 			customizeChildrenRender: (el) => {
 				if (el.tagName === "pageData") {
-					return () => chrild.warpRenderToString(context.user);
+					return () => child.warpRenderToString(context.user);
 				}
 			},
 		});

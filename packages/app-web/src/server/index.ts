@@ -20,7 +20,7 @@ export function createServerFactory(object: any) {
 		const routes = parseRoute(object);
 		const serverRender = createServerRender(context);
 		const ins: ServerInstance = {
-			async onRequert(method, url, reqHeader, rawBody, context) {
+			async onRequest(method, url, reqHeader, rawBody, context) {
 				const urlObj =
 					typeof url === "string" ? new URL(url, "http://127.0.0.1/") : url;
 				const route = routes(method as Method, urlObj.pathname);

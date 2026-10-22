@@ -143,7 +143,7 @@ describe("测试类型校验与自动转换", () => {
 				properties: {},
 				required: [],
 				additionalProperties: { type: ParamTypeEnum.String },
-				metchType: Map,
+				matchType: Map,
 			},
 			{ a: "1", b: "2" },
 		);
@@ -158,7 +158,7 @@ describe("测试类型校验与自动转换", () => {
 						properties: {},
 						required: [],
 						additionalProperties: { type: ParamTypeEnum.String },
-						metchType: Map,
+						matchType: Map,
 					},
 					{ a: 1 },
 				),

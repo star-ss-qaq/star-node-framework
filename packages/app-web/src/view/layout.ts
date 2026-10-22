@@ -15,6 +15,6 @@ export function Layout(
 		});
 	};
 }
-export function getLayots(target: any) {
+export function getLayouts(target: any) {
 	return getMetadata<ViewInfo<ViewMeta>[]>(target, mateKey, undefined, []);
 }

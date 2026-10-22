@@ -54,7 +54,7 @@ export function renderVDomToString(
 	if (typeof vDom === "string") return vDom;
 	switch (vDom.type) {
 		case VNodeType.Element:
-			const attt = Object.entries(vDom.attributes)
+			const attr = Object.entries(vDom.attributes)
 				.map(([k, v]) => ` ${k}=${JSON.stringify(v)}`)
 				.join("");
 			const customizeChildrenRender = config.customizeChildrenRender?.(vDom);
@@ -64,16 +64,16 @@ export function renderVDomToString(
 					)
 				: renderVDomToString(vDom.children, config);
 			const render = (children: string) =>
-				`<${vDom.tagName}${attt}>${children}</${vDom.tagName}>`;
+				`<${vDom.tagName}${attr}>${children}</${vDom.tagName}>`;
 			if (children instanceof Promise) {
 				return children.then(render);
 			}
 			return render(children);
 		case VNodeType.Comment:
-			return `<!--${vDom.conetnt}-->`;
+			return `<!--${vDom.content}-->`;
 		case VNodeType.Text:
-			return vDom.conetnt;
-		case VNodeType.Outher:
+			return vDom.content;
+		case VNodeType.Other:
 			return vDom.text;
 	}
 }

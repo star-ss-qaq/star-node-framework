@@ -54,7 +54,7 @@ export async function createHttpServer(config: ServerConfig) {
 				} catch {}
 			}
 			try {
-				const ret = await instance.package.instances.onRequert(
+				const ret = await instance.package.instances.onRequest(
 					req.method?.toUpperCase() || "GET",
 					url,
 					req.headers,
@@ -92,7 +92,7 @@ export async function createHttpServer(config: ServerConfig) {
 	server.listen(config.port);
 	console.log(`server start at: http://127.0.0.1:${config.port}`);
 	return {
-		async updateinstances(ins: ServerInstanceConfig[]) {
+		async updateInstances(ins: ServerInstanceConfig[]) {
 			handles = await createHandle(ins);
 		},
 	};

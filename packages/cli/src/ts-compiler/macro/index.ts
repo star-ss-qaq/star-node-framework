@@ -1,5 +1,5 @@
 import { SyntaxKind, SourceFile, isSourceFile } from "typescript";
-import { ScopeVarType, type TSVisrior } from "@thestarweb/ts-helper";
+import { ScopeVarType, type TSVisitor } from "@thestarweb/ts-helper";
 import "./definition.js";
 import { SiteOnlyConfig, TypeVisitor } from "./types.js";
 import { shouldRemoverByComment } from "./utils/comment.js";
@@ -21,7 +21,7 @@ export function crreateSideOnlyVisitor(config: SiteOnlyConfig = {}) {
 		[SyntaxKind.CallExpression]: createCallExpressionHandle(rule),
 	};
 	let sourceFile: SourceFile;
-	return (currentSide: StarFrameworkSide[]): TSVisrior => ({
+	return (currentSide: StarFrameworkSide[]): TSVisitor => ({
 		enableScop: true,
 		globalScop: Object.fromEntries(
 			rule

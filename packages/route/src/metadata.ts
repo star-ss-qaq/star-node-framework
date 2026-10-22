@@ -26,7 +26,7 @@ export type RouteMetadataRouteType<R extends RouteMetadata, M> =
 			: never
 		: never;
 
-export type ResloveRouteMetaType<
+export type ResolveRouteMetaType<
 	T extends string,
 	CommonOption extends {},
 	TypeOption extends Partial<Record<T, Record<string, any>>>,
@@ -42,8 +42,8 @@ export class RouteMetadata<
 	TypeOption extends Partial<Record<T, Record<string, any>>> = {},
 	SubRouteOption extends {} = {},
 > {
-	constructor(private namespase: string) {
-		this.routeMetaKey = `${routeDataKey}:${namespase}`;
+	constructor(private namespace: string) {
+		this.routeMetaKey = `${routeDataKey}:${namespace}`;
 		this.subRoute.bind(this);
 	}
 	private readonly routeMetaKey: string;
@@ -100,7 +100,7 @@ export class RouteMetadata<
 		callback: <TT extends T | "__SF:NotFind">(
 			type: TT,
 			path: string,
-			t: ResloveRouteMetaType<T, CommonOption, TypeOption, SubRouteOption>,
+			t: ResolveRouteMetaType<T, CommonOption, TypeOption, SubRouteOption>,
 		) => void,
 		parents: RouteObjectCallInfo<SubRouteOption>[] = [],
 	) {

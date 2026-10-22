@@ -1,4 +1,4 @@
-export interface ValueRrovider {
+export interface ValueProvider {
 	token: any;
 	value: any;
 }
@@ -14,7 +14,7 @@ export interface FactoryProvider {
 }
 
 export type Provider =
-	| ValueRrovider
+	| ValueProvider
 	| ClassProvider
 	| FactoryProvider
 	| (new (...prop: any[]) => any)

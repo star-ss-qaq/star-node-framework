@@ -11,7 +11,7 @@ import {
 	ScriptTarget,
 } from "typescript";
 import {
-	createTransformerFactoryByTsVistor,
+	createTransformerFactoryByTsVisitor,
 	parseExpressionToValue,
 	ScopeVarType,
 	withTransform,
@@ -51,7 +51,7 @@ describe("visiter工具", () => {
 		}
 		const findArr: Type[] = [];
 		withTransform("import a from 'a';", [
-			createTransformerFactoryByTsVistor({
+			createTransformerFactoryByTsVisitor({
 				before: (node) => {
 					if (isImportDeclaration(node)) {
 						findArr.push(Type.ImportDeclaration);
@@ -70,7 +70,7 @@ describe("visiter工具", () => {
 		withTransform(
 			"import {A} from 'package-a';import b from 'b-package';import c from 'c';b();new A();",
 			[
-				createTransformerFactoryByTsVistor({
+				createTransformerFactoryByTsVisitor({
 					enableScop: true,
 					before: (node, f, scope) => {
 						if (isCallExpression(node)) {
@@ -101,7 +101,7 @@ describe("visiter工具", () => {
 	});
 	test("能追踪导入变量的变体", async () => {
 		withTransform("import * as a from 'package-a';a.a();const b=a.b;new b()", [
-			createTransformerFactoryByTsVistor({
+			createTransformerFactoryByTsVisitor({
 				enableScop: true,
 				before: (node, f, scope) => {
 					if (isCallExpression(node)) {
@@ -139,7 +139,7 @@ describe("visiter工具", () => {
 			value: { a: globalADefain },
 		};
 		withTransform("global();new global.a()", [
-			createTransformerFactoryByTsVistor({
+			createTransformerFactoryByTsVisitor({
 				enableScop: true,
 				globalScop: {
 					global: globalDefain,
@@ -172,7 +172,7 @@ describe("visiter工具", () => {
 			value: { a: globalADefain },
 		};
 		withTransform("let a:global;", [
-			createTransformerFactoryByTsVistor({
+			createTransformerFactoryByTsVisitor({
 				enableScop: true,
 				globalScop: {
 					global: globalDefain,
@@ -188,7 +188,7 @@ describe("visiter工具", () => {
 			}),
 		]);
 		withTransform("let a:global.a;", [
-			createTransformerFactoryByTsVistor({
+			createTransformerFactoryByTsVisitor({
 				enableScop: true,
 				globalScop: {
 					global: globalDefain,

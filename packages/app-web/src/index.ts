@@ -18,7 +18,7 @@ export {
 } from "./view/index.js";
 // @side-only server
 export { createServerFactory } from "./server/index.js";
-export { createBrowsweInstance } from "./browser/index.js";
+export { createBrowserInstance } from "./browser/index.js";
 // @side-only server
 export * from "./cli-helper.js";
 export { SFWebRequest } from "./request/index.js";

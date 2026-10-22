@@ -1,7 +1,7 @@
 import { mergeConfig, UserConfig, Visitor } from "vite";
 import { loadConfig } from "./loadConfig.js";
 import {
-	createTransformerFactoryByTsVistor,
+	createTransformerFactoryByTsVisitor,
 	withTransform,
 } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
@@ -46,7 +46,7 @@ export async function loadViteConfig() {
 										handler(code: string, id: string) {
 											const side = config.side || [];
 											const factory: TransformerFactory<SourceFile>[] = [
-												createTransformerFactoryByTsVistor(
+												createTransformerFactoryByTsVisitor(
 													sideOnly(Array.isArray(side) ? side : [side]),
 												),
 											];
@@ -146,7 +146,7 @@ export async function loadViteConfig() {
 						const side =
 							environmentNameToConfig[this.environment.name]?.config.side || [];
 						const factory: TransformerFactory<SourceFile>[] = [
-							createTransformerFactoryByTsVistor(
+							createTransformerFactoryByTsVisitor(
 								sideOnly(Array.isArray(side) ? side : [side]),
 							),
 						];

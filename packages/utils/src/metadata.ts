@@ -9,13 +9,13 @@ export function initMetadata<T>(
 	obj: object,
 	mateKey: any,
 	propertyKey: PropertyKey | undefined,
-	defalutValue: T,
+	defaultValue: T,
 ): T;
 export function initMetadata(
 	obj: any,
 	mateKey: any,
 	propertyKey: PropertyKey = "",
-	defalutValue = Object.create(null) as any,
+	defaultValue = Object.create(null) as any,
 ) {
 	if (typeof obj === "function" && !propertyKey) {
 		obj = obj.prototype;
@@ -32,7 +32,7 @@ export function initMetadata(
 	}
 	const metaWithProperty = metaRoot[propertyKey];
 	if (!metaWithProperty.has(mateKey)) {
-		metaWithProperty.set(mateKey, defalutValue);
+		metaWithProperty.set(mateKey, defaultValue);
 	}
 	return metaWithProperty.get(mateKey);
 }
@@ -46,13 +46,13 @@ export function getMetadata<T>(
 	obj: any,
 	mateKey: PropertyKey,
 	propertyKey: PropertyKey | undefined,
-	defalutValue: T,
+	defaultValue: T,
 ): T;
 export function getMetadata(
 	obj: any,
 	mateKey: PropertyKey,
 	propertyKey: PropertyKey = "",
-	defalutValue = null,
+	defaultValue = null,
 ) {
 	if (typeof obj === "function" && !propertyKey) {
 		obj = obj.prototype;
@@ -65,9 +65,9 @@ export function getMetadata(
 	}
 	const prototype = Object.getPrototypeOf(obj);
 	if (prototype) {
-		return getMetadata(prototype, mateKey, propertyKey, defalutValue);
+		return getMetadata(prototype, mateKey, propertyKey, defaultValue);
 	}
-	return defalutValue;
+	return defaultValue;
 }
 
 export function getMetadataAll<T>(

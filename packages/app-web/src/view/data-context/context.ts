@@ -15,8 +15,8 @@ export class SFDataContext<T> {
 		this.callbacks.add(callback);
 		if (updateNow) callback(this.value);
 	}
-	distory() {
-		this._root.distoryChild(this);
+	destroy() {
+		this._root.destroyChild(this);
 	}
 }
 export class SFRawDataContext<T> {
@@ -43,7 +43,7 @@ export class SFRawDataContext<T> {
 			new SFDataContext(this);
 		return child;
 	}
-	distoryChild(child: SFDataContext<T>) {
+	destroyChild(child: SFDataContext<T>) {
 		this.children.delete(child);
 	}
 }

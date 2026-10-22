@@ -39,7 +39,7 @@ export function shouldRemoveAsDeclaration(
 			return null;
 		})
 		.filter(Boolean)
-		.sort((a, b) => (b!.importent || 0) - (a!.importent || 0));
+		.sort((a, b) => (b!.important || 0) - (a!.important || 0));
 	if (res?.length) {
 		return {
 			shouldRemove: res[0]!.shouldRemove,

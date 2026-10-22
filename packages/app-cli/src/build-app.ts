@@ -4,7 +4,7 @@ import {
 	ParamTypeEnum,
 } from "@thestarweb/star-framework-param-helper";
 import { getCommands, Type } from "./command.js";
-import { callWhithParam, getParam } from "./params.js";
+import { callWithParam, getParam } from "./params.js";
 
 function dumpInfo(type: ParamType): string {
 	switch (type.type) {
@@ -147,7 +147,7 @@ async function callOn(
 				}
 			}
 			end();
-			await callWhithParam(obj, commandInfo.propertyKey, p);
+			await callWithParam(obj, commandInfo.propertyKey, p);
 		}
 	} else {
 		console.log(showHelpFor(obj));

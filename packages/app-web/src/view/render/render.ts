@@ -15,12 +15,12 @@ export interface RenderInstance {
 }
 export class WarpRenderInstance {
 	constructor(
-		public readonly conetxt: RenderContext,
+		public readonly context: RenderContext,
 		public readonly dom: HTMLElement,
 		public readonly rawInstance: RenderInstance,
 		public readonly dataContext: RenderDataContext,
 	) {
-		this.conetxt._instances.push(this);
+		this.context._instances.push(this);
 	}
 	unMount() {
 		if (this.rawInstance.unMount) {
@@ -30,10 +30,10 @@ export class WarpRenderInstance {
 		}
 		Object.values(this.dataContext).forEach((o) => {
 			Object.values<any>(o).forEach(
-				(c) => c instanceof SFDataContext && c.distory(),
+				(c) => c instanceof SFDataContext && c.destroy(),
 			);
 		});
-		this.conetxt._instances = this.conetxt._instances.filter((i) => i !== this);
+		this.context._instances = this.context._instances.filter((i) => i !== this);
 	}
 }
 

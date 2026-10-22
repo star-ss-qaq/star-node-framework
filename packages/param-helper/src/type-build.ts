@@ -162,7 +162,7 @@ export function buildType(
 				})
 				.filter(Boolean) as [PropertyKey, any];
 			let retObj;
-			if (type.metchType === Map) {
+			if (type.matchType === Map) {
 				retObj = new Map(entries);
 			} else {
 				retObj = Object.fromEntries(entries);
@@ -176,5 +176,5 @@ export function buildType(
 		// type.type;
 	}
 	// @ts-ignore
-	throwError(`unknow type ${type.type}`);
+	throwError(`unknown type ${type.type}`);
 }

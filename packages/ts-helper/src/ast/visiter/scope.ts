@@ -15,7 +15,7 @@ import {
 import { Scope, ScopeVar, ScopeVarType } from "./type.js";
 import { parseExpressionToValue } from "../parse-to-value.js";
 
-const defalutUnknow: ScopeVar = { type: ScopeVarType.Unknow };
+const defaultUnknown: ScopeVar = { type: ScopeVarType.Unknown };
 
 function getPathFromScope(arr: string[], sv: ScopeVar): ScopeVar {
 	if (sv.type === ScopeVarType.Import) {
@@ -24,7 +24,7 @@ function getPathFromScope(arr: string[], sv: ScopeVar): ScopeVar {
 			varPath: [...sv.varPath, ...arr],
 		};
 	}
-	return { type: ScopeVarType.Unknow };
+	return { type: ScopeVarType.Unknown };
 }
 
 function parseLeft(
@@ -74,7 +74,7 @@ function parseLeft(
 }
 
 function findFromScopeVar(path: string[], init?: ScopeVar): ScopeVar {
-	if (!init) return defalutUnknow;
+	if (!init) return defaultUnknown;
 	if (!path || path.length === 0) return init;
 	switch (init.type) {
 		case ScopeVarType.Array: {
@@ -92,9 +92,9 @@ function findFromScopeVar(path: string[], init?: ScopeVar): ScopeVar {
 			};
 		}
 		default:
-			return defalutUnknow;
+			return defaultUnknown;
 	}
-	return defalutUnknow;
+	return defaultUnknown;
 }
 
 export class ScopeHelper {
@@ -104,7 +104,7 @@ export class ScopeHelper {
 	}
 	parseExpression(node: Expression | QualifiedName | undefined): ScopeVar {
 		if (!node) {
-			return defalutUnknow;
+			return defaultUnknown;
 		}
 		if (isCallExpression(node)) {
 			if (
@@ -136,7 +136,7 @@ export class ScopeHelper {
 				this.parseExpression(node.left),
 			);
 		}
-		return defalutUnknow;
+		return defaultUnknown;
 	}
 	getWhereVarDefine(name: string) {
 		let last: ScopeHelper = this;
@@ -161,7 +161,7 @@ export class ScopeHelper {
 			let value =
 				path[0] !== null
 					? findFromScopeVar(path as string[], init)
-					: defalutUnknow;
+					: defaultUnknown;
 			const upScope = defineOnly ? this.getWhereVarDefine(k) : this;
 			upScope.scope[k] = value;
 		});

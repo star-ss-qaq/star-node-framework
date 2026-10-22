@@ -30,7 +30,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 		},
 		whenPropertyDeclaration: { alwaysRemoveSelf: true },
 		type: "include",
-		importent: Number.MAX_VALUE,
+		important: Number.MAX_VALUE,
 	},
 	{
 		import: "",
@@ -72,7 +72,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 			},
 		},
 		type: "include",
-		importent: Number.MAX_VALUE,
+		important: Number.MAX_VALUE,
 	},
 	{
 		import: "",
@@ -86,7 +86,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 		},
 		whenPropertyDeclaration: { alwaysRemoveSelf: true },
 		type: "exclude",
-		importent: Number.MAX_VALUE,
+		important: Number.MAX_VALUE,
 	},
 	{
 		import: "",
@@ -127,7 +127,7 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 			},
 		},
 		type: "include",
-		importent: Number.MAX_VALUE,
+		important: Number.MAX_VALUE,
 	},
 	{
 		import: "",
@@ -176,6 +176,6 @@ export const systemConfig: SiteOnlyConfigRule[] = [
 			},
 		},
 		type: "include",
-		importent: Number.MAX_VALUE,
+		important: Number.MAX_VALUE,
 	},
 ];

@@ -14,7 +14,7 @@ export function createElement(
 }
 export function createDoctypeElement(): HTMLVNode {
 	return {
-		type: VNodeType.Outher,
+		type: VNodeType.Other,
 		text: "<!DOCTYPE html>",
 	};
 }

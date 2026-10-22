@@ -7,7 +7,7 @@ import {
 import {
 	getClassConstructorInjectTokens,
 	getClassPropertyInjectTokens,
-	getFunctinInjectTokens,
+	getFunctionInjectTokens,
 	InjectInfo,
 } from "./@inject.js";
 import { getModuleMetadata, ModuleMeta } from "./@module.js";
@@ -83,7 +83,7 @@ export class DIContainer {
 		loop: any[],
 	) {
 		const props = await Promise.all(
-			getFunctinInjectTokens(fn, inject).map(
+			getFunctionInjectTokens(fn, inject).map(
 				async (p, i) =>
 					await this._tryCreate(p, `function argument ${i}`, loop),
 			),

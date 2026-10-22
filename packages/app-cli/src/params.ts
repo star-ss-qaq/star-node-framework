@@ -1,10 +1,7 @@
-import { ReflectionKind, Type, TypeClass, typeOf } from "@deepkit/type";
 import {
 	ParamMetaHelper,
 	RootParamType,
 } from "@thestarweb/star-framework-param-helper";
-
-const argNamespase = "$sf:cli";
 
 const paramHelper = new ParamMetaHelper("$sf:cli", {
 	interaction: RootParamType.SingleObject,
@@ -25,7 +22,7 @@ export function getParam(obj: object, key: PropertyKey) {
 	});
 }
 
-export async function callWhithParam(
+export async function callWithParam(
 	...arg: Parameters<(typeof paramHelper)["call"]>
 ) {
 	await paramHelper.call(...arg);

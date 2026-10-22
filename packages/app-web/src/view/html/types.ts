@@ -2,7 +2,7 @@ export enum VNodeType {
 	Element = 1,
 	Comment = 2,
 	Text = 3,
-	Outher = 999,
+	Other = 999,
 }
 
 export interface HTMLVElement {
@@ -13,14 +13,14 @@ export interface HTMLVElement {
 }
 export interface HTMLVComment {
 	type: VNodeType.Comment;
-	conetnt: string;
+	content: string;
 }
 export interface HTMLVText {
 	type: VNodeType.Text;
-	conetnt: string;
+	content: string;
 }
 export interface OtherVElement {
-	type: VNodeType.Outher;
+	type: VNodeType.Other;
 	text: string;
 }
 

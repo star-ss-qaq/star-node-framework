@@ -64,7 +64,7 @@ const systemClassRules: [
 		(getTypeParam) => ({
 			type: ParamTypeEnum.Array,
 			items: getTypeParam(0) || defaultAnyType,
-			metchType: Set,
+			matchType: Set,
 		}),
 	],
 	[
@@ -293,7 +293,7 @@ export function toParamType(
 		case ReflectionKind.function:
 			return error("it is a function");
 	}
-	return error(`it has unkonw type metadata`);
+	return error(`it has unknown type metadata`);
 }
 export function mergeType(
 	rawType?: ParamType,
@@ -327,13 +327,13 @@ export function mergeType(
 	}
 	function _typeName(type: ParamType) {
 		if (type.constructor) {
-			if (type.metchType) {
-				return `${type.constructor.name}(extend ${type.metchType.name})`;
+			if (type.matchType) {
+				return `${type.constructor.name}(extend ${type.matchType.name})`;
 			}
 			return type.constructor.name;
 		}
-		if (type.metchType) {
-			return type.metchType.name;
+		if (type.matchType) {
+			return type.matchType.name;
 		}
 		return `default ${type.type}`;
 	}
@@ -345,7 +345,7 @@ export function mergeType(
 	}
 	// TODO 如果有anyOf需要逐个尝试
 	// 但这也非常复杂且极少遇到，本身占用同一个参数位置就不是预期行为
-	if (rawType.metchType !== addType.metchType) {
+	if (rawType.matchType !== addType.matchType) {
 		throw new ParamTypeError(
 			`${p} is required to be ${_typeName(rawType)} and ${_typeName(addType)} at same time, we can not handle it`,
 		);
@@ -373,17 +373,17 @@ export function mergeType(
 					items: pureAndFreeze(merged),
 				});
 			};
-			const mergeWithDefaul = (rt: ParamType[], at: ParamType) => {
+			const mergeWithDefault = (rt: ParamType[], at: ParamType) => {
 				return mergeWithArray(rt, Array(rt.length).fill(at));
 			};
 			if (Array.isArray(rawType.items)) {
 				if (Array.isArray(at.items)) {
 					return mergeWithArray(rawType.items, at.items);
 				}
-				return mergeWithDefaul(rawType.items, at.items);
+				return mergeWithDefault(rawType.items, at.items);
 			}
 			if (Array.isArray(at.items)) {
-				return mergeWithDefaul(at.items, rawType.items);
+				return mergeWithDefault(at.items, rawType.items);
 			}
 			return pureAndFreeze({
 				type: ParamTypeEnum.Array,

@@ -11,27 +11,27 @@ import {
 	visitEachChild,
 } from "typescript";
 import { parseExpressionToValue } from "../parse-to-value.js";
-import { ScopeVarType, TSVisrior } from "./type.js";
+import { ScopeVarType, TSVisitor } from "./type.js";
 import { ScopeHelper } from "./scope.js";
 
 export function tsVisitorHandel(
 	context: TransformationContext,
-	visrior: TSVisrior | TSVisrior[],
+	visitor: TSVisitor | TSVisitor[],
 	file: SourceFile,
 ) {
-	if (!Array.isArray(visrior)) return tsVisitorHandel(context, [visrior], file);
-	const enableScop = visrior.some((v) => v.enableScop);
+	if (!Array.isArray(visitor)) return tsVisitorHandel(context, [visitor], file);
+	const enableScop = visitor.some((v) => v.enableScop);
 	let scopes: ScopeHelper[] = [];
 	let currentScope = new ScopeHelper();
-	visrior.forEach((v) => {
+	visitor.forEach((v) => {
 		if (v.globalScop) {
 			Object.entries(v.globalScop).forEach(([k, s]) => {
 				currentScope.scope[k] = s;
 			});
 		}
 	});
-	const beforeVisriors = visrior.filter((i) => i.before);
-	const afterVisriors = visrior.filter((i) => i.after);
+	const beforeVisitor = visitor.filter((i) => i.before);
+	const afterVisitor = visitor.filter((i) => i.after);
 	const innerVisitor = <T extends Node>(node: T): T[] => {
 		let flagIsBlock = false;
 		if (enableScop && isBlock(node)) {
@@ -39,20 +39,20 @@ export function tsVisitorHandel(
 			currentScope = new ScopeHelper(currentScope);
 			flagIsBlock = true;
 		}
-		const beforeNode = beforeVisriors.reduce(
-			(nodes, visrior) =>
+		const beforeNode = beforeVisitor.reduce(
+			(nodes, visitor) =>
 				nodes.flatMap((node) =>
-					visrior.before!(node, context.factory, currentScope),
+					visitor.before!(node, context.factory, currentScope),
 				),
 			[node as any],
 		);
 		const resNode = beforeNode.flatMap((node) =>
 			visitEachChild<T>(node, innerVisitor, context),
 		);
-		const afterNode = afterVisriors.reduce(
-			(nodes, visrior) =>
+		const afterNode = afterVisitor.reduce(
+			(nodes, visitor) =>
 				nodes.flatMap((node) =>
-					visrior.after!(node, context.factory, currentScope),
+					visitor.after!(node, context.factory, currentScope),
 				),
 			resNode.filter(Boolean) as any[],
 		);
@@ -108,11 +108,11 @@ export function tsVisitorHandel(
 
 	return innerVisitor(file)[0];
 }
-export function createTransformerFactoryByTsVistor(
-	v: TSVisrior,
+export function createTransformerFactoryByTsVisitor(
+	v: TSVisitor,
 ): TransformerFactory<SourceFile> {
 	return (context) => (file) => tsVisitorHandel(context, v, file);
 }
 
-export { ScopeVarType, type ScopeVar, type TSVisrior } from "./type.js";
+export { ScopeVarType, type ScopeVar, type TSVisitor } from "./type.js";
 export { ScopeHelper } from "./scope.js";

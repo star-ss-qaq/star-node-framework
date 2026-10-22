@@ -59,11 +59,11 @@ export class VueRender implements IRender {
 		dom: HTMLElement,
 		context: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 		hydrate: boolean,
 	): RenderInstance {
 		const refProp = shallowRef(prop);
-		const refChild = shallowRef(chrild);
+		const refChild = shallowRef(child);
 		const app = (hydrate ? createSSRApp : createApp)({
 			setup: () => {
 				return () => h(this.comp, refProp.value);
@@ -78,7 +78,7 @@ export class VueRender implements IRender {
 					ins?.unMount();
 					ins = null;
 					if (!(refChild.value.render instanceof VueRender)) {
-						ins = chrild[hydrate ? "hydrate" : "mount"](divRef.value!, {});
+						ins = child[hydrate ? "hydrate" : "mount"](divRef.value!, {});
 					}
 				};
 				onMounted(() => {
@@ -110,16 +110,16 @@ export class VueRender implements IRender {
 		dom: HTMLElement,
 		context: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 	) {
-		return this._mount(dom, context, prop, chrild, false);
+		return this._mount(dom, context, prop, child, false);
 	}
 	hydrate(
 		dom: HTMLElement,
 		context: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 	) {
-		return this._mount(dom, context, prop, chrild, true);
+		return this._mount(dom, context, prop, child, true);
 	}
 }

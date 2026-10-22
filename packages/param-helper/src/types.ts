@@ -3,7 +3,7 @@ export interface BaseParamType<T> {
 	readonly description?: string;
 	readonly meta?: T;
 	readonly constructor?: any;
-	readonly metchType?: any;
+	readonly matchType?: any;
 }
 export enum ParamTypeEnum {
 	Never = -1,

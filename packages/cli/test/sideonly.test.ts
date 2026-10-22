@@ -8,7 +8,7 @@ import {
 	Visitor,
 } from "typescript";
 import {
-	createTransformerFactoryByTsVistor,
+	createTransformerFactoryByTsVisitor,
 	createTransformTool,
 } from "@thestarweb/ts-helper";
 import { crreateSideOnlyVisitor } from "../src/ts-compiler/macro/index.js";
@@ -37,7 +37,7 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 	}
 	function check(source: string, res: string, message?: string) {
 		const t = createTransformTool([
-			createTransformerFactoryByTsVistor(
+			createTransformerFactoryByTsVisitor(
 				sideOnly(
 					//@ts-ignore
 					["currentSide"],

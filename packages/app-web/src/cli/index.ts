@@ -48,7 +48,7 @@ export function SFWebPlugin({
 				},
 				createApp: {
 					import: "@thestarweb/star-framework-app-web",
-					fnName: "createBrowsweInstance",
+					fnName: "createBrowserInstance",
 				},
 			},
 		},

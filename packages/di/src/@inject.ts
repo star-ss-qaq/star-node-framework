@@ -102,7 +102,7 @@ export function getClassPropertyInjectTokens<
 	return tokens;
 }
 
-export function getFunctinInjectTokens(
+export function getFunctionInjectTokens(
 	fn: (...arg: any) => any,
 	inject?: any[],
 ): InjectInfo[] {

@@ -13,7 +13,7 @@ export interface ServerInstanceConfig {
 	package: string | ParsedPackage;
 	prefix?: string | ((url: URL) => string);
 	if?: (url: URL) => boolean;
-	importent?: number;
+	important?: number;
 }
 export interface ServerConfig {
 	instances: ServerInstanceConfig[];
@@ -25,7 +25,7 @@ export interface RequestContext {
 }
 
 export interface ServerInstance {
-	onRequert: (
+	onRequest: (
 		method: string,
 		url: string | URL,
 		header: any,

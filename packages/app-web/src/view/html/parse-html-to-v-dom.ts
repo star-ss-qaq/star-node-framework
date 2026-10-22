@@ -106,7 +106,7 @@ export function parseHtmlToVDom(html: string, { keepWhitespace = false } = {}) {
 						);
 						children.push({
 							type: VNodeType.Comment,
-							conetnt: html.substring(
+							content: html.substring(
 								startCommentPos + 4,
 								pos === -1 ? undefined : pos - 3,
 							),
@@ -151,7 +151,7 @@ export function parseHtmlToVDom(html: string, { keepWhitespace = false } = {}) {
 							pos++;
 						}
 						children.push({
-							type: VNodeType.Outher,
+							type: VNodeType.Other,
 							text: html.substring(startDoctype, pos + 1),
 						});
 					}
@@ -190,9 +190,9 @@ export function parseHtmlToVDom(html: string, { keepWhitespace = false } = {}) {
 	}
 	function parseString() {
 		var startChar = html[pos];
-		var startpos = pos + 1;
-		pos = html.indexOf(startChar, startpos);
-		var value = html.slice(startpos, pos);
+		var startPos = pos + 1;
+		pos = html.indexOf(startChar, startPos);
+		var value = html.slice(startPos, pos);
 		return value;
 	}
 	function parseNode(): HTMLVElement {
