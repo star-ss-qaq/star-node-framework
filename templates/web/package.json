@@ -15,6 +15,7 @@
     "@thestarweb/star-framework-app-web": "^0.2.4",
     "@thestarweb/star-framework-app-web-vue": "^0.2.4",
     "@thestarweb/star-framework-cli": "^0.2.4",
+    "@thestarweb/star-framework-db": "^0.2.6",
     "@thestarweb/star-framework-di": "^0.2.6",
     "vue": "^3.5.41"
   },

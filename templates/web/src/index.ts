@@ -12,6 +12,7 @@ import {
 import { ResponseWithMeta } from "@thestarweb/star-framework-app-web";
 import { Inject } from "@thestarweb/star-framework-di";
 import { VueRoute } from "./vue/index.js";
+import { Route } from "./routes/index.js";
 @Layout(
 	new HTMLRender(
 		`<div>this is Layout of ViewRoute
@@ -90,4 +91,7 @@ export default class App {
 	post(@Body() body?: { a: boolean; b?: 1 | string }) {
 		return body;
 	}
+	@Inject()
+	@SubRoute("/")
+	route!: Route;
 }
