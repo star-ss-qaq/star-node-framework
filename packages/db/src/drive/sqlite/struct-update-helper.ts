@@ -21,7 +21,12 @@ export class StructUpdateHelper extends StructUpdateSqlBuildWithNoHierarchy {
 	}
 	handleCreateTable(def: DBTableDifference) {
 		const fields = def.columns.map((i) => this.handleColumnBase(i, def));
-		fields.push(`PRIMARY KEY(${def.primaryKey.map((i) => `\`${i}\``)})`);
+		if (
+			def.primaryKey.length > 0 &&
+			!def.columns.some((i) => i.autoIncrement)
+		) {
+			fields.push(`PRIMARY KEY(${def.primaryKey.map((i) => `\`${i}\``)})`);
+		}
 		this.exec(`CREATE TABLE \`${def.name}\` (${fields.join(",")})`);
 	}
 	handleChangeTable(def: DBTableDifference) {
