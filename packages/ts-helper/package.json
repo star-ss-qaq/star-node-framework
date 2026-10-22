@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/ts-helper",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "ts工具",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -23,5 +23,5 @@
   "dependencies": {
     "tslib": "^2.8.1"
   },
-  "gitHead": "f4c56b714b72aea352f1a165b91e1044ac989353"
+  "gitHead": "8fc670e0ee25ece857354858bc49ba2c86192978"
 }

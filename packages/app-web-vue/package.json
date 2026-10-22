@@ -1,7 +1,7 @@
 {
   "name": "@thestarweb/star-framework-app-web-vue",
-  "version": "0.2.6",
-  "description": "Star Framework Web App VUE pluging",
+  "version": "0.2.7",
+  "description": "Star Framework Web App VUE plugin",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type": "module",
@@ -15,8 +15,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@thestarweb/star-framework-app-web": "^0.2.6",
-    "@thestarweb/star-framework-utils": "^0.2.6",
+    "@thestarweb/star-framework-app-web": "^0.2.7",
+    "@thestarweb/star-framework-utils": "^0.2.7",
     "@vitejs/plugin-vue": "^6.0.8",
     "tslib": "^2.8.1"
   },
@@ -30,5 +30,5 @@
     "vitest": "^4.1.9"
   },
   "license": "ISC",
-  "gitHead": "f4c56b714b72aea352f1a165b91e1044ac989353"
+  "gitHead": "8fc670e0ee25ece857354858bc49ba2c86192978"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-param-helper",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Star Node Framework Param Helper",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@deepkit/type": "^1.0.19",
-    "@thestarweb/star-framework-utils": "^0.2.6",
+    "@thestarweb/star-framework-utils": "^0.2.7",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
@@ -31,5 +31,5 @@
     "vitest": "^4.1.9"
   },
   "license": "ISC",
-  "gitHead": "f4c56b714b72aea352f1a165b91e1044ac989353"
+  "gitHead": "8fc670e0ee25ece857354858bc49ba2c86192978"
 }
