@@ -1,22 +1,24 @@
 import { transformer } from "@deepkit/type-compiler";
 import {
+	createProgram,
 	isIdentifier,
 	isIfStatement,
 	isPropertyAccessExpression,
 	visitEachChild,
 } from "typescript";
 
-
-export default (program, host, config) => {
-	const originalWriteFile = host.writeFile;
+export default (program, config) => {
 	const cwd = process.cwd().replaceAll("\\", "/") + "/";
-	host.writeFile = (fileName, data, ...rest) => {
-		if(!fileName.startsWith(cwd)) {
-			return;
-		}
-		return originalWriteFile.call(host, fileName, data, ...rest);
-	};
+
 	return (context) => {
+		const host = (context.getEmitHost());
+		const originalWriteFile = host.writeFile;
+		host.writeFile = (fileName, ...rest) => {
+			if(!fileName.startsWith(cwd)) {
+				return;
+			}
+			return originalWriteFile.call(program,fileName,  ...rest);
+		};
 		const p = transformer(context);
 		return (sf) => {
 			const shouldRemove = [];
