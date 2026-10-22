@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-db",
-  "version": "0.2.7",
+  "version": "1.0.0",
   "description": "Star Framework CLI",
   "main": "dist/index.js",
   "types": "src/index.ts",
@@ -17,7 +17,7 @@
     "sf-cli": "./bin/sf-cli.js"
   },
   "dependencies": {
-    "@thestarweb/ts-helper": "^0.2.7",
+    "@thestarweb/ts-helper": "^1.0.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {

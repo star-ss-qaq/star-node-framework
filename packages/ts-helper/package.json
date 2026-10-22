@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/ts-helper",
-  "version": "0.2.7",
+  "version": "1.0.0",
   "description": "ts工具",
   "main": "dist/index.js",
   "types": "src/index.ts",
