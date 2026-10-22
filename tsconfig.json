@@ -14,7 +14,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"types": ["node"],
-		"plugins": [{ "transform": "../../tools/tsp-plugin.mjs","transformProgram": true }]
+		"plugins": [{ "transform": "../../tools/tsp-plugin.mjs" }]
 	},
 	"reflection": true
 }
