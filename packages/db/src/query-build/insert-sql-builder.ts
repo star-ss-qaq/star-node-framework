@@ -1,4 +1,5 @@
 import { RelTableInfo } from "../types/helpers/table.js";
+import { DBExecResult } from "../types/index.js";
 import { InstanceSchema } from "../types/schema.js";
 import { SelectQueryBuild } from "./select-sql-builder.js";
 import { RelTableInCode, SQL } from "./types.js";
@@ -92,5 +93,8 @@ export class InsertQueryBuild<
 			const sql = `INSERT INTO ${relName}(${keys.map((k) => `\`${columns[k].name || this.utils.formatName(k)}\``).join(", ")}) VALUES${values.join(", ")}`;
 			return { sql, bindings };
 		}
+	}
+	then(callback: (res: DBExecResult[]) => any) {
+		this.utils.commonUtils.exec(this.toSql()).then((res) => callback);
 	}
 }

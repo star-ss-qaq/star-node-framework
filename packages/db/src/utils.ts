@@ -52,4 +52,8 @@ export class CommonUtils<DB_HIERARCHY extends boolean> {
 		const runner = await this.getQueryRunner();
 		return runner.queryData(sql);
 	}
+	async exec(sql: SQL) {
+		const runner = await this.getQueryRunner();
+		return runner.exec(sql);
+	}
 }

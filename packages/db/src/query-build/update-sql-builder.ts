@@ -4,6 +4,7 @@ import { InstanceSchema } from "../types/schema.js";
 import { RelTableInCode, SQL } from "./types.js";
 import { QueryBuilderUtils } from "./utils/index.js";
 import { WhereProp } from "./utils/where.js";
+import { DBExecResult } from "../types/index.js";
 
 export class UpdateQueryBuild<
 	S extends InstanceSchema,
@@ -58,5 +59,8 @@ export class UpdateQueryBuild<
 			bindings.push(...this._where.flatMap((i) => i.bindings));
 		}
 		return { sql, bindings };
+	}
+	then(callback: (res: DBExecResult[]) => any) {
+		this.utils.commonUtils.exec(this.toSql()).then((res) => callback);
 	}
 }

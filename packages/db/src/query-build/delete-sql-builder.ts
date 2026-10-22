@@ -1,4 +1,5 @@
 import { RelTableInfo } from "../types/helpers/table.js";
+import { DBExecResult } from "../types/index.js";
 import { InstanceSchema } from "../types/schema.js";
 import { RelTableInCode, SQL } from "./types.js";
 import { QueryBuilderUtils } from "./utils/index.js";
@@ -25,5 +26,8 @@ export class DeleteQueryBuild<
 			sql += ` WHERE ${this._where.map((i) => i.sql).join(" AND ")}`;
 		}
 		return { sql, bindings };
+	}
+	then(callback: (res: DBExecResult[]) => any) {
+		this.utils.commonUtils.exec(this.toSql()).then((res) => callback);
 	}
 }
