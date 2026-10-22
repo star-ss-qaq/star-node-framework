@@ -1,5 +1,5 @@
 export { Get, Post, Put, Delete, SubRoute } from "./route/index.js";
-export { Body, Query, Header } from "./params/index.js";
+export { Body, Query, Header, Param } from "./params/index.js";
 // @side-only server
 export { SFWebPluging } from "./cli/index.js";
 export { ResponseWithMeta } from "./return-types/index.js";
