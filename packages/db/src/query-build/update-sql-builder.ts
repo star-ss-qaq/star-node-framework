@@ -11,7 +11,7 @@ export class UpdateQueryBuild<
 	FIllED_KEYS extends string = never,
 > {
 	constructor(
-		private utils: QueryBuilderUtils,
+		private utils: QueryBuilderUtils<any>,
 		private readonly _mainTable: RelTableInCode,
 	) {}
 	private _value: Record<string, any> = Object.create(null);

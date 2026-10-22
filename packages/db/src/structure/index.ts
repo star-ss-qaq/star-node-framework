@@ -54,12 +54,6 @@ export class StructHelper<T extends boolean> {
 		table: TableSchema,
 		isExist: boolean,
 	) {
-		const aiKeys = Object.keys(table.columns).filter(
-			(i) => table.columns[i].autoIncrement,
-		);
-		if (aiKeys.length > 1) {
-			throw new Error(`一张表最多只支持一个autoIncrement的列，在表`);
-		}
 		const columns: DBTableDifference["columns"] = Object.entries(
 			table.columns,
 		).map(([k, s]) => ({
