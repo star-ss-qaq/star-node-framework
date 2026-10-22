@@ -25,7 +25,7 @@ export async function loadViteConfig() {
 	> = {};
 	const customEnvironment: any = {};
 	const sideOnlyConfig: SiteOnlyConfigRule[] = [];
-	config.pluging.forEach((i) => {
+	config.plugin.forEach((i) => {
 		i.mode &&
 			Object.entries(i.mode).forEach(([mode, config]) => {
 				const envName = getEnvironmentName(i.name, mode);
@@ -161,7 +161,7 @@ export async function loadViteConfig() {
 					},
 				},
 			},
-			...config.pluging.flatMap((i) => i.vitePlugin).filter(Boolean),
+			...config.plugin.flatMap((i) => i.vitePlugin).filter(Boolean),
 			...config.vitePlugin,
 		],
 		resolve: {

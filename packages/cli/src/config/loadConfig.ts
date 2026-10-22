@@ -18,7 +18,7 @@ export async function loadConfig() {
 		}
 		loadedConfig = {
 			entry: join(process.cwd(), userConfig.entry || "src/index.ts"),
-			pluging: userConfig.pluging || [],
+			plugin: userConfig.plugin || [],
 			useDi: userConfig.useDi ?? true,
 			vitePlugin: userConfig.vitePlugin || [],
 		};

@@ -10,7 +10,7 @@ export * from "./types.js";
 const __file = fileURLToPath(import.meta.url);
 const __dir = dirname(__file);
 
-export function SFWebPluging({
+export function SFWebPlugin({
 	distPath = "./dist/web/",
 	htmlPath = join(__dir, "../../resource/default-index.html"),
 } = {}): SFPluging {

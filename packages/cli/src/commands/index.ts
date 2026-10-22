@@ -24,13 +24,13 @@ class SFCli {
 	parseType(type?: string, only = true) {
 		const ret: TypeInfo[] = [];
 		const sfConfig = getConfig()!;
-		const [pluging, typeName] = type
+		const [plugin, typeName] = type
 			? type.includes(":")
 				? type.split(":", 2)
 				: [undefined, type]
 			: [undefined, undefined];
-		sfConfig.pluging.forEach((p) => {
-			if (p.mode && (!pluging || pluging === p.name)) {
+		sfConfig.plugin.forEach((p) => {
+			if (p.mode && (!plugin || plugin === p.name)) {
 				if (typeName) {
 					if (p.mode[typeName]) {
 						ret.push({
