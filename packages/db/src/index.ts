@@ -64,3 +64,11 @@ export class SFDB<
 	}
 }
 export { And, Or, Raw, Column, Value } from "./query-build/index.js";
+export {
+	DBExecResult,
+	ColumnSchema,
+	TableSchema,
+	DBSchema,
+	InstanceSchema,
+	GetTableDataType,
+} from "./types/index.js";

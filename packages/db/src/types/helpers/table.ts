@@ -30,7 +30,7 @@ export type GetAllTableNamesWithAlias<T extends InstanceSchema> =
 // 	TABLE extends keyof S["database"][DB]["tables"] & string,
 // > = { db: DB; table: TABLE; schema: S };
 
-type GetTableColumnsType<S extends TableSchema> = {
+export type GetTableColumnsType<S extends TableSchema> = {
 	[k in keyof S["columns"]]: ResolveColumnTSType<S["columns"][k]>;
 };
 type GetTableColumnsTypeForInset<S extends TableSchema> = Partial<
