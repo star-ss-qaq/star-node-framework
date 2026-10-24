@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.0...@thestarweb/star-framework-db@1.0.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **db:** 增加类型导出 ([50260c5](https://github.com/star-ss-qaq/star-node-framework/commit/50260c57e21e0d943531d4e7f6525f791ba99f8e))
+
+
+
+
+
 # 1.0.0 (2026-10-22)
 
 
