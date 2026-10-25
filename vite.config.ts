@@ -1,6 +1,6 @@
 process.env.NODE_ENV = "";
 import { defineConfig } from "vitest/config";
-import { getProjectAliasObj } from "./tools/all-package.js";
+import { getProjectAlias } from "./tools/all-package.js";
 import { withTransform } from "./packages/ts-helper/src/transform-helper.js";
 import { transformer } from "@deepkit/type-compiler";
 import {
@@ -45,6 +45,6 @@ export default defineConfig({
 		// alias: Object.fromEntries(
 		// 	projects.map((i) => [i.name, join(i.location, "src/index.ts")]),
 		// ),
-		alias: getProjectAliasObj(),
+		alias: getProjectAlias(),
 	},
 });

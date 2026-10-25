@@ -21,6 +21,8 @@ export async function loadConfig() {
 			plugin: userConfig.plugin || [],
 			useDi: userConfig.useDi ?? true,
 			vitePlugin: userConfig.vitePlugin || [],
+			define: userConfig.define || {},
+			resolve: {},
 		};
 		Object.freeze(loadedConfig);
 	}

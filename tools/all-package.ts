@@ -30,9 +30,13 @@ export function loadProjects(): ProjectInfo[] {
 	return projects;
 }
 
-export function getProjectAliasObj() {
+export function getProjectAlias() {
 	const projects = loadProjects();
-	return Object.fromEntries(
-		projects.map((i) => [i.name, join(i.location, "src/index.ts")]),
-	);
+	// return Object.fromEntries(
+	// 	projects.map((i) => [i.name, join(i.location, "src/index.ts")]),
+	// );
+	return projects.map((i) => ({
+		find: i.name,
+		replacement: join(i.location, "src/index.ts"),
+	}));
 }

@@ -85,7 +85,7 @@ export async function loadViteConfig() {
 	}
 	viteConfig = {
 		define: {
-			"process.env.SF_DEV": "''",
+			...config?.define,
 		},
 		environments: customEnvironment,
 		// @ts-ignore
@@ -164,15 +164,26 @@ export async function loadViteConfig() {
 			...config.plugin.flatMap((i) => i.vitePlugin).filter(Boolean),
 			...config.vitePlugin,
 		],
-		resolve: {
-			alias: {},
-		},
+		resolve: config.resolve,
 	} as UserConfig;
 	if (process.env.SF_DEV) {
-		const { getProjectAliasObj } =
+		const { getProjectAlias } =
 			// @ts-ignore
 			await import("../../../../tools/all-package.js");
-		viteConfig.resolve!.alias = getProjectAliasObj();
+		let alias = getProjectAlias();
+		if (config.resolve.alias) {
+			if (Array.isArray(config.resolve.alias)) {
+				alias.push(...config.resolve.alias);
+			} else {
+				alias.push(
+					...Object.entries(config.resolve.alias).map(([k, v]) => ({
+						find: k,
+						replacement: v,
+					})),
+				);
+			}
+		}
+		viteConfig.resolve!.alias = alias;
 	}
 	return viteConfig;
 }
