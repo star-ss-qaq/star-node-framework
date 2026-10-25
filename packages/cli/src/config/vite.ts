@@ -6,7 +6,7 @@ import {
 } from "@thestarweb/ts-helper";
 import { transformer } from "@deepkit/type-compiler";
 import {
-	crreateSideOnlyVisitor,
+	createSideOnlyVisitor,
 	SiteOnlyConfigRule,
 } from "../ts-compiler/macro/index.js";
 import { SourceFile, TransformerFactory } from "typescript";
@@ -14,8 +14,8 @@ import { SFModeConfig, SFPluging } from "../plugin/index.js";
 import { join } from "path";
 
 let viteConfig: UserConfig | null = null;
-export function getEnvironmentName(plugingName: string, modeName: string) {
-	return `${plugingName}$${modeName}`.replaceAll(/[^a-z0-9A-Z\$]/gi, "_");
+export function getEnvironmentName(pluginName: string, modeName: string) {
+	return `${pluginName}$${modeName}`.replaceAll(/[^a-z0-9A-Z\$]/gi, "_");
 }
 export async function loadViteConfig() {
 	const config = await loadConfig();
@@ -73,7 +73,7 @@ export async function loadViteConfig() {
 			sideOnlyConfig.push(...i.sideOnlyConfig);
 		}
 	});
-	const sideOnly = crreateSideOnlyVisitor({
+	const sideOnly = createSideOnlyVisitor({
 		rules: sideOnlyConfig,
 	});
 	function getModeMainCode(mode: SFModeConfig) {

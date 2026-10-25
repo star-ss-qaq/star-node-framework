@@ -3,25 +3,25 @@ import { MethodRemoveOption } from "./types.js";
 declare global {
 	interface StarFrameworkSideConfig {}
 	type StarFrameworkSide = keyof StarFrameworkSideConfig;
-	type StarFrameworkSideSwith = StarFrameworkSide | StarFrameworkSide[];
+	type StarFrameworkSideSelect = StarFrameworkSide | StarFrameworkSide[];
 
 	/**
 	 * 宏定义：在指定的环境下才保留这个类型，其余环境替换为undefined，避免被运行时类型引入
 	 */
-	type SFSideOnly<Side extends StarFrameworkSideSwith, T> = T;
+	type SFSideOnly<Side extends StarFrameworkSideSelect, T> = T;
 	/**
 	 * 宏定义：在指定的环境下替换为undefined，其余环境为正常类型，避免被运行时类型引入
 	 */
-	type SFSideOmit<Side extends StarFrameworkSideSwith, T> = T;
+	type SFSideOmit<Side extends StarFrameworkSideSelect, T> = T;
 
 	/**
 	 * 宏定义：在指定的环境下才保留被修饰的方法
 	 */
 	function SFSideOnly(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 	): MethodDecorator & PropertyDecorator & ClassDecorator;
 	function SFSideOnly(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 		/**
 		 * 对于MethodDecorator,设置删除的模式
 		 * @default 'all'
@@ -35,7 +35,7 @@ declare global {
 	function SFSideOnly<
 		T extends MethodDecorator & PropertyDecorator & ClassDecorator,
 	>(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 		decorator: T,
 	): MethodDecorator & PropertyDecorator & ClassDecorator;
 
@@ -43,10 +43,10 @@ declare global {
 	 * 宏定义：在非指定的环境下才保留被修饰的方法
 	 */
 	function SFSideOmit(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 	): MethodDecorator & PropertyDecorator & ClassDecorator;
 	function SFSideOmit(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 		/**
 		 * 对于MethodDecorator，不匹配时时删除还是修改成一个抛出异常的方法
 		 * @default delete
@@ -60,7 +60,7 @@ declare global {
 	function SFSideOmit<
 		T extends MethodDecorator & PropertyDecorator & ClassDecorator,
 	>(
-		side: StarFrameworkSideSwith,
+		side: StarFrameworkSideSelect,
 		decorator: T,
 	): MethodDecorator & PropertyDecorator & ClassDecorator;
 

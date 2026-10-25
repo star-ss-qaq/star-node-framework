@@ -11,7 +11,7 @@ import { createTypeReferenceNodeHandle } from "./handles/type-reference-node.js"
 import { createCallExpressionHandle } from "./handles/call-expression.js";
 export * from "./types.js";
 
-export function crreateSideOnlyVisitor(config: SiteOnlyConfig = {}) {
+export function createSideOnlyVisitor(config: SiteOnlyConfig = {}) {
 	const rule = [...systemConfig, ...(config.rules || [])];
 	const handelMap: Partial<Record<SyntaxKind, TypeVisitor<any> | undefined>> = {
 		[SyntaxKind.ClassDeclaration]: createClassHandle(rule),

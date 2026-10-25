@@ -11,10 +11,10 @@ import {
 	createTransformerFactoryByTsVisitor,
 	createTransformTool,
 } from "@thestarweb/ts-helper";
-import { crreateSideOnlyVisitor } from "../src/ts-compiler/macro/index.js";
+import { createSideOnlyVisitor } from "../src/ts-compiler/macro/index.js";
 
 describe("测试SideOnly相关功能是否能正常工作", () => {
-	const sideOnly = crreateSideOnlyVisitor({
+	const sideOnly = createSideOnlyVisitor({
 		rules: [
 			{
 				import: "hello",
