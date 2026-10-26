@@ -54,7 +54,7 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 			"side匹配时，不要移除",
 		);
 		check(
-			"export const a = 1;\n// @side-only outherSide\nexport const b = 2;",
+			"export const a = 1;\n// @side-only otherSide\nexport const b = 2;",
 			"export const a = 1;",
 			"side不匹配时，需要移除",
 		);
@@ -65,71 +65,68 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 			"export const a = 1;",
 		);
 		check(
-			"export const a = 1;\n// @side-omit outherSide\nexport const b = 2;",
-			"export const a = 1;\n// @side-omit outherSide\nexport const b = 2;",
+			"export const a = 1;\n// @side-omit otherSide\nexport const b = 2;",
+			"export const a = 1;\n// @side-omit otherSide\nexport const b = 2;",
 		);
 	});
 	test("SFSideOnly函数版本", async () => {
 		check("const a=SFSideOnly('currentSide','hello');", "const a='hello';");
-		check("const a=SFSideOnly('outherSide','hello');", "const a=undefined;");
+		check("const a=SFSideOnly('otherSide','hello');", "const a=undefined;");
 
 		check(
-			"const a=SFSideOnly(['outherSide','currentSide'],'hello');",
+			"const a=SFSideOnly(['otherSide','currentSide'],'hello');",
 			"const a='hello';",
 		);
 		check(
-			"const a=SFSideOnly(['notSide','outherSide'],'hello');",
+			"const a=SFSideOnly(['notSide','otherSide'],'hello');",
 			"const a=undefined;",
 		);
 	});
 	test("SFSideOnly类型定义版本", async () => {
 		check("let a:SFSideOnly<'currentSide',string>;", "let a:string;");
-		check("let a:SFSideOnly<'outherSide',string>;", "let a:never;");
+		check("let a:SFSideOnly<'otherSide',string>;", "let a:never;");
 		check(
-			"let a:SFSideOnly<['currentSide','outherSide'],string>;",
+			"let a:SFSideOnly<['currentSide','otherSide'],string>;",
 			"let a:string;",
 		);
-		check("let a:SFSideOnly<['outherSide','qaq'],string>;", "let a:never;");
+		check("let a:SFSideOnly<['otherSide','qaq'],string>;", "let a:never;");
 	});
 
 	test("SFSideOmit函数版本", async () => {
 		check("const a=SFSideOmit('currentSide','hello');", "const a=undefined;");
-		check("const a=SFSideOmit('outherSide','hello');", "const a='hello';");
+		check("const a=SFSideOmit('otherSide','hello');", "const a='hello';");
 
 		check(
-			"const a=SFSideOmit(['outherSide','currentSide'],'hello');",
+			"const a=SFSideOmit(['otherSide','currentSide'],'hello');",
 			"const a=undefined;",
 		);
 		check(
-			"const a=SFSideOmit(['notSide','outherSide'],'hello');",
+			"const a=SFSideOmit(['notSide','otherSide'],'hello');",
 			"const a='hello';",
 		);
 	});
 	test("SFSiteOmit类型定义版本", async () => {
 		check("let a:SFSideOmit<'currentSide',string>;", "let a:never;");
-		check("let a:SFSideOmit<'outherSide',string>;", "let a:string;");
+		check("let a:SFSideOmit<'otherSide',string>;", "let a:string;");
 		check(
-			"let a:SFSideOmit<['currentSide','outherSide'],string>;",
+			"let a:SFSideOmit<['currentSide','otherSide'],string>;",
 			"let a:never;",
 		);
-		check("let a:SFSideOmit<['outherSide','qaq'],string>;", "let a:string;");
+		check("let a:SFSideOmit<['otherSide','qaq'],string>;", "let a:string;");
 	});
 
 	test("SFSiteSwith函数版本", async () => {
 		check("const a=SFSideSwitch({currentSide:'hello'});", "const a='hello';");
-		check("const a=SFSideSwitch({outherSide:'hello'});", "const a=undefined;");
+		check("const a=SFSideSwitch({otherSide:'hello'});", "const a=undefined;");
 		check("const a=SFSideSwitch({'currentSide':'hello'});", "const a='hello';");
-		check(
-			"const a=SFSideSwitch({'outherSide':'hello'});",
-			"const a=undefined;",
-		);
+		check("const a=SFSideSwitch({'otherSide':'hello'});", "const a=undefined;");
 	});
 	test("SFSiteSwith类型定义版本", async () => {
 		check("let a:SFSideSwitch<{currentSide:string}>;", "let a:string;");
-		check("let a:SFSideSwitch<{outherSide:string}>;", "let a:never;");
+		check("let a:SFSideSwitch<{otherSide:string}>;", "let a:never;");
 
 		check("let a:SFSideSwitch<{'currentSide':string}>;", "let a:string;");
-		check("let a:SFSideSwitch<{'outherSide':string}>;", "let a:never;");
+		check("let a:SFSideSwitch<{'otherSide':string}>;", "let a:never;");
 	});
 
 	test("class修饰器", async () => {
