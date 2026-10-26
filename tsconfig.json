@@ -13,6 +13,7 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
+		"importHelpers": true,
 		"types": ["node"],
 		"plugins": [{ "transform": "../../tools/tsp-plugin.mjs" }]
 	},
