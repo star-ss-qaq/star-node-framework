@@ -101,9 +101,10 @@ export function SFWebPlugin({
 			await writeFile(
 				configFile,
 				JSON.stringify({
-					"sf-fomate": "1",
+					"sf-formate": "1",
 					name: packageName,
 					version: packageVersion,
+					buildAt: Date.now(),
 					server: {
 						dir: relative(fullUnpackDistPath, res.server.distPath),
 						main: res.server.main[0],

@@ -42,9 +42,10 @@ export interface ServerInstance {
 }
 
 interface PackageInfoV1 {
-	"sf-fomate": "1";
+	"sf-formate": "1";
 	name: string;
 	version: string;
+	buildAt: number;
 	server: {
 		dir: string;
 		main: string;
