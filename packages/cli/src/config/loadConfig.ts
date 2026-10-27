@@ -22,7 +22,7 @@ export async function loadConfig() {
 			useDi: userConfig.useDi ?? true,
 			vitePlugin: userConfig.vitePlugin || [],
 			define: userConfig.define || {},
-			resolve: {},
+			resolve: userConfig.resolve || {},
 		};
 		Object.freeze(loadedConfig);
 	}
