@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-web-runtime-node@1.0.0...@thestarweb/star-framework-web-runtime-node@1.0.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **app-web:** 修复包格式 ([c053139](https://github.com/star-ss-qaq/star-node-framework/commit/c05313928d7046f8a526a4928718f566abc41527))
+
+
+
+
+
 # 1.0.0 (2026-10-22)
 
 

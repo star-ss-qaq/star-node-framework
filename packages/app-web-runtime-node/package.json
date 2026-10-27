@@ -1,6 +1,6 @@
 {
   "name": "@thestarweb/star-framework-web-runtime-node",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Star Framework Web App",
   "main": "dist/index.js",
   "types": "src/index.ts",

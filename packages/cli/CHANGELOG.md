@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.0.0...@thestarweb/star-framework-cli@1.1.0) (2026-10-27)
+
+
+### Features
+
+* **cli:** 增加define和resolve透传 ([d9905dc](https://github.com/star-ss-qaq/star-node-framework/commit/d9905dcf66e3def4a4cd766e5a48e42f88ea7660))
+
+
+
+
+
 # 1.0.0 (2026-10-22)
 
 
