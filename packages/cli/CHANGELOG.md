@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.1.0...@thestarweb/star-framework-cli@1.1.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **cli:** 修复resolve参数没有正确透传 ([8a8c7d6](https://github.com/star-ss-qaq/star-node-framework/commit/8a8c7d6fbc56c2a7b6b23c220952cb2649bbfd8a))
+
+
+
+
+
 # [1.1.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.0.0...@thestarweb/star-framework-cli@1.1.0) (2026-10-27)
 
 
