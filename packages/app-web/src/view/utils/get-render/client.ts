@@ -42,8 +42,8 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 		handleMeta(c.meta);
 	});
 	const addedEl = new WeakSet<HTMLAnchorElement>();
-	function handleAClick(ev: MouseEvent) {
-		const target = ev.target as HTMLAnchorElement;
+	function handleAClick(this: HTMLAnchorElement, ev: MouseEvent) {
+		const target = this;
 		if (target.download || target.target || ev.defaultPrevented) return;
 		const rawHref = target.getAttribute("href");
 		if (!rawHref || rawHref.startsWith("#")) return;
