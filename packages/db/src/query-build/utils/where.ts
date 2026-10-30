@@ -90,7 +90,7 @@ export type WhereProp<
 function mergeSql(sqls: SQL[], logic: "AND" | "OR") {
 	const fSql = sqls.map((i) => i.sql).join(` ${logic} `);
 	return {
-		sql: sqls.length > 1 ? `(${fSql})` : fSql,
+		sql: sqls.length > 1 ? `(${fSql})` : sqls.length === 1 ? fSql : "1 = 1",
 		bindings: sqls.flatMap((i) => i.bindings),
 	};
 }
@@ -250,11 +250,9 @@ export function buildWhere(
 
 function createLogicMergeOption(logic: "AND" | "OR") {
 	function LogicMerge<T extends Record<string, any>>(
-		v1: T,
 		...values: T[]
 	): SystemTypeForTable<T>;
 	function LogicMerge<T extends Record<string, any>, CT>(
-		v1: CT,
 		...values: CT[]
 	): SystemTypeForColumns<T, CT>;
 	function LogicMerge(...values: any[]) {
