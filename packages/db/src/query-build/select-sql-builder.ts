@@ -246,12 +246,12 @@ export class SelectQueryBuild<
 
 	private _limit = -1;
 	limit(limit: number) {
-		this._limit = limit;
+		this._limit = +limit;
 		return this;
 	}
 	private _offset = 0;
 	offset(offset: number) {
-		this._offset = offset;
+		this._offset = +offset;
 		return this;
 	}
 
@@ -298,7 +298,7 @@ export class SelectQueryBuild<
 		}
 
 		if (this._limit > 0) sqls.push("LIMIT", this._limit);
-		if (this._offset > 0) sqls.push("LIMIT", this._offset);
+		if (this._offset > 0) sqls.push("OFFSET", this._offset);
 
 		return {
 			sql: sqls.join(" "),
