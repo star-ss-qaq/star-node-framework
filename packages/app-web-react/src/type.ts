@@ -1,0 +1,1 @@
+export type RenderType = 'ssr'|'hydrate'|'mount';
