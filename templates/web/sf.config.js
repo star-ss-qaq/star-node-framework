@@ -5,4 +5,7 @@ import { defineConfig } from "@thestarweb/star-framework-cli";
 
 export default defineConfig({
 	plugin: [SFWebPlugin(), SFWebVuePlugin()],
+	resolve: {
+		tsconfigPaths: true,
+	},
 });
