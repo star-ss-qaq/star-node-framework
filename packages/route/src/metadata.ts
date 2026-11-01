@@ -185,10 +185,11 @@ export class RouteMetadata<
 	parse(obj: any) {
 		const router = this.routeFinder({ obj, path: "/" });
 		return <M extends T>(method: M, path: string) => {
-			return (
-				router[method]?.lookup(path) ||
-				router["__SF:NotFind"].lookup(path) || { allRoute: [] }
-			);
+			const fullMatch = router[method]?.lookup(path);
+			if(fullMatch?.allRoute) return fullMatch;
+			const pathOnly = router["__SF:NotFind"].lookup(path);
+			if(pathOnly?.allRoute) return pathOnly;
+			return { allRoute: [] }
 		};
 	}
 }

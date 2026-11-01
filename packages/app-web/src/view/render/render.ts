@@ -86,18 +86,20 @@ export class RenderContext {
 	get child() {
 		return this._child;
 	}
-	async warpRenderToString(dataContext: UserRenderDataContext) {
+	warpRenderToString(dataContext: UserRenderDataContext) {
 		if (this._child) {
-			return (
-				(await this.render.renderToString?.(
-					{
-						system: forkDataContextRecord(this._systemDataContext),
-						user: forkDataContextRecord(dataContext),
-					},
-					this.prop,
-					this._child,
-				)) || ""
+			const res = this.render.renderToString?.(
+				{
+					system: forkDataContextRecord(this._systemDataContext),
+					user: forkDataContextRecord(dataContext),
+				},
+				this.prop,
+				this._child,
 			);
+			if (res instanceof Promise) {
+				return res.then((res) => res || "");
+			}
+			return res || "";
 		}
 		return "";
 	}

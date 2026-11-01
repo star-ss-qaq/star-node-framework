@@ -306,10 +306,11 @@ export class SelectQueryBuild<
 		};
 	}
 
-	then(callback: (res: RES[]) => any) {
-		this.utils.commonUtils.queryData(this.toSql()).then((res) => {
-			callback(
-				res.map(
+	then(callback: (res: RES[]) => any, handleError: (error: any) => any) {
+		this.utils.commonUtils
+			.queryData(this.toSql())
+			.then((res) => {
+				return res.map(
 					(i) =>
 						Object.fromEntries(
 							Object.entries(i).map(([k, v]) => [
@@ -322,9 +323,9 @@ export class SelectQueryBuild<
 									: v,
 							]),
 						) as RES,
-				),
-			);
-		});
+				);
+			})
+			.then(callback, handleError);
 	}
 	async one(): Promise<ResolveSelectQueryRes<RES>> {
 		const res = await this;
