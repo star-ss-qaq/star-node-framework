@@ -1,6 +1,6 @@
 {
 	"name": "@thestarweb/star-framework-app-web",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "Star Framework Web App",
 	"main": "dist/index.js",
 	"types": "src/index.ts",
@@ -18,7 +18,7 @@
 		"@deepkit/type-compiler": "^1.0.0",
 		"@thestarweb/star-framework-cli": "^1.1.2",
 		"@thestarweb/star-framework-param-helper": "^1.0.1",
-		"@thestarweb/star-framework-route": "^1.0.2",
+		"@thestarweb/star-framework-route": "^1.0.3",
 		"@thestarweb/star-framework-utils": "^1.0.1",
 		"@thestarweb/star-framework-web-runtime-node": "^1.0.2",
 		"node-mocks-http": "^1.18.1",

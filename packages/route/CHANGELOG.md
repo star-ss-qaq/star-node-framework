@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-route@1.0.1...@thestarweb/star-framework-route@1.0.3) (2026-11-01)
+
+
+### Bug Fixes
+
+* **route:** 优化类型定义 ([553696c](https://github.com/star-ss-qaq/star-node-framework/commit/553696c7e75b13c9f34fea25576e4d717f553f9d))
+
+
+
+
+
 ## [1.0.2](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-route@1.0.1...@thestarweb/star-framework-route@1.0.2) (2026-11-01)
 
 **Note:** Version bump only for package @thestarweb/star-framework-route

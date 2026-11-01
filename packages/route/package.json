@@ -1,6 +1,6 @@
 {
 	"name": "@thestarweb/star-framework-route",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Star Node Framework route",
 	"main": "dist/index.js",
 	"types": "src/index.ts",

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.2...@thestarweb/star-framework-db@1.0.4) (2026-11-01)
+
+**Note:** Version bump only for package @thestarweb/star-framework-db
+
+
+
+
+
 ## [1.0.3](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.2...@thestarweb/star-framework-db@1.0.3) (2026-11-01)
 
 **Note:** Version bump only for package @thestarweb/star-framework-db
