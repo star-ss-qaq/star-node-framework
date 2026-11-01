@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.1...@thestarweb/star-framework-db@1.0.2) (2026-11-01)
+
+
+### Bug Fixes
+
+* **db:** 修复数据库执行的报错无法正确抛出的bug ([21f4cf9](https://github.com/star-ss-qaq/star-node-framework/commit/21f4cf9defc666d4a7a0aa77fe26d7ec2793ee54))
+* **db:** 修复And和Or条件参数要求至少有一个输入的ts定义与rest展开冲突，先移除这个设计并再merge中增加兜底 ([a5b78aa](https://github.com/star-ss-qaq/star-node-framework/commit/a5b78aa7b259736ea2152d74cff68bf8f8673c92))
+* **db:** 修复select语句offset拼接错误的问题 ([76bad6e](https://github.com/star-ss-qaq/star-node-framework/commit/76bad6ec486c8f66ebb1dfa680e083a5c2f00e59))
+* **db:** 修复update语句 ([bf66e31](https://github.com/star-ss-qaq/star-node-framework/commit/bf66e3181df136b41ae8a84e03d48c2b79441d2d))
+
+
+
+
+
 ## [1.0.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.0...@thestarweb/star-framework-db@1.0.1) (2026-10-24)
 
 

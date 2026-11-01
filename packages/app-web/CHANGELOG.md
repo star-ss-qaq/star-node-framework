@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.0.2...@thestarweb/star-framework-app-web@1.1.0) (2026-11-01)
+
+
+### Bug Fixes
+
+* **app-web:** 修复a标签包裹其他元素时未被本地路由正确识别的问题 ([547be67](https://github.com/star-ss-qaq/star-node-framework/commit/547be677b8a50c389db57163e072043bf1283afd))
+* **app-web:** 增加解除context监听注册功能，而不是只能等卸载时被动删除 ([8728c21](https://github.com/star-ss-qaq/star-node-framework/commit/8728c21028b6289e62284dc24c21809ac541090e))
+
+
+### Features
+
+* **app-web:** RenderContext.warpRenderToString不再将非异步的renderToString包装成异步方法 ([d30cb0b](https://github.com/star-ss-qaq/star-node-framework/commit/d30cb0b93cc7290cda7eb3628d04900b37f528da))
+
+
+
+
+
 ## [1.0.2](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.0.1...@thestarweb/star-framework-app-web@1.0.2) (2026-10-27)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-route@1.0.0...@thestarweb/star-framework-route@1.0.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **route:** 修复多参数路由/参数不在结尾的路由radix3部分匹配导致返回错误数据的问题 ([43663ed](https://github.com/star-ss-qaq/star-node-framework/commit/43663ed9fe1b45a6510946007719e3a0dfe15ebb))
+
+
+
+
+
 # 1.0.0 (2026-10-22)
 
 
