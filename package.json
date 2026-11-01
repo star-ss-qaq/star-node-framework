@@ -7,7 +7,7 @@
 	"scripts": {
 		"test": "vitest",
 		"build": "lerna run build",
-		"publish": "lerna publish --no-private"
+		"publish": "npm run build && lerna publish --no-private"
 	},
 	"private": "true",
 	"workspaces": [
