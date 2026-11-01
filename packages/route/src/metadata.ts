@@ -1,7 +1,12 @@
 import { getMetadata, initMetadata } from "@thestarweb/star-framework-utils";
 import { routeDataKey } from "./consts.js";
 import { createRouter, RadixRouter } from "radix3";
-import { RouteInfo, RouteObjectCallInfo, RouteObjectInfo } from "./types.js";
+import {
+	RouteInfo,
+	RouteInfoInput,
+	RouteObjectCallInfo,
+	RouteObjectInfo,
+} from "./types.js";
 
 export interface RouteMeta {
 	type: string;
@@ -146,13 +151,13 @@ export class RouteMetadata<
 	routeFinder(objInfo: RouteObjectInfo<SubRouteOption>) {
 		const routers: {
 			[K in T]?: RadixRouter<
-				RouteInfo<
+				RouteInfoInput<
 					Partial<{} & CommonOption & TypeOption[K]>,
 					Partial<SubRouteOption>
 				>
 			>;
 		} & {
-			"__SF:NotFind": RadixRouter<RouteInfo<any, Partial<SubRouteOption>>>;
+			"__SF:NotFind": RadixRouter<RouteInfoInput<any, Partial<SubRouteOption>>>;
 		} = { "__SF:NotFind": createRouter() };
 		this._routeFinder(objInfo, (type, path, meta) => {
 			if (!(type in routers)) {
@@ -186,10 +191,10 @@ export class RouteMetadata<
 		const router = this.routeFinder({ obj, path: "/" });
 		return <M extends T>(method: M, path: string) => {
 			const fullMatch = router[method]?.lookup(path);
-			if(fullMatch?.allRoute) return fullMatch;
+			if (fullMatch?.allRoute) return fullMatch;
 			const pathOnly = router["__SF:NotFind"].lookup(path);
-			if(pathOnly?.allRoute) return pathOnly;
-			return { allRoute: [] }
+			if (pathOnly?.allRoute) return pathOnly;
+			return { allRoute: [] };
 		};
 	}
 }

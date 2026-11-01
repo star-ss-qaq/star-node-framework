@@ -6,7 +6,10 @@ export interface RouteObjectInfo<T> {
 export interface RouteObjectCallInfo<T> extends RouteObjectInfo<T> {
 	propertyKey: PropertyKey;
 }
-export interface RouteInfo<T = any, RT = any> {
+export interface RouteInfoInput<T = any, RT = any> {
 	allRoute: RouteObjectCallInfo<RT>[];
 	finalRoute?: RouteObjectCallInfo<T> | undefined;
+}
+export interface RouteInfo<T = any, RT = any> extends RouteInfoInput<T, RT> {
+	params?: Record<string, string>;
 }
