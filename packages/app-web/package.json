@@ -1,41 +1,48 @@
 {
-  "name": "@thestarweb/star-framework-app-web",
-  "version": "1.0.2",
-  "description": "Star Framework Web App",
-  "main": "dist/index.js",
-  "types": "src/index.ts",
-  "type": "module",
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "build": "tspc -p tsconfig.build.json",
-    "dev": "tspc -p tsconfig.build.json --watch",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "@deepkit/type": "^1.0.19",
-    "@deepkit/type-compiler": "^1.0.0",
-    "@thestarweb/star-framework-cli": "^1.1.1",
-    "@thestarweb/star-framework-param-helper": "^1.0.0",
-    "@thestarweb/star-framework-route": "^1.0.0",
-    "@thestarweb/star-framework-utils": "^1.0.0",
-    "@thestarweb/star-framework-web-runtime-node": "^1.0.1",
-    "node-mocks-http": "^1.18.1",
-    "qs": "6.15.3",
-    "tslib": "^2.8.1",
-    "txml": "^6.0.3"
-  },
-  "peerDependencies": {
-    "@thestarweb/star-framework-cli": "^0.0.1",
-    "@types/qs": "6.15.1"
-  },
-  "devDependencies": {
-    "@types/node": "^26.0.1",
-    "ts-patch": "^4.0.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
-  },
-  "license": "ISC",
-  "gitHead": "8fc670e0ee25ece857354858bc49ba2c86192978"
+	"name": "@thestarweb/star-framework-app-web",
+	"version": "1.0.2",
+	"description": "Star Framework Web App",
+	"main": "dist/index.js",
+	"types": "src/index.ts",
+	"type": "module",
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tspc -p tsconfig.build.json",
+		"dev": "tspc -p tsconfig.build.json --watch",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"@deepkit/type": "^1.0.19",
+		"@deepkit/type-compiler": "^1.0.0",
+		"@thestarweb/star-framework-cli": "^1.1.1",
+		"@thestarweb/star-framework-param-helper": "^1.0.0",
+		"@thestarweb/star-framework-route": "^1.0.0",
+		"@thestarweb/star-framework-utils": "^1.0.0",
+		"@thestarweb/star-framework-web-runtime-node": "^1.0.1",
+		"node-mocks-http": "^1.18.1",
+		"qs": "6.15.3",
+		"tslib": "^2.8.1",
+		"txml": "^6.0.3"
+	},
+	"peerDependencies": {
+		"@thestarweb/star-framework-cli": "^0.0.1",
+		"@types/qs": "6.15.1"
+	},
+	"devDependencies": {
+		"@types/node": "^26.0.1",
+		"ts-patch": "^4.0.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.9"
+	},
+	"files": [
+		"dist",
+		"src",
+		"resource",
+		"CHANGELOG.md",
+		"README.md"
+	],
+	"license": "ISC",
+	"gitHead": "8fc670e0ee25ece857354858bc49ba2c86192978"
 }

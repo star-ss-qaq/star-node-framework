@@ -1,25 +1,26 @@
 {
-  "name": "@thestarweb/star-framework",
-  "version": "1.0.0",
-  "description": "Node框架",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "vitest",
-    "build": "lerna run build"
-  },
-  "private": "true",
-  "workspaces": [
-    "packages/*",
-    "templates/*"
-  ],
-  "author": "star",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^26.1.0",
-    "lerna": "^8.2.4",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
-  },
-  "dependencies": {}
+	"name": "@thestarweb/star-framework",
+	"version": "1.0.0",
+	"description": "Node框架",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "vitest",
+		"build": "lerna run build",
+		"publish": "lerna publish --no-private"
+	},
+	"private": "true",
+	"workspaces": [
+		"packages/*",
+		"templates/*"
+	],
+	"author": "star",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/node": "^26.1.0",
+		"lerna": "^8.2.4",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.9"
+	},
+	"dependencies": {}
 }
