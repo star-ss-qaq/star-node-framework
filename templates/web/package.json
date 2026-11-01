@@ -13,6 +13,7 @@
     "@deepkit/type": "^1.0.19",
     "@oxc-project/runtime": "^0.149.0",
     "@thestarweb/star-framework-app-web": "^1.0.0",
+    "@thestarweb/star-framework-app-web-react": "^1.0.0",
     "@thestarweb/star-framework-app-web-vue": "^1.0.0",
     "@thestarweb/star-framework-cli": "^1.0.0",
     "@thestarweb/star-framework-db": "^1.0.0",
