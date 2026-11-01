@@ -14,6 +14,13 @@ export class SFDataContext<T> {
 			this._root.children.add(this);
 		this.callbacks.add(callback);
 		if (updateNow) callback(this.value);
+		return () => {
+			this.callbacks.delete(callback);
+			if (this.callbacks.size === 0) {
+				// @ts-ignore 2341
+				this._root.children.delete(this);
+			}
+		};
 	}
 	destroy() {
 		this._root.destroyChild(this);
