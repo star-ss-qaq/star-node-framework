@@ -27,7 +27,7 @@ export class DeleteQueryBuild<
 		}
 		return { sql, bindings };
 	}
-	then(callback: (res: DBExecResult[]) => any) {
-		this.utils.commonUtils.exec(this.toSql()).then((res) => callback);
+	then(callback: (res: DBExecResult) => any, errorHandle?: (error: any) => any) {
+		this.utils.commonUtils.exec(this.toSql()).then(callback, errorHandle);
 	}
 }
