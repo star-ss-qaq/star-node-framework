@@ -48,7 +48,7 @@ export class UpdateQueryBuild<
 			name,
 		} = this._mainTable;
 		const bindings: any[] = [];
-		let sql = `UPDATE ${relName} AS ${name} ${Object.entries(this._value)
+		let sql = `UPDATE ${relName} AS ${name} SET ${Object.entries(this._value)
 			.map(([k, v]) => {
 				bindings.push(v);
 				return `\`${columns[k].name || this.utils.formatName(k)}\` = ?`;
@@ -60,7 +60,10 @@ export class UpdateQueryBuild<
 		}
 		return { sql, bindings };
 	}
-	then(callback: (res: DBExecResult) => any, errorHandle: (error?: any) => any) {
+	then(
+		callback: (res: DBExecResult) => any,
+		errorHandle: (error?: any) => any,
+	) {
 		this.utils.commonUtils.exec(this.toSql()).then(callback, errorHandle);
 	}
 }
