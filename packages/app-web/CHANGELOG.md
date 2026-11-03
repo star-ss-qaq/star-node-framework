@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.1.3...@thestarweb/star-framework-app-web@1.1.4) (2026-11-03)
+
+**Note:** Version bump only for package @thestarweb/star-framework-app-web
+
+
+
+
+
 ## [1.1.3](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.1.2...@thestarweb/star-framework-app-web@1.1.3) (2026-11-03)
 
 
