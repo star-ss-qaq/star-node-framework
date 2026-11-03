@@ -1,0 +1,27 @@
+@layer sf-app-web {
+	sf-route {
+		display: contents;
+	}
+	.sf-page-loading-progress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 2px;
+		background-color: #f0f0f0;
+		display: none;
+		--progress: 0;
+		--transition-time: 0.2;
+	}
+	.sf-page-loading-progress span {
+		content: "";
+		display: inline-block;
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 100%;
+		background-color: #1890ff;
+		width: calc(var(--progress) * 100%);
+		transition: width calc(var(--transition-time) * 1s);
+	}
+}

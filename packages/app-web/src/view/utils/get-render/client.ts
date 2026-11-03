@@ -3,6 +3,7 @@ import { redirectStatusCode } from "../../const.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
+import { LoadingProgress } from "../loading-progress.js";
 import {
 	createRootRenderContext,
 	ssrToBrowserDataKey,
@@ -48,8 +49,10 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	handleMeta(context.meta);
 	listenerRoute(async () => {
 		const route = routes("GET", location.pathname);
+		LoadingProgress.instance.start();
 		const c = await updateRootRenderContext(context, route, getData);
 		handleMeta(c.meta);
+		LoadingProgress.instance.end();
 	});
 	const addedEl = new WeakSet<HTMLAnchorElement>();
 	function handleAClick(this: HTMLAnchorElement, ev: MouseEvent) {

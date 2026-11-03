@@ -5,6 +5,7 @@ import { writeFile } from "fs/promises";
 import { readFileSync } from "fs";
 import { PackageInfo } from "@thestarweb/star-framework-web-runtime-node";
 import { fileURLToPath } from "url";
+import { parseHtmlToVDom, renderVDomToString } from "../view/html/index.js";
 
 export * from "./types.js";
 const __file = fileURLToPath(import.meta.url);
@@ -19,7 +20,19 @@ export function SFWebPlugin({
 
 	let html = "";
 	try {
-		html = readFileSync(htmlPath, "utf-8");
+		const sysScript = `<script type="module">import "sf:main"</script>`;
+		const sysStyle = `<style>${readFileSync(join(__dir, "../../resource/base-style.css"), "utf-8")}</style>`;
+		// const sysStyle = `<link rel="stylesheet" href=${JSON.stringify(join(__dir, "../../resource/base-style.css"))}>`;
+		html = renderVDomToString(
+			parseHtmlToVDom(readFileSync(htmlPath, "utf-8")),
+			{
+				customizeChildrenRender(dom) {
+					if (dom.tagName === "head") {
+						return (dom, raw) => `${raw()}${sysScript}${sysStyle}`;
+					}
+				},
+			},
+		);
 	} catch {
 		throw new Error("未能找到html文件");
 	}
