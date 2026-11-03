@@ -1,6 +1,6 @@
 import { HTMLRender, Layout, View } from "@thestarweb/star-framework-app-web";
 import { VueRender } from "@thestarweb/star-framework-app-web-vue";
-import { Param } from "@thestarweb/star-framework-app-web/src/params/index.js";
+import { Param } from "@thestarweb/star-framework-app-web";
 
 @Layout(new VueRender(() => import("./layout.vue")), (meta) => ({
 	...meta,
