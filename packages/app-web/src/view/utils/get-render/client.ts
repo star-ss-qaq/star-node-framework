@@ -1,4 +1,5 @@
 import { parseRoute } from "../../../route/index.js";
+import { redirectStatusCode } from "../../const.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
@@ -28,7 +29,16 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	delete (window as any)[ssrToBrowserDataKey];
 	const route = routes("GET", location.pathname);
 	const getData = async () => {
-		const res = await fetch(location.href);
+		const res = await fetch(location.href, { redirect: "manual" });
+		if (res.type === "opaqueredirect") {
+			console.log(
+				"this page is redirect, however, we can not get the redirect url, so we can only reload the page for redirect from server",
+			);
+			setTimeout(() => {
+				location.reload();
+			}, 3000);
+			return new Promise(() => {});
+		}
 		if (res.headers.get("content-type")?.includes("json")) {
 			return await res.json();
 		}

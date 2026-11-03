@@ -2,7 +2,7 @@ export { Get, Post, Put, Delete, SubRoute } from "./route/index.js";
 export { Body, Query, Header, Param } from "./params/index.js";
 // @side-only server
 export { SFWebPlugin } from "./cli/index.js";
-export { ResponseWithMeta } from "./return-types/index.js";
+export { ResponseWithMeta, LocationTo } from "./return-types/index.js";
 export { AddInterceptor, type Interceptor } from "./interceptor/index.js";
 export {
 	View,

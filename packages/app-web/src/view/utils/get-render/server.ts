@@ -8,6 +8,7 @@ import {
 	ssrToBrowserDataKey,
 } from "./common.js";
 import { RenderConfig } from "../../types.js";
+import { redirectStatusCode } from "../../const.js";
 
 export const createServerRender: (
 	context: ServerRuntimeContext,
@@ -33,6 +34,9 @@ export const createServerRender: (
 		if (rootContext) {
 			const { render, meta } = rootContext;
 			const nextRet = await nextPromise;
+			if ((redirectStatusCode as readonly any[]).includes(nextRet.code)) {
+				return nextRet;
+			}
 			const res = await render.warpRenderToString({});
 			return new ResponseWithMeta(
 				renderVDomToString(htmlVDdom, {
