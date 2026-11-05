@@ -21,7 +21,7 @@ export abstract class QueryRunner {
 	public abstract queryData(sql: SQL): Promise<any[]>;
 	public abstract exec(sql: SQL): Promise<DBExecResult>;
 
-	public abstract showDatabases(): string[];
+	public abstract showDatabases(): string[] | Promise<string[]>;
 	public abstract showTables(db: string): string[] | Promise<string[]>;
 	public abstract getDBTableSchema(
 		name: string,
