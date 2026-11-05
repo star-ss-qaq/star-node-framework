@@ -3,6 +3,7 @@ import { PackageInfo, ServerInstance, ServerRuntimeContext } from "./type.js";
 import { join } from "path";
 import { typeOf, validate } from "@deepkit/type";
 import { pathToFileURL } from "url";
+import { Main } from "./worker/main.js";
 
 async function parsePackage(packagePath: string) {
 	try {
@@ -26,16 +27,18 @@ async function loadPackageFromDir(packagePath: string) {
 		packageInfo.server.dir,
 		packageInfo.server.main,
 	);
-	const m = await import(pathToFileURL(mainPath).href);
+	// const m = await import(pathToFileURL(mainPath).href);
 	const browserDir = join(packagePath, packageInfo.browser.dir);
 	const context: ServerRuntimeContext = {
 		root: packagePath,
 		static: browserDir,
 		indexHtml: await readFile(join(browserDir, "index.html"), "utf-8"),
 	};
+	const m = new Main(pathToFileURL(mainPath).href, context);
+	await m.loading;
 	return {
 		...context,
-		instances: m.default(context) as ServerInstance,
+		instances: m,
 	};
 }
 export async function loadPackage(packagePath: string) {

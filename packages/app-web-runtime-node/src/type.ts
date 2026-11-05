@@ -35,7 +35,7 @@ export interface ServerInstance {
 		| {
 				code: number;
 				header: any;
-				res: Readable | ReadableStream | null;
+				res: Readable | ReadableStream<Uint8Array> | null;
 		  }
 		| undefined
 	>;
