@@ -1,7 +1,7 @@
 import { parentPort } from "worker_threads";
-import { RemoteCallClient } from "../remote-call/remote-call-client.js";
+import { RemoteCallClient } from "../../remote-call/remote-call-client.js";
 import { Readable } from "node:stream";
-import { RequestContext, ServerInstance } from "../type.js";
+import { RequestContext, ServerInstance } from "../../type.js";
 
 if (!parentPort) {
 	console.error("this code must run in worker");

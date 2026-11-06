@@ -1,23 +1,10 @@
 import { type Readable } from "stream";
+import type { loadPackage } from "./package-loader/index.js";
 
 export interface ServerRuntimeContext {
 	root: string;
 	static: string;
 	indexHtml: string;
-}
-export interface ParsedPackage extends ServerRuntimeContext {
-	instances: ServerInstance;
-}
-
-export interface ServerInstanceConfig {
-	package: string | ParsedPackage;
-	prefix?: string | ((url: URL) => string);
-	if?: (url: URL) => boolean;
-	important?: number;
-}
-export interface ServerConfig {
-	instances: ServerInstanceConfig[];
-	port: number;
 }
 
 export interface RequestContext {
@@ -39,6 +26,36 @@ export interface ServerInstance {
 		  }
 		| undefined
 	>;
+}
+
+export interface ResolvedServerInstanceConfig extends ServerInstance {
+	readonly prefix?: string | ((url: URL) => string);
+	readonly if?: (url: URL) => boolean;
+	readonly important?: number;
+	readonly staticFilePath?: string;
+}
+export interface OldInlineInstanceConfig {
+	package: {
+		instances: ServerInstance;
+		root: string;
+		static: string;
+		indexHtml: string;
+	};
+	prefix?: string | ((url: URL) => string);
+	if?: (url: URL) => boolean;
+	important?: number;
+}
+
+export type InlineServer =
+	| ResolvedServerInstanceConfig
+	| OldInlineInstanceConfig;
+export type ServerInstanceConfig =
+	| InlineServer
+	| Parameters<typeof loadPackage>[0];
+
+export interface ServerConfig {
+	instances: ServerInstanceConfig[];
+	port: number;
 }
 
 interface PackageInfoV1 {

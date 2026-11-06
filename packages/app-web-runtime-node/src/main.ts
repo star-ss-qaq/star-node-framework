@@ -1,26 +1,35 @@
 import { createServer } from "http";
-import { ServerConfig, ServerInstanceConfig } from "./type.js";
+import {
+	OldInlineInstanceConfig,
+	ResolvedServerInstanceConfig,
+	ServerConfig,
+	ServerInstanceConfig,
+} from "./type.js";
 import { Readable } from "stream";
-import { loadPackage } from "./load-package.js";
 import { extname, join } from "path";
 import { open, stat } from "fs/promises";
 import { MIMEMap } from "./mime.js";
+import { loadPackage } from "./package-loader/index.js";
 
-async function createHandle(instances: ServerInstanceConfig[]) {
+async function createHandle(
+	instances: ServerInstanceConfig[],
+): Promise<ResolvedServerInstanceConfig[]> {
 	const list = await Promise.all(
-		instances.map(async (i) => {
-			switch (typeof i.package) {
-				case "object":
-					return {
-						...i,
-						package: i.package,
-					};
-				case "string":
-					return {
-						...i,
-						package: await loadPackage(i.package),
-					};
+		instances.map(async (i): Promise<ResolvedServerInstanceConfig> => {
+			if ("type" in i || "package" in i) {
+				if (typeof (i as any).package === "object") {
+					console.warn("旧版格式已弃用，请升级cli");
+					return new Proxy({},{
+						get(_,p){
+							if(p in (i as OldInlineInstanceConfig).package.instances)return (i as any).package.instances[p];
+							if(p in (i as OldInlineInstanceConfig).package)return (i as any).package[p];
+							return (i as any)[p];
+						}
+					}) as any;
+				}
+				return await loadPackage(i as any);
 			}
+			return i;
 		}),
 	);
 	return list.filter((i) => i);
@@ -36,8 +45,12 @@ export async function createHttpServer(config: ServerConfig) {
 		);
 		const instance = handles.find((i) => !i.if || i.if(url));
 		if (instance) {
-			if (req.method === "GET" && !url.pathname.includes("./")) {
-				const path = join(instance.package.static, url.pathname);
+			if (
+				req.method === "GET" &&
+				!url.pathname.includes("./") &&
+				instance.staticFilePath
+			) {
+				const path = join(instance.staticFilePath, url.pathname);
 				try {
 					const s = await stat(path);
 					if (s.isFile()) {
@@ -54,7 +67,7 @@ export async function createHttpServer(config: ServerConfig) {
 				} catch {}
 			}
 			try {
-				const ret = await instance.package.instances.onRequest(
+				const ret = await instance.onRequest(
 					req.method?.toUpperCase() || "GET",
 					url,
 					req.headers,
