@@ -1,10 +1,11 @@
 import { Readable } from "node:stream";
 import {
 	PackageInfo,
-	RequestContext,
-	ResolvedServerInstanceConfig,
+	RequestProp,
+	ResolvedServerInstance,
+	ResponseData,
 	ServerRuntimeContext,
-} from "../type.js";
+} from "../types/index.js";
 import { isAbsolute, join } from "node:path";
 import { readFile } from "node:fs/promises";
 import { typeOf, validate } from "@deepkit/type";
@@ -15,22 +16,26 @@ export interface CommonPackageConfig {
 	prefix?: string | ((url: URL) => string) | undefined;
 	if?: ((url: URL) => boolean) | undefined;
 	important?: number | undefined;
+	name?: string;
 }
 
-export abstract class BasePackageLoader implements ResolvedServerInstanceConfig {
+export abstract class BasePackageLoader implements ResolvedServerInstance {
 	private _running = true;
 	private _packagePath!: string;
 	private _packageInfo!: PackageInfo;
 	private _mainPath!: string;
+	public get name() {
+		return this._config.name || this._packageInfo.name;
+	}
 	get mainPath() {
 		return this._mainPath;
 	}
 	serverRuntimeContext!: ServerRuntimeContext;
 	staticFilePath?: string | undefined;
 	async loadPackageInfo() {
-		this._packagePath = isAbsolute(this.config.package)
-			? this.config.package
-			: join(process.cwd(), this.config.package);
+		this._packagePath = isAbsolute(this._config.package)
+			? this._config.package
+			: join(process.cwd(), this._config.package);
 		const info = JSON.parse(
 			await readFile(join(this._packagePath, "package-info.json"), "utf8"),
 		) as PackageInfo;
@@ -52,13 +57,13 @@ export abstract class BasePackageLoader implements ResolvedServerInstanceConfig 
 	}
 
 	get prefix() {
-		return this.config.prefix;
+		return this._config.prefix;
 	}
 	get if() {
-		return this.config.if;
+		return this._config.if;
 	}
 	get important() {
-		return this.config.important;
+		return this._config.important;
 	}
 	abstract load(isHoot: boolean): void | Promise<void>;
 	private watchHandle!: FSWatcher;
@@ -81,7 +86,10 @@ export abstract class BasePackageLoader implements ResolvedServerInstanceConfig 
 		}
 	}
 	startLoading: Promise<void>;
-	constructor(protected config: CommonPackageConfig) {
+	public get config() {
+		return this._config;
+	}
+	constructor(protected _config: CommonPackageConfig) {
 		this.startLoading = this.loadPackageInfo().then(() => {
 			if (!this._running) return;
 			this.watchHandle = watch(
@@ -97,18 +105,5 @@ export abstract class BasePackageLoader implements ResolvedServerInstanceConfig 
 			return this.load(false);
 		});
 	}
-	abstract onRequest(
-		method: string,
-		url: string | URL,
-		header: any,
-		body: ReadableStream<Uint8Array>,
-		context: RequestContext,
-	): Promise<
-		| {
-				code: number;
-				header: any;
-				res: Readable | ReadableStream<Uint8Array> | null;
-		  }
-		| undefined
-	>;
+	abstract onRequest(prop: RequestProp): Promise<ResponseData>;
 }

@@ -1,43 +1,14 @@
 import { createServer } from "http";
-import {
-	OldInlineInstanceConfig,
-	ResolvedServerInstanceConfig,
-	ServerConfig,
-	ServerInstanceConfig,
-} from "./type.js";
+import { ServerConfig, ServerInstanceConfig } from "./types/index.js";
 import { Readable } from "stream";
 import { extname, join } from "path";
 import { open, stat } from "fs/promises";
 import { MIMEMap } from "./mime.js";
-import { loadPackage } from "./package-loader/index.js";
-
-async function createHandle(
-	instances: ServerInstanceConfig[],
-): Promise<ResolvedServerInstanceConfig[]> {
-	const list = await Promise.all(
-		instances.map(async (i): Promise<ResolvedServerInstanceConfig> => {
-			if ("type" in i || "package" in i) {
-				if (typeof (i as any).package === "object") {
-					console.warn("旧版格式已弃用，请升级cli");
-					return new Proxy({},{
-						get(_,p){
-							if(p in (i as OldInlineInstanceConfig).package.instances)return (i as any).package.instances[p];
-							if(p in (i as OldInlineInstanceConfig).package)return (i as any).package[p];
-							return (i as any)[p];
-						}
-					}) as any;
-				}
-				return await loadPackage(i as any);
-			}
-			return i;
-		}),
-	);
-	return list.filter((i) => i);
-}
+import { parseInstancesConfig } from "./parse-instances-config.js";
 
 export async function createHttpServer(config: ServerConfig) {
 	const server = createServer();
-	let handles = await createHandle(config.instances);
+	let handles = await parseInstancesConfig(config.instances);
 	server.on("request", async (req, res) => {
 		const url = new URL(
 			req.url || "/",
@@ -67,13 +38,13 @@ export async function createHttpServer(config: ServerConfig) {
 				} catch {}
 			}
 			try {
-				const ret = await instance.onRequest(
-					req.method?.toUpperCase() || "GET",
+				const ret = await instance.onRequest({
+					method: (req.method?.toUpperCase() as any) || "GET",
 					url,
-					req.headers,
-					Readable.toWeb(req) as any,
-					{ prefix: "/" },
-				);
+					header: req.headers,
+					body: Readable.toWeb(req) as any,
+					context: { prefix: "/" },
+				});
 				if (ret) {
 					if (ret.code) {
 						res.statusCode = ret.code;
@@ -82,11 +53,7 @@ export async function createHttpServer(config: ServerConfig) {
 						res.setHeader(key, data as any);
 					});
 					if (ret.res) {
-						if (ret.res instanceof ReadableStream) {
-							Readable.fromWeb(ret.res as any).pipe(res);
-						} else {
-							ret.res.pipe(res);
-						}
+						Readable.fromWeb(ret.res as any).pipe(res);
 					} else {
 						res.end();
 					}
@@ -105,8 +72,8 @@ export async function createHttpServer(config: ServerConfig) {
 	server.listen(config.port);
 	console.log(`server start at: http://127.0.0.1:${config.port}`);
 	return {
-		async updateInstances(ins: ServerInstanceConfig[]) {
-			handles = await createHandle(ins);
+		async updateInstances(config: ServerConfig) {
+			handles = await parseInstancesConfig(config.instances);
 		},
 	};
 }
