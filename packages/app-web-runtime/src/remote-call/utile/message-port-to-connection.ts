@@ -10,7 +10,7 @@ enum Status {
 	Close,
 	Abort,
 }
-export function messagePortToConnection(port: MessagePort) {
+export function messagePortToConnection(port: MessagePort, debugName: string) {
 	let writeEnd = false;
 	let remoteEnd = false;
 	function checkEnd() {
@@ -26,10 +26,12 @@ export function messagePortToConnection(port: MessagePort) {
 			if (!(reason instanceof ReadableCancel)) {
 				port.postMessage({ type: MessageType.WriteAbort });
 			}
+			checkEnd();
 		},
 		close() {
 			writeEnd = true;
 			port.postMessage({ type: MessageType.WriteClose });
+			checkEnd();
 		},
 		async write(data) {
 			if (!tReady) {

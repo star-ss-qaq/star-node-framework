@@ -6,6 +6,7 @@ export type ServerInstanceConfig =
 	| InlineServer
 	| Parameters<typeof loadPackage>[0];
 
+
 export interface ServerConfig {
 	instances: ServerInstanceConfig[];
 	port: number;

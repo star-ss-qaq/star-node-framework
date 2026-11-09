@@ -13,10 +13,33 @@ import { FSWatcher, watch } from "node:fs";
 
 export interface CommonPackageConfig {
 	package: string;
-	prefix?: string | ((url: URL) => string) | undefined;
-	if?: ((url: URL) => boolean) | undefined;
+	host?: string | RegExp | (string | RegExp)[];
+	prefix?: string | RegExp | (string | RegExp)[];
+	ip?: string | RegExp | (string | RegExp)[];
 	important?: number | undefined;
 	name?: string;
+}
+
+function strToReg(str: string, matchEnd: boolean) {
+	return new RegExp(
+		`^${str.replace(/([\.\[\]\(\)\^\$\+\*\{\}\|\\])/g, "\\$1")}${matchEnd ? "$" : ""}`,
+	);
+}
+function mergeToReg(
+	config: string | RegExp | (string | RegExp)[],
+	matchEnd = true,
+) {
+	if (Array.isArray(config)) {
+		return new RegExp(
+			config
+				.map(
+					(i) => `(${i instanceof RegExp ? i.source : strToReg(i, matchEnd)})`,
+				)
+				.join("|"),
+		);
+	}
+	if (config instanceof RegExp) return config;
+	return strToReg(config, matchEnd);
 }
 
 export abstract class BasePackageLoader implements ResolvedServerInstance {
@@ -54,13 +77,15 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 		};
 		if (!this._running) return;
 		this.staticFilePath = browserDir;
-	}
-
-	get prefix() {
-		return this._config.prefix;
-	}
-	get if() {
-		return this._config.if;
+		this.matchRequest.host = this.config.host
+			? mergeToReg(this.config.host)
+			: undefined;
+		this.matchRequest.prefix = this.config.prefix
+			? mergeToReg(this.config.prefix, false)
+			: undefined;
+		this.matchRequest.ip = this.config.ip
+			? mergeToReg(this.config.ip)
+			: undefined;
 	}
 	get important() {
 		return this._config.important;
@@ -104,6 +129,10 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 			);
 			return this.load(false);
 		});
+	}
+	matchRequest: ResolvedServerInstance["matchRequest"] = {};
+	destroy?(): void {
+		throw new Error("Method not implemented.");
 	}
 	abstract onRequest(prop: RequestProp): Promise<ResponseData>;
 }

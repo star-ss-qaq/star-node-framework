@@ -24,8 +24,11 @@ export interface ResponseData {
 }
 
 export interface ResolvedServerInstance {
-	readonly prefix?: string | ((url: URL) => string);
-	readonly if?: (url: URL) => boolean;
+	readonly matchRequest:{
+		host?: RegExp,
+		prefix?: RegExp,
+		ip?: RegExp,
+	}
 	readonly important?: number;
 	readonly staticFilePath?: string;
 	readonly name: string;

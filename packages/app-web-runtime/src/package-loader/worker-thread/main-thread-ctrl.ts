@@ -6,7 +6,7 @@ import {
 	RequestProp,
 	ResponseData,
 } from "../../types/index.js";
-import { PackageWorkerLoader } from "./index.js";
+import { PackageWorkerThreadLoader } from "./index.js";
 import { RemoteCallClient } from "../../remote-call/remote-call-client.js";
 import { messagePortToConnection } from "../../remote-call/utile/message-port-to-connection.js";
 import { InitMessage, RequestMessage } from "./types.js";
@@ -22,7 +22,7 @@ export class WorkerMainThreadCtrl extends RemoteCallClient {
 		this.worker.postMessage({ type: 2, port: port2 } as RequestMessage, [
 			port2 as any,
 		]);
-		return messagePortToConnection(port1);
+		return messagePortToConnection(port1,'main');
 	}
 	private shouldRun = true;
 
@@ -85,7 +85,7 @@ export class WorkerMainThreadCtrl extends RemoteCallClient {
 			this._version = this.main.currentVersion;
 		});
 	}
-	constructor(private main: PackageWorkerLoader) {
+	constructor(private main: PackageWorkerThreadLoader) {
 		super();
 		this.load();
 	}

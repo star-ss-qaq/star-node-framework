@@ -14,7 +14,18 @@ export async function createHttpServer(config: ServerConfig) {
 			req.url || "/",
 			`http://${req.headers.host || "127.0.0.1"}/`,
 		);
-		const instance = handles.find((i) => !i.if || i.if(url));
+		let prefix = '/'
+		const instance = handles.find((i) => {
+			if(i.matchRequest.host&&!i.matchRequest.host.test(url.host)) return false;
+			if(i.matchRequest.prefix){
+				const p = i.matchRequest.prefix.exec(url.pathname)
+				if(!p)return false;
+				prefix = p[0];
+			} else{
+				prefix = '/'
+			}
+			return true;
+		});
 		if (instance) {
 			if (
 				req.method === "GET" &&
@@ -53,7 +64,11 @@ export async function createHttpServer(config: ServerConfig) {
 						res.setHeader(key, data as any);
 					});
 					if (ret.res) {
-						Readable.fromWeb(ret.res as any).pipe(res);
+						if(ret.res instanceof Readable){
+							ret.res.pipe(res);
+						}else{
+							Readable.fromWeb(ret.res as any).pipe(res);
+						}
 					} else {
 						res.end();
 					}

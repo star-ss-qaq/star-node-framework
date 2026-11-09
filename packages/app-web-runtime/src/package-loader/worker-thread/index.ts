@@ -5,7 +5,7 @@ import {
 } from "../base-package-loader.js";
 import { WorkerMainThreadCtrl } from "./main-thread-ctrl.js";
 
-export class PackageWorkerLoader extends BasePackageLoader {
+export class PackageWorkerThreadLoader extends BasePackageLoader {
 	public get config() {
 		return this._config;
 	}

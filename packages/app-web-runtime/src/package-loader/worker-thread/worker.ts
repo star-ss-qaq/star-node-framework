@@ -20,19 +20,7 @@ class Worker extends RemoteCallClient {
 		throw new Error("Method not implemented.");
 	}
 	async handleRequest(prop: RequestProp): Promise<ResponseData> {
-		return (
-			(await this.ins.onRequest(
-				prop.method,
-				prop.url,
-				prop.header,
-				prop.body,
-				prop.context,
-			)) || {
-				code: 200,
-				header: {},
-				res: null,
-			}
-		);
+		return await this.ins.onRequest(prop);
 	}
 	constructor(private ins: ServerInstance) {
 		super();
@@ -48,7 +36,7 @@ parentPort.on("message", async (message: Message) => {
 			parentPort!.postMessage({ type: "initd" });
 			break;
 		case 2:
-			w!.onConnection(messagePortToConnection(message.port));
+			w!.onConnection(messagePortToConnection(message.port, "worker"));
 			break;
 	}
 });
