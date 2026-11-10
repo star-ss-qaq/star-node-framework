@@ -1,9 +1,7 @@
 import { Readable } from "node:stream";
 import type {
-	RequestContext,
 	RequestProp,
 	ResponseData,
-	ServerInstance,
 } from "../types/index.js";
 import { MessageType, MethodCodeToMethod, MethodToCode } from "./const.js";
 import { createMessage, readMessage } from "./utile/remote-message/message.js";
@@ -35,11 +33,15 @@ export abstract class RemoteCallClient {
 			// 	},
 			// });
 			const header = readMessage(MessageType.NewRequest, requestHeader.value);
+			console.log(header);
 			const data = await this.handleRequest({
 				...header,
 				url: new URL(header.path),
 				method: MethodCodeToMethod[header.methodCode],
 				body: readable,
+			}).catch((error) => {
+				console.error("fail to handle request:", error);
+				return { res: null, code: 500, header: {} };
 			});
 			const writer = writable.getWriter();
 			await writer.write(createMessage(MessageType.StartResponse, data));

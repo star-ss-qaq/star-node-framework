@@ -1,3 +1,5 @@
+import { isMarkedAsUntransferable } from "node:worker_threads";
+
 enum MessageType {
 	Message = 1,
 	ReadyToRead = 2,
@@ -15,6 +17,7 @@ export function messagePortToConnection(port: MessagePort, debugName: string) {
 	let remoteEnd = false;
 	function checkEnd() {
 		if (writeEnd && remoteEnd) {
+			port.removeEventListener("message", messageHandle);
 			port.close();
 		}
 	}
@@ -39,7 +42,9 @@ export function messagePortToConnection(port: MessagePort, debugName: string) {
 			}
 			port.postMessage(
 				{ type: MessageType.Message, data },
-				data.buffer ? [data.buffer] : [],
+				data.buffer && !isMarkedAsUntransferable(data.buffer)
+					? [data.buffer]
+					: [],
 			);
 			tReady = false;
 		},
@@ -76,7 +81,7 @@ export function messagePortToConnection(port: MessagePort, debugName: string) {
 			});
 		},
 	});
-	port.addEventListener("message", (ev) => {
+	function messageHandle(ev: MessageEvent) {
 		switch (ev.data.type) {
 			case MessageType.Message:
 				dataCallback?.(ev.data.data);
@@ -101,7 +106,8 @@ export function messagePortToConnection(port: MessagePort, debugName: string) {
 				writable.abort(new ReadableCancel());
 				break;
 		}
-	});
+	}
+	port.addEventListener("message", messageHandle);
 	port.start();
 	return { writable, readable };
 }
