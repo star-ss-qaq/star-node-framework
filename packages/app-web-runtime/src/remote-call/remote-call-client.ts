@@ -33,7 +33,6 @@ export abstract class RemoteCallClient {
 			// 	},
 			// });
 			const header = readMessage(MessageType.NewRequest, requestHeader.value);
-			console.log(header);
 			const data = await this.handleRequest({
 				...header,
 				url: new URL(header.path),
