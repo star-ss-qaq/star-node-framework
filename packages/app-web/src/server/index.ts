@@ -2,7 +2,6 @@ import { PassThrough, Readable } from "stream";
 import { parse } from "qs";
 import { paramMeta } from "../params/index.js";
 import { ResponseWithMeta } from "../return-types/index.js";
-import { PassThroughReadable } from "./utils/pass-through-readable.js";
 import { getInterceptors, Interceptor } from "../interceptor/index.js";
 import { parseRoute } from "../route/index.js";
 import { createServerRender } from "../view/utils/index.js";
@@ -14,6 +13,8 @@ import {
 } from "@thestarweb/star-framework-web-runtime";
 import { Method } from "../route/types.js";
 import { JSONBody } from "./body/json.js";
+
+const textEncoder = new TextEncoder()
 
 export function createServerFactory(object: any) {
 	const handles = [JSONBody];
@@ -101,7 +102,7 @@ export function createServerFactory(object: any) {
 				} else if (header["content-type"]?.includes?.("text")) {
 					res = new ReadableStream({
 						start(ctrl) {
-							ctrl.enqueue(Buffer.from(data?.toString() || ""));
+							ctrl.enqueue(textEncoder.encode(data?.toString() || ""));
 							ctrl.close();
 						},
 					});
@@ -111,7 +112,7 @@ export function createServerFactory(object: any) {
 					}
 					res = new ReadableStream({
 						start(ctrl) {
-							ctrl.enqueue(Buffer.from(JSON.stringify(data)));
+							ctrl.enqueue(textEncoder.encode(JSON.stringify(data)));
 							ctrl.close();
 						},
 					});
