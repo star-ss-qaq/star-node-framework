@@ -8,9 +8,10 @@ import { parseRoute } from "../route/index.js";
 import { createServerRender } from "../view/utils/index.js";
 import { CallProp } from "./types.js";
 import {
+	RequestProp,
 	ServerInstance,
 	ServerRuntimeContext,
-} from "@thestarweb/star-framework-web-runtime-node";
+} from "@thestarweb/star-framework-web-runtime";
 import { Method } from "../route/types.js";
 import { JSONBody } from "./body/json.js";
 
@@ -20,7 +21,12 @@ export function createServerFactory(object: any) {
 		const routes = parseRoute(object);
 		const serverRender = createServerRender(context);
 		const ins: ServerInstance = {
-			async onRequest(method, url, reqHeader, rawBody, context) {
+			async onRequest({
+				method,
+				url,
+				header: reqHeader,
+				body: rawBody,
+			}: RequestProp) {
 				const urlObj =
 					typeof url === "string" ? new URL(url, "http://127.0.0.1/") : url;
 				const route = routes(method as Method, urlObj.pathname);
@@ -81,24 +87,34 @@ export function createServerFactory(object: any) {
 					route,
 					param: route.params,
 				});
-				let res: ReadableStream | Readable | null;
+				let res: ReadableStream | null;
 				if (data instanceof ReadableStream) {
 					res = data;
 				} else if (data instanceof TransformStream) {
 					res = data.readable;
 				} else if (data instanceof Readable) {
-					res = data;
+					res = Readable.toWeb(data) as ReadableStream;
 				} else if (data instanceof PassThrough) {
-					res = new PassThroughReadable(data);
+					res = Readable.toWeb(data) as ReadableStream;
 				} else if (data === null || typeof data === "undefined") {
 					res = null;
 				} else if (header["content-type"]?.includes?.("text")) {
-					res = Readable.from(data?.toString() || "");
+					res = new ReadableStream({
+						start(ctrl) {
+							ctrl.enqueue(Buffer.from(data?.toString() || ""));
+							ctrl.close();
+						},
+					});
 				} else {
 					if (!header["content-type"]) {
 						header["content-type"] = "application/json";
 					}
-					res = Readable.from(JSON.stringify(data));
+					res = new ReadableStream({
+						start(ctrl) {
+							ctrl.enqueue(Buffer.from(JSON.stringify(data)));
+							ctrl.close();
+						},
+					});
 				}
 				return {
 					code,

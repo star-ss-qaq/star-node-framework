@@ -8,8 +8,11 @@ import { middlewareToInterceptor } from "../interceptor/index.js";
 import type { ViteDevServer } from "vite";
 import {
 	createHttpServer,
-	ParsedPackage,
-} from "@thestarweb/star-framework-web-runtime-node";
+	RequestProp,
+	ResolvedServerInstance,
+	ResponseData,
+	ServerInstance,
+} from "@thestarweb/star-framework-web-runtime";
 import { dumpRouteType } from "../server/dump-api-type.js";
 import { join } from "path";
 
@@ -22,9 +25,17 @@ export function devServer(html: string): SFDevHook {
 		static: "",
 		indexHtml: html,
 	};
-	const ins: ParsedPackage = {
+	let rawIns: ServerInstance | undefined;
+	const ins: ResolvedServerInstance = {
 		...context,
-		instances: undefined as any,
+		name: "default",
+		matchRequest: {},
+		onRequest: function (prop: RequestProp): Promise<ResponseData> {
+			if (rawIns) {
+				return rawIns.onRequest(prop);
+			}
+			throw new Error("Function not implemented.");
+		},
 	};
 	const devInterceptor: Interceptor = (req, next) => {
 		return viteInterceptor(req, next);
@@ -46,19 +57,15 @@ export function devServer(html: string): SFDevHook {
 			context.indexHtml = await vite.transformIndexHtml("index.html", html);
 		},
 		async start(main) {
-			ins.instances = handleIns(main(context));
+			rawIns = handleIns(main(context));
 			server = await createHttpServer({
-				instances: [
-					{
-						package: ins,
-					},
-				],
+				instances: [ins],
 				port: 3000,
 			});
 		},
 		async hotReload(main) {
 			if (server) {
-				ins.instances = handleIns(main(context));
+				rawIns = handleIns(main(context));
 				console.log("hot updated");
 			}
 		},
