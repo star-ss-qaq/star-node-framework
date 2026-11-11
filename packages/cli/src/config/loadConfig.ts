@@ -7,10 +7,16 @@ let loadedConfig: Required<SFConfig> | null = null;
 export async function loadConfig() {
 	if (!loadedConfig) {
 		let userConfig: SFConfig = {};
-		for (const name of ["sf.config.js"]) {
+		for (const name of [
+			"sf.config.ts",
+			"sf.config.mts",
+			"sf.config.mjs",
+			"sf.config.js",
+			"sf.config.json",
+		]) {
 			const file = join(process.cwd(), name);
 			try {
-				access(file);
+				await access(file);
 			} catch {
 				continue;
 			}
