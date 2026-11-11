@@ -50,7 +50,9 @@ export class UpdateQueryBuild<
 		const bindings: any[] = [];
 		let sql = `UPDATE ${relName} AS ${name} SET ${Object.entries(this._value)
 			.map(([k, v]) => {
-				bindings.push(v);
+				bindings.push(
+					this.utils.commonUtils.handleCodeValueToDb(columns[k], v),
+				);
 				return `\`${columns[k].name || this.utils.formatName(k)}\` = ?`;
 			})
 			.join(", ")}`;
