@@ -10,6 +10,7 @@ import {
 } from "../types/schema.js";
 
 export class StructUpdateSqlBuild {
+	protected autoIncrementKeyWorld = "AUTO_INCREMENT";
 	constructor(protected exec: (data: any) => void) {}
 	protected lazeMap = new Map<string, any[]>();
 	protected lazeExec(name: keyof StructUpdateSqlBuild, data: any) {
@@ -124,7 +125,7 @@ export class StructUpdateSqlBuild {
 	handleColumnBase(def: DBColumnDifference, tableDef: DBTableDifference) {
 		const res = [`\`${def.name}\` ${def.type}`];
 		if (def.autoIncrement) {
-			res.push("PRIMARY KEY AUTOINCREMENT");
+			res.push(`PRIMARY KEY ${this.autoIncrementKeyWorld}`);
 		} else {
 			if (!def.nullable) res.push("NOT");
 			res.push("NULL");
@@ -162,8 +163,18 @@ export class StructUpdateSqlBuild {
 		this.handleRemoveIndex(def, tableDef);
 		this.handleAddIndex(def, tableDef);
 	}
+	shouldIgnorePrimaryKeyAtAutoIncrement = true;
 	handleAddPrimaryKey(def: DBTableDifference) {
-		if (def.primaryKey.length > 0) {
+		if (
+			this.shouldIgnorePrimaryKeyAtAutoIncrement &&
+			def.primaryKey.length > 0
+		) {
+			if (
+				def.primaryKey.length === 1 &&
+				def.columns.find((i) => i.autoIncrement)?.name === def.primaryKey[0]
+			) {
+				return;
+			}
 			this.exec(
 				`ALTER TABLE \`${def.name}\` ADD CONSTRAINT \`p_key\` PRIMARY KEY (${def.primaryKey.map((c) => `\`${c}\``).join(",")})`,
 			);
@@ -176,15 +187,25 @@ export class StructUpdateSqlBuild {
 	}
 }
 export class StructUpdateSqlBuildWithNoHierarchy extends StructUpdateSqlBuild {
-	constructor(diff: DBDifference[], exec: (data: any) => void) {
+	start() {
+		this.diff.forEach((i) => i.tables.forEach((j) => this.handleTable(j)));
+	}
+	constructor(
+		private diff: DBDifference[],
+		protected exec: (data: any) => void,
+	) {
 		super(exec);
-		diff.forEach((i) => i.tables.forEach((j) => this.handleTable(j)));
 	}
 }
 export class StructUpdateSqlBuildWithHierarchy extends StructUpdateSqlBuild {
-	constructor(diff: DBDifference[], exec: (data: any) => void) {
+	start() {
+		this.diff.forEach((i) => this.handleDb(i));
+	}
+	constructor(
+		private diff: DBDifference[],
+		protected exec: (data: any) => void,
+	) {
 		super(exec);
-		diff.forEach((i) => this.handleDb(i));
 	}
 }
 export function defaultDBDifferenceToSql(
@@ -192,10 +213,10 @@ export function defaultDBDifferenceToSql(
 	Builder: new (
 		diff: DBDifference[],
 		exec: (data: any) => void,
-	) => any = StructUpdateSqlBuildWithHierarchy,
+	) => { start?(): void } = StructUpdateSqlBuildWithHierarchy,
 ) {
 	const res: any[] = [];
-	new Builder(diff, res.push.bind(res));
+	new Builder(diff, res.push.bind(res)).start?.();
 	return res.join(";\n");
 }
 export function defaultDBDifferenceApply(
@@ -204,9 +225,9 @@ export function defaultDBDifferenceApply(
 	Builder: new (
 		diff: DBDifference[],
 		exec: (data: any) => void,
-	) => any = StructUpdateSqlBuildWithHierarchy,
+	) => { start?(): void } = StructUpdateSqlBuildWithHierarchy,
 ) {
 	let p: Promise<any> = Promise.resolve();
-	new Builder(diff, (prop) => (p = p.then(() => exec(prop))));
+	new Builder(diff, (prop) => (p = p.then(() => exec(prop)))).start?.();
 	return p;
 }

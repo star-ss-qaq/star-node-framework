@@ -6,6 +6,7 @@ import {
 } from "../../types/schema.js";
 
 export class StructUpdateHelper extends StructUpdateSqlBuildWithNoHierarchy {
+	protected autoIncrementKeyWorld = "AUTOINCREMENT";
 	handleTable(def: DBTableDifference): void {
 		if (def.columns.some((i) => i.changeType === DBDifferenceType.CHANGED)) {
 			def.indexes

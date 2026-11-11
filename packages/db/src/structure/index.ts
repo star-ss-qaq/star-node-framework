@@ -29,7 +29,6 @@ const defaultIndexTypeMap: IndexTypeConvertor = {
 };
 const tableChangeKey: DBTableDifference["changeKey"] = ["type"];
 const colCheckKey: DBColumnDifference["changeKey"] = [
-	"type",
 	"nullable",
 	"name",
 	"autoIncrement",
@@ -106,7 +105,7 @@ export class StructHelper<T extends boolean> {
 		if (isExist) {
 			const DBSchema = await queryRunner.getDBTableSchema(
 				table.name!,
-				db as any,
+				db.name!,
 			);
 			ret.currentInDbSchema = DBSchema;
 			const changeKey = tableChangeKey.filter((k) => DBSchema[k] !== ret[k]);
@@ -134,9 +133,18 @@ export class StructHelper<T extends boolean> {
 					const changeKey = colCheckKey.filter((k) => dbCol[k] !== col[k]);
 					if (
 						dbCol.defaultValue !== col.defaultValue &&
-						String(dbCol.defaultValue) !== String(col.defaultValue)
+						String(
+							dbCol.defaultValue !== undefined ? dbCol.defaultValue : null,
+						) !==
+							String(col.defaultValue !== undefined ? col.defaultValue : null)
 					) {
 						changeKey.push("defaultValue");
+					}
+					if (
+						dbCol.type !== col.type &&
+						!dbCol.type.startsWith(`${col.type}(`)
+					) {
+						changeKey.push("type");
 					}
 					if (changeKey.length > 0) {
 						col.changeType = DBDifferenceType.CHANGED;
@@ -221,7 +229,7 @@ export class StructHelper<T extends boolean> {
 	}
 	private async _getAllDef(queryRunner: QueryRunner) {
 		if (hasDbHierarchy(this.drive)) {
-			const existDb = new Set(queryRunner.showDatabases());
+			const existDb = new Set(await queryRunner.showDatabases());
 			return await Promise.all(
 				Object.values(this.schema.database).map((s) =>
 					this._getDbDef(queryRunner, s, existDb.has(s.name!)),
