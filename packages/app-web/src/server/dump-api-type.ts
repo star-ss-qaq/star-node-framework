@@ -3,9 +3,22 @@ import { getFlatRoute } from "../route/index.js";
 import { dirname, relative } from "path";
 import { writeFile } from "fs/promises";
 import { paramMeta } from "../params/index.js";
-import { dumpTSType } from "@thestarweb/star-framework-param-helper";
+import {
+	dumpTSType,
+	toParamType,
+} from "@thestarweb/star-framework-param-helper";
+import {
+	ReflectionClass,
+	ReflectionKind,
+	TypeFunction,
+	typeOf,
+} from "@deepkit/type";
 
-export async function dumpRouteType(file: string, obj: object) {
+export async function dumpRouteType(
+	file: string,
+	obj: object,
+	packageName?: string,
+) {
 	const routes = getFlatRoute(obj);
 	const config = getConfig()!;
 	const data = [];
@@ -15,7 +28,10 @@ export async function dumpRouteType(file: string, obj: object) {
 	}
 	data.push(`import App from ${JSON.stringify(rPath)};`);
 	data.push(`declare module '@thestarweb/star-framework-app-web'{`);
-	data.push(`\tinterface ProjectApi{`);
+	data.push(`\tinterface ${packageName ? "AllApi" : "ProjectApi"}{`);
+	if (packageName) {
+		data.push(`\t${JSON.stringify(packageName)}:{`);
+	}
 	Object.keys(routes).forEach((type) => {
 		if (type === "__SF:NotFind") return;
 		data.push(`\t\t${type}:{`);
@@ -45,19 +61,55 @@ export async function dumpRouteType(file: string, obj: object) {
 					);
 				}
 				data.push(`\t\t\t\t},`);
-				data.push(
-					`\t\t\t\treturn:ReturnType<App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}>`,
-				);
+
+				if (packageName) {
+					let type = "any";
+					try {
+						const classMeta = ReflectionClass.from(meta.finalRoute.obj as any);
+						const fnMeta = classMeta
+							.getMethod(meta.finalRoute.propertyKey)
+							.getReturnType();
+						let t = fnMeta
+							? fnMeta
+							: (
+									classMeta
+										.getProperty(meta.finalRoute.propertyKey)
+										.getType() as TypeFunction
+								).return;
+						while (t.kind === ReflectionKind.promise) t = t.type;
+						type = dumpTSType(toParamType(t));
+					} catch {}
+					data.push(`\t\t\t\treturn:${type}`);
+				} else {
+					data.push(
+						`\t\t\t\treturn:ReturnType<App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}>`,
+					);
+				}
 			} else {
 				data.push(`\t\t\t\tprop:{},`);
-				data.push(
-					`\t\t\t\treturn:App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}`,
-				);
+				if (packageName) {
+					let type = "any";
+					try {
+						const classMeta = ReflectionClass.from(meta.finalRoute.obj as any);
+						const t = classMeta
+							.getProperty(meta.finalRoute.propertyKey)
+							.getType();
+						type = dumpTSType(toParamType(t));
+					} catch {}
+					data.push(`\t\t\t\treturn:${type}`);
+				} else {
+					data.push(
+						`\t\t\t\treturn:App${meta.allRoute.map((r) => `[${JSON.stringify(r.propertyKey)}]`).join("")}`,
+					);
+				}
 			}
 			data.push(`\t\t\t},`);
 		});
 		data.push(`\t\t}`);
 	});
+	if (packageName) {
+		data.push(`\t}`);
+	}
 	data.push(`\t}`);
 	data.push(`}`);
 	await writeFile(file, data.join("\n"));

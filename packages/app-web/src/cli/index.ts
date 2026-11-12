@@ -1,5 +1,5 @@
 import { type SFPluging } from "@thestarweb/star-framework-cli";
-import { devServer } from "./dev-server.js";
+import { devServer, DevServerConfig } from "./dev-server.js";
 import { dirname, join, relative } from "path";
 import { writeFile } from "fs/promises";
 import { readFileSync } from "fs";
@@ -14,6 +14,7 @@ const __dir = dirname(__file);
 export function SFWebPlugin({
 	distPath = "./dist/web/",
 	htmlPath = join(__dir, "../../resource/default-index.html"),
+	devServer: devServerConfig = {} as DevServerConfig,
 } = {}): SFPluging {
 	const fullDistPath = join(process.cwd(), distPath);
 	const fullUnpackDistPath = join(fullDistPath, ".unpack");
@@ -42,7 +43,7 @@ export function SFWebPlugin({
 		mode: {
 			server: {
 				side: ["server"],
-				dev: devServer(html),
+				dev: devServer(html, devServerConfig),
 				environments: {
 					build: { outDir: join(fullUnpackDistPath, "server") },
 				},
@@ -104,19 +105,11 @@ export function SFWebPlugin({
 		async onAllModeBuildEnd(modes, res) {
 			const configFile = join(fullUnpackDistPath, "package-info.json");
 			console.log("正在写入包信息");
-			let packageName = "sf-web",
-				packageVersion = "1.0.0";
-			try {
-				const pJson = JSON.parse(readFileSync("package.json", "utf-8"));
-				pJson.name ?? (packageName = pJson.name);
-				pJson.version ?? (packageVersion = pJson.version);
-			} catch {}
 			await writeFile(
 				configFile,
 				JSON.stringify({
 					"sf-formate": "1",
-					name: packageName,
-					version: packageVersion,
+					...(await import('./package-info.js')).info,
 					buildAt: Date.now(),
 					server: {
 						dir: relative(fullUnpackDistPath, res.server.distPath),
