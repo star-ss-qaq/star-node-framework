@@ -11,15 +11,42 @@ import {
 	RequestProp,
 	ResolvedServerInstance,
 	ResponseData,
+	ServerConfig,
 	ServerInstance,
 } from "@thestarweb/star-framework-web-runtime";
 import { dumpRouteType } from "../server/dump-api-type.js";
-import { join } from "path";
+import { isAbsolute, join } from "path";
 
-export function devServer(html: string): SFDevHook {
+
+export interface DevServerConfig extends Partial<ServerConfig> {
+	/**
+	 * 输出API类型定义的默认位置
+	 * 以便项目内能获得Request中具体API的类型提示
+	 * @default ./route-type.ts
+	 */
+	apiTypeDefinePath?: false | string;
+
+	/**
+	 * 输出带有命名空间的API类型定义文件位置，如果项目需要供其他项目使用，则需要设置，以便将类型定义分发给其他程序使用
+	 */
+	apiTypeNamespaceDefinePath?: false | string;
+	/**
+	 * @default 3000
+	 */
+	port: number;
+}
+
+export function devServer(html: string,{
+		apiTypeDefinePath = "./route-type.ts",
+		apiTypeNamespaceDefinePath,
+		port = 3000,
+		instances = [],
+		...serverConfig
+	}: DevServerConfig): SFDevHook {
 	let server: Awaited<ReturnType<typeof createHttpServer>>;
 	let viteInterceptor: Interceptor;
 	let _vite: ViteDevServer;
+	let packageName = "";
 	const context = {
 		root: process.cwd(),
 		static: "",
@@ -42,9 +69,20 @@ export function devServer(html: string): SFDevHook {
 	};
 	function handleIns(obj: any) {
 		addInterceptor(devInterceptor, obj._rawObject);
-		const file = join(process.cwd(), "./route-type.ts");
-		_vite?.watcher.unwatch(file);
-		dumpRouteType(file, obj._rawObject);
+		if (apiTypeDefinePath) {
+			const file = isAbsolute(apiTypeDefinePath)
+				? apiTypeDefinePath
+				: join(process.cwd(), apiTypeDefinePath);
+			_vite?.watcher.unwatch(file);
+			dumpRouteType(file, obj._rawObject);
+		}
+		if (apiTypeNamespaceDefinePath) {
+			const file = isAbsolute(apiTypeNamespaceDefinePath)
+				? apiTypeNamespaceDefinePath
+				: join(process.cwd(), apiTypeNamespaceDefinePath);
+			_vite?.watcher.unwatch(file);
+			dumpRouteType(file, obj._rawObject, packageName);
+		}
 		return obj;
 	}
 	return {
@@ -57,6 +95,8 @@ export function devServer(html: string): SFDevHook {
 			context.indexHtml = await vite.transformIndexHtml("index.html", html);
 		},
 		async start(main) {
+			const { info } = await import("./package-info.js");
+			packageName = info.name;
 			rawIns = handleIns(main(context));
 			server = await createHttpServer({
 				instances: [ins],
