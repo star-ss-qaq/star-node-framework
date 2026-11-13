@@ -8,6 +8,7 @@ import { getLayouts } from "../../layout.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
 import { SFWebRequest } from "../../../request/index.js";
+import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 
 function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 	const routeRawContext = new SFRawDataContext(route);
@@ -28,6 +29,7 @@ function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 
 export interface RootRenderContext {
 	render: RenderContext;
+	data: any;
 	rawSystemDataContext: ReturnType<typeof createRawDataContext>;
 	meta: ViewMeta;
 }
@@ -36,7 +38,7 @@ async function createRenderContext(
 	route: RouteType<"GET">,
 	dataFn: () => any,
 	dataContext: ReturnType<typeof createRawDataContext>,
-): Promise<Pick<RootRenderContext, "render" | "meta">> {
+): Promise<Pick<RootRenderContext, "render" | "meta" | "data">> {
 	if (route.finalRoute?.context?.view) {
 		const { obj, propertyKey } = route.finalRoute;
 		let view = route.finalRoute.context.view;
@@ -44,40 +46,53 @@ async function createRenderContext(
 		const [data] = await Promise.all([
 			typeof (obj as any)[propertyKey] === "function"
 				? dataFn()
-				: (obj as any)[propertyKey],
+				: new ResponseWithMeta((obj as any)[propertyKey]),
 			view.render.fetchResource?.(),
 			...layouts.map((l) => l.render.fetchResource?.()),
 		]);
+		const {
+			handleSelfData = (data: any) => data.data,
+			handleParentData = (data: any) =>
+				data.code && (data.code < 200 || data.code >= 300) ? data : undefined,
+		} = view.dataHandle || {};
+		const selfData = handleSelfData(data);
 		let render = RenderContext.create(
 			dataContext.createChild(),
 			view.render,
-			data,
+			selfData,
 		);
 		let meta =
 			typeof view.meta === "function"
-				? view.meta(data)
+				? view.meta(selfData, selfData)
 				: view.meta || { title: "" };
 		return layouts.reduceRight(
-			({ render, meta }, currentValue) => {
+			({ render, meta, data }, currentValue) => {
+				const {
+					handleSelfData = () => undefined,
+					handleParentData = (data: any) => data,
+				} = currentValue.dataHandle || {};
+				const selfData = handleSelfData(data);
 				return {
 					render: RenderContext.create(
 						dataContext.createChild(),
 						currentValue.render,
-						undefined,
+						selfData,
 						render,
 					),
 					meta:
 						typeof currentValue.meta === "function"
-							? currentValue.meta(meta)
+							? currentValue.meta(meta, selfData)
 							: currentValue.meta || meta,
+					data: handleParentData(data),
 				};
 			},
-			{ render, meta },
+			{ render, meta, data: handleParentData(data) },
 		);
 	} else {
 		return {
 			render: RenderContext.createNoop(dataContext.createChild()),
 			meta: { title: "" },
+			data: null,
 		};
 	}
 }

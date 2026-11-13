@@ -21,14 +21,22 @@ export const createServerRender: (
 		const nextPromise = next(prop);
 		const { accept, "sec-fetch-dest": fetchDest } = prop.header;
 		let pageData: any = undefined;
+		if (prop.header["x-requested-with"] === "sf-page-render") {
+			const data = await nextPromise;
+			return new ResponseWithMeta({
+				code: data.code || 200,
+				headers: data.header || {},
+				data: data.data,
+			});
+		}
 		const rootContext =
 			prop.method === "GET" &&
 			(prop.route.finalRoute?.context as any)?.view &&
 			(accept?.includes("text/html") || ["document"].includes(fetchDest))
 				? await createRootRenderContext(config, prop.route, async () => {
 						const ret = await nextPromise;
-						pageData = ret.data;
-						return ret.data;
+						pageData = ret;
+						return ret;
 					})
 				: undefined;
 		if (rootContext) {
@@ -64,8 +72,9 @@ export const createServerRender: (
 				{
 					...nextRet,
 					header: {
-						"content-type": "text/html; charset=utf-8",
 						...nextRet.header,
+						"content-type": "text/html; charset=utf-8",
+						vary: "accept,sec-fetch-dest",
 					},
 				},
 			);

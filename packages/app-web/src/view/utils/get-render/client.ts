@@ -1,3 +1,4 @@
+import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 import { parseRoute } from "../../../route/index.js";
 import { redirectStatusCode } from "../../const.js";
 import { RenderContext } from "../../render/index.js";
@@ -30,7 +31,10 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	delete (window as any)[ssrToBrowserDataKey];
 	const route = routes("GET", location.pathname);
 	const getData = async () => {
-		const res = await fetch(location.href, { redirect: "manual" });
+		const res = await fetch(location.href, {
+			redirect: "manual",
+			headers: { "x-requested-with": "sf-page-render" },
+		});
 		if (res.type === "opaqueredirect") {
 			console.log(
 				"this page is redirect, however, we can not get the redirect url, so we can only reload the page for redirect from server",
@@ -41,11 +45,16 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 			return new Promise(() => {});
 		}
 		if (res.headers.get("content-type")?.includes("json")) {
-			return await res.json();
+			const data = await res.json();
+			return new ResponseWithMeta(data.data, data);
 		}
 		return undefined;
 	};
-	const context = await createRootRenderContext(config, route, () => pageData);
+	const context = await createRootRenderContext(
+		config,
+		route,
+		() => new ResponseWithMeta(pageData.data, pageData),
+	);
 	handleMeta(context.meta);
 	listenerRoute(async () => {
 		const route = routes("GET", location.pathname);

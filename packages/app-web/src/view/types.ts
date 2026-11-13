@@ -10,9 +10,15 @@ export interface ViewMeta {
 
 export interface ViewInfo<T = any> {
 	render: IRender;
-	meta?: ViewMeta | ((data: T) => ViewMeta);
+	meta?: ViewMeta | ((data: T, viewProp: any) => ViewMeta);
+	dataHandle?: DataHandle;
 }
 
 export interface RenderConfig {
 	baseUrl: string;
+}
+
+export interface DataHandle {
+	handleSelfData?: (data: any) => any;
+	handleParentData?: (data: any) => any;
 }
