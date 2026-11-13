@@ -1,4 +1,4 @@
-import { ServerRuntimeContext } from "@thestarweb/star-framework-web-runtime-node";
+import { ServerRuntimeContext } from "@thestarweb/star-framework-web-runtime";
 import { Interceptor } from "../../../interceptor/index.js";
 import { ResponseWithMeta } from "../../../return-types/index.js";
 import { parseHtmlToVDom, renderVDomToString } from "../../html/index.js";

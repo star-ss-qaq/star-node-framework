@@ -3,7 +3,7 @@ import { devServer, DevServerConfig } from "./dev-server.js";
 import { dirname, join, relative } from "path";
 import { writeFile } from "fs/promises";
 import { readFileSync } from "fs";
-import { PackageInfo } from "@thestarweb/star-framework-web-runtime-node";
+import { PackageInfo } from "@thestarweb/star-framework-web-runtime";
 import { fileURLToPath } from "url";
 import { parseHtmlToVDom, renderVDomToString } from "../view/html/index.js";
 

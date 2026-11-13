@@ -1,43 +1,38 @@
 import { createServer } from "http";
-import { ServerConfig, ServerInstanceConfig } from "./type.js";
+import { ServerConfig, ServerInstanceConfig } from "./types/index.js";
 import { Readable } from "stream";
-import { loadPackage } from "./load-package.js";
 import { extname, join } from "path";
 import { open, stat } from "fs/promises";
 import { MIMEMap } from "./mime.js";
-
-async function createHandle(instances: ServerInstanceConfig[]) {
-	const list = await Promise.all(
-		instances.map(async (i) => {
-			switch (typeof i.package) {
-				case "object":
-					return {
-						...i,
-						package: i.package,
-					};
-				case "string":
-					return {
-						...i,
-						package: await loadPackage(i.package),
-					};
-			}
-		}),
-	);
-	return list.filter((i) => i);
-}
+import { parseInstancesConfig } from "./parse-instances-config.js";
 
 export async function createHttpServer(config: ServerConfig) {
 	const server = createServer();
-	let handles = await createHandle(config.instances);
+	let handles = await parseInstancesConfig(config.instances);
 	server.on("request", async (req, res) => {
 		const url = new URL(
 			req.url || "/",
 			`http://${req.headers.host || "127.0.0.1"}/`,
 		);
-		const instance = handles.find((i) => !i.if || i.if(url));
+		let prefix = '/'
+		const instance = handles.find((i) => {
+			if(i.matchRequest.host&&!i.matchRequest.host.test(url.host)) return false;
+			if(i.matchRequest.prefix){
+				const p = i.matchRequest.prefix.exec(url.pathname)
+				if(!p)return false;
+				prefix = p[0];
+			} else{
+				prefix = '/'
+			}
+			return true;
+		});
 		if (instance) {
-			if (req.method === "GET" && !url.pathname.includes("./")) {
-				const path = join(instance.package.static, url.pathname);
+			if (
+				req.method === "GET" &&
+				!url.pathname.includes("./") &&
+				instance.staticFilePath
+			) {
+				const path = join(instance.staticFilePath, url.pathname);
 				try {
 					const s = await stat(path);
 					if (s.isFile()) {
@@ -54,13 +49,13 @@ export async function createHttpServer(config: ServerConfig) {
 				} catch {}
 			}
 			try {
-				const ret = await instance.package.instances.onRequest(
-					req.method?.toUpperCase() || "GET",
+				const ret = await instance.onRequest({
+					method: (req.method?.toUpperCase() as any) || "GET",
 					url,
-					req.headers,
-					Readable.toWeb(req) as any,
-					{ prefix: "/" },
-				);
+					header: req.headers,
+					body: Readable.toWeb(req) as any,
+					context: { prefix: "/" },
+				});
 				if (ret) {
 					if (ret.code) {
 						res.statusCode = ret.code;
@@ -69,10 +64,10 @@ export async function createHttpServer(config: ServerConfig) {
 						res.setHeader(key, data as any);
 					});
 					if (ret.res) {
-						if (ret.res instanceof ReadableStream) {
-							Readable.fromWeb(ret.res as any).pipe(res);
-						} else {
+						if(ret.res instanceof Readable){
 							ret.res.pipe(res);
+						}else{
+							Readable.fromWeb(ret.res as any).pipe(res);
 						}
 					} else {
 						res.end();
@@ -92,8 +87,8 @@ export async function createHttpServer(config: ServerConfig) {
 	server.listen(config.port);
 	console.log(`server start at: http://127.0.0.1:${config.port}`);
 	return {
-		async updateInstances(ins: ServerInstanceConfig[]) {
-			handles = await createHandle(ins);
+		async updateInstances(config: ServerConfig) {
+			handles = await parseInstancesConfig(config.instances);
 		},
 	};
 }

@@ -8,72 +8,43 @@ import { middlewareToInterceptor } from "../interceptor/index.js";
 import type { ViteDevServer } from "vite";
 import {
 	createHttpServer,
-	ParsedPackage,
-	ServerConfig,
-} from "@thestarweb/star-framework-web-runtime-node";
+	RequestProp,
+	ResolvedServerInstance,
+	ResponseData,
+	ServerInstance,
+} from "@thestarweb/star-framework-web-runtime";
 import { dumpRouteType } from "../server/dump-api-type.js";
-import { isAbsolute, join } from "path";
+import { join } from "path";
 
-export interface DevServerConfig extends Partial<ServerConfig> {
-	/**
-	 * 输出API类型定义的默认位置
-	 * 以便项目内能获得Request中具体API的类型提示
-	 * @default ./route-type.ts
-	 */
-	apiTypeDefinePath?: false | string;
-
-	/**
-	 * 输出带有命名空间的API类型定义文件位置，如果项目需要供其他项目使用，则需要设置，以便将类型定义分发给其他程序使用
-	 */
-	apiTypeNamespaceDefinePath?: false | string;
-	/**
-	 * @default 3000
-	 */
-	port: number;
-}
-
-export function devServer(
-	html: string,
-	{
-		apiTypeDefinePath = "./route-type.ts",
-		apiTypeNamespaceDefinePath,
-		port = 3000,
-		instances = [],
-		...serverConfig
-	}: DevServerConfig,
-): SFDevHook {
+export function devServer(html: string): SFDevHook {
 	let server: Awaited<ReturnType<typeof createHttpServer>>;
 	let viteInterceptor: Interceptor;
 	let _vite: ViteDevServer;
-	let packageName = "";
 	const context = {
 		root: process.cwd(),
 		static: "",
 		indexHtml: html,
 	};
-	const ins: ParsedPackage = {
+	let rawIns: ServerInstance | undefined;
+	const ins: ResolvedServerInstance = {
 		...context,
-		instances: undefined as any,
+		name: "default",
+		matchRequest: {},
+		onRequest: function (prop: RequestProp): Promise<ResponseData> {
+			if (rawIns) {
+				return rawIns.onRequest(prop);
+			}
+			throw new Error("Function not implemented.");
+		},
 	};
 	const devInterceptor: Interceptor = (req, next) => {
 		return viteInterceptor(req, next);
 	};
 	function handleIns(obj: any) {
 		addInterceptor(devInterceptor, obj._rawObject);
-		if (apiTypeDefinePath) {
-			const file = isAbsolute(apiTypeDefinePath)
-				? apiTypeDefinePath
-				: join(process.cwd(), apiTypeDefinePath);
-			_vite?.watcher.unwatch(file);
-			dumpRouteType(file, obj._rawObject);
-		}
-		if (apiTypeNamespaceDefinePath) {
-			const file = isAbsolute(apiTypeNamespaceDefinePath)
-				? apiTypeNamespaceDefinePath
-				: join(process.cwd(), apiTypeNamespaceDefinePath);
-			_vite?.watcher.unwatch(file);
-			dumpRouteType(file, obj._rawObject, packageName);
-		}
+		const file = join(process.cwd(), "./route-type.ts");
+		_vite?.watcher.unwatch(file);
+		dumpRouteType(file, obj._rawObject);
 		return obj;
 	}
 	return {
@@ -86,23 +57,15 @@ export function devServer(
 			context.indexHtml = await vite.transformIndexHtml("index.html", html);
 		},
 		async start(main) {
-			const { info } = await import("./package-info.js");
-			packageName = info.name;
-			ins.instances = handleIns(main(context));
+			rawIns = handleIns(main(context));
 			server = await createHttpServer({
-				...serverConfig,
-				instances: [
-					...instances,
-					{
-						package: ins,
-					},
-				],
-				port,
+				instances: [ins],
+				port: 3000,
 			});
 		},
 		async hotReload(main) {
 			if (server) {
-				ins.instances = handleIns(main(context));
+				rawIns = handleIns(main(context));
 				console.log("hot updated");
 			}
 		},

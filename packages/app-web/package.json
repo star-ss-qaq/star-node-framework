@@ -20,7 +20,7 @@
 		"@thestarweb/star-framework-param-helper": "^1.0.1",
 		"@thestarweb/star-framework-route": "^1.0.3",
 		"@thestarweb/star-framework-utils": "^1.0.1",
-		"@thestarweb/star-framework-web-runtime-node": "^1.0.2",
+		"@thestarweb/star-framework-web-runtime": "^1.0.2",
 		"node-mocks-http": "^1.18.1",
 		"qs": "6.15.3",
 		"tslib": "^2.8.1",

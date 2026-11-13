@@ -1,5 +1,5 @@
 {
-	"name": "@thestarweb/star-framework-web-runtime-node",
+	"name": "@thestarweb/star-framework-web-runtime",
 	"version": "1.0.2",
 	"description": "Star Framework Web App",
 	"main": "dist/index.js",
@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@deepkit/type": "^1.0.19",
+		"quico": "^0.8.0",
 		"tslib": "^2.8.1"
 	},
 	"devDependencies": {
