@@ -1,4 +1,3 @@
-import { title } from "node:process";
 import { RouteType } from "../../../route/index.js";
 import {
 	SFRawDataContext,
@@ -7,7 +6,7 @@ import {
 import { getLayouts } from "../../layout.js";
 import { RenderContext } from "../../render/index.js";
 import { RenderConfig, ViewMeta } from "../../types.js";
-import { SFWebRequest } from "../../../request/index.js";
+import { getSfRequest, SFWebRequest } from "../../../request/index.js";
 import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 
 function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
@@ -20,7 +19,7 @@ function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 		createChild(): SystemRenderDataContext {
 			return {
 				route: routeRawContext.createChild(),
-				request: new SFWebRequest(baseUrl),
+				request: getSfRequest(),
 				baseUrl,
 			};
 		},

@@ -40,15 +40,15 @@ export abstract class RemoteCallClient {
 				body: readable,
 			}).catch((error) => {
 				console.error("fail to handle request:", error);
-				return { res: null, code: 500, header: {} };
+				return { data: null, code: 500, header: {} };
 			});
 			const writer = writable.getWriter();
 			await writer.write(createMessage(MessageType.StartResponse, data));
-			if (data.res) {
+			if (data.data) {
 				writer.releaseLock();
-				(data.res instanceof Readable
-					? Readable.toWeb(data.res)
-					: data.res
+				(data.data instanceof Readable
+					? Readable.toWeb(data.data)
+					: data.data
 				).pipeTo(writable);
 			} else {
 				writer.close();
@@ -83,7 +83,7 @@ export abstract class RemoteCallClient {
 		);
 		return {
 			...message,
-			res: readable,
+			data: readable,
 		};
 	}
 }

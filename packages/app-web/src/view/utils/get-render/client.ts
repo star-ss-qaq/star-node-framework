@@ -1,3 +1,5 @@
+import { BrowserSideRequest } from "../../../request/browser.js";
+import { setSfRequest } from "../../../request/index.js";
 import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 import { parseRoute } from "../../../route/index.js";
 import { redirectStatusCode } from "../../const.js";
@@ -29,6 +31,7 @@ function handleMeta(meta: ViewMeta) {
 export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	const { config, pageData } = (window as any)[ssrToBrowserDataKey];
 	delete (window as any)[ssrToBrowserDataKey];
+	setSfRequest(new BrowserSideRequest(config.baseUrl))
 	const route = routes("GET", location.pathname);
 	const getData = async () => {
 		const res = await fetch(location.href, {

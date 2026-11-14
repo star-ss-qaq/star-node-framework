@@ -20,7 +20,7 @@ export interface RequestProp {
 export interface ResponseData {
 	code: number;
 	header: any;
-	res: ReadableStream<Uint8Array> | null;
+	data: ReadableStream<Uint8Array> | null;
 }
 
 export interface ResolvedServerInstance {
