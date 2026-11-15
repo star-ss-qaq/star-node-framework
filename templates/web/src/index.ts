@@ -6,7 +6,6 @@ import {
 import { Inject } from "@thestarweb/star-framework-di";
 import { Route } from "./routes/index.js";
 
-
 @AddInterceptor((req, next) => {
 	console.log("req:", req.url.href, req.body);
 	return next(req);

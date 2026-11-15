@@ -15,10 +15,19 @@ import { Method } from "../route/types.js";
 import { JSONBody } from "./body/json.js";
 import { setSfRequest } from "../request/index.js";
 import { ServerSideRequest } from "../request/server.js";
+import {
+	mergeAbortSignal,
+	setRequestAbortSignalFn,
+} from "../abort-signal/index.js";
+import {
+	getRequestAbortSignal,
+	runWithSignal,
+} from "../abort-signal/server.js";
 
 const textEncoder = new TextEncoder();
 
 export function createServerFactory(object: any) {
+	setRequestAbortSignalFn(getRequestAbortSignal);
 	const handles = [JSONBody];
 	return (context: ServerRuntimeContext) => {
 		const routes = parseRoute(object);
@@ -29,106 +38,121 @@ export function createServerFactory(object: any) {
 				url,
 				header: reqHeader,
 				body: rawBody,
+				signal,
 			}: RequestProp) {
-				const urlObj =
-					typeof url === "string" ? new URL(url, "http://127.0.0.1/") : url;
-				const route = routes(method as Method, urlObj.pathname);
+				const ctrl = new AbortController();
+				try {
+					return await runWithSignal(
+						mergeAbortSignal(signal, ctrl.signal),
+						async () => {
+							const urlObj =
+								typeof url === "string"
+									? new URL(url, "http://127.0.0.1/")
+									: url;
+							const route = routes(method as Method, urlObj.pathname);
 
-				const interceptors: Interceptor[] = route.allRoute.flatMap((info) =>
-					getInterceptors(info.obj),
-				);
+							const interceptors: Interceptor[] = route.allRoute.flatMap(
+								(info) => getInterceptors(info.obj),
+							);
 
-				interceptors.unshift(serverRender);
+							interceptors.unshift(serverRender);
 
-				let body: any = null;
-				let call: (
-					prop: CallProp,
-				) => ResponseWithMeta | Promise<ResponseWithMeta> = () =>
-					new ResponseWithMeta(null, { code: 404 });
+							let body: any = null;
+							let call: (
+								prop: CallProp,
+							) => ResponseWithMeta | Promise<ResponseWithMeta> = () =>
+								new ResponseWithMeta(null, { code: 404 });
 
-				if (route.finalRoute) {
-					const { obj, propertyKey } = route.finalRoute;
+							if (route.finalRoute) {
+								const { obj, propertyKey } = route.finalRoute;
 
-					interceptors.push(...getInterceptors(obj, propertyKey));
+								interceptors.push(...getInterceptors(obj, propertyKey));
 
-					if (typeof (obj as any)[propertyKey] === "function") {
-						const paramType = paramMeta.getParamMetadata(obj, propertyKey);
-						if (paramType.types.body) {
-							for (const h of handles) {
-								const handle = h(reqHeader, paramType.types.body.type);
-								if (handle) {
-									body = await handle(rawBody);
-									break;
+								if (typeof (obj as any)[propertyKey] === "function") {
+									const paramType = paramMeta.getParamMetadata(
+										obj,
+										propertyKey,
+									);
+									if (paramType.types.body) {
+										for (const h of handles) {
+											const handle = h(reqHeader, paramType.types.body.type);
+											if (handle) {
+												body = await handle(rawBody);
+												break;
+											}
+										}
+									}
+
+									call = async (req: CallProp) => {
+										const rawData = await paramMeta.call(obj, propertyKey, req);
+										return ResponseWithMeta.isResponseWithMeta(rawData)
+											? rawData
+											: new ResponseWithMeta(rawData);
+									};
+								} else {
+									call = () => new ResponseWithMeta((obj as any)[propertyKey]);
 								}
 							}
-						}
 
-						call = async (req: CallProp) => {
-							const rawData = await paramMeta.call(obj, propertyKey, req);
-							return ResponseWithMeta.isResponseWithMeta(rawData)
-								? rawData
-								: new ResponseWithMeta(rawData);
-						};
-					} else {
-						call = () => new ResponseWithMeta((obj as any)[propertyKey]);
-					}
-				}
-
-				const handle = interceptors.reduceRight<
-					(prop: CallProp) => ResponseWithMeta | Promise<ResponseWithMeta>
-				>((next, handle) => (req) => handle(req, next), call);
-				const {
-					data,
-					code = 200,
-					header = {},
-				} = await handle({
-					body,
-					header: reqHeader,
-					query: parse(urlObj.search),
-					url: urlObj,
-					method: method as Method,
-					route,
-					param: route.params,
-				});
-				let res: ReadableStream | null;
-				if (data instanceof ReadableStream) {
-					res = data;
-				} else if (data instanceof TransformStream) {
-					res = data.readable;
-				} else if (data instanceof Readable) {
-					res = Readable.toWeb(data) as ReadableStream;
-				} else if (data instanceof PassThrough) {
-					res = Readable.toWeb(data) as ReadableStream;
-				} else if (data === null || typeof data === "undefined") {
-					res = null;
-				} else if (header["content-type"]?.includes?.("text")) {
-					res = new ReadableStream({
-						start(ctrl) {
-							ctrl.enqueue(textEncoder.encode(data?.toString() || ""));
-							ctrl.close();
+							const handle = interceptors.reduceRight<
+								(prop: CallProp) => ResponseWithMeta | Promise<ResponseWithMeta>
+							>((next, handle) => (req) => handle(req, next), call);
+							const {
+								data,
+								code = 200,
+								header = {},
+							} = await handle({
+								body,
+								header: reqHeader,
+								query: parse(urlObj.search),
+								url: urlObj,
+								method: method as Method,
+								route,
+								param: route.params,
+							});
+							let res: ReadableStream | null;
+							if (data instanceof ReadableStream) {
+								res = data;
+							} else if (data instanceof TransformStream) {
+								res = data.readable;
+							} else if (data instanceof Readable) {
+								res = Readable.toWeb(data) as ReadableStream;
+							} else if (data instanceof PassThrough) {
+								res = Readable.toWeb(data) as ReadableStream;
+							} else if (data === null || typeof data === "undefined") {
+								res = null;
+							} else if (header["content-type"]?.includes?.("text")) {
+								res = new ReadableStream({
+									start(ctrl) {
+										ctrl.enqueue(textEncoder.encode(data?.toString() || ""));
+										ctrl.close();
+									},
+								});
+							} else {
+								if (!header["content-type"]) {
+									header["content-type"] = "application/json";
+								}
+								res = new ReadableStream({
+									start(ctrl) {
+										ctrl.enqueue(textEncoder.encode(JSON.stringify(data)));
+										ctrl.close();
+									},
+								});
+							}
+							return {
+								code,
+								header,
+								data: res,
+							};
 						},
-					});
-				} else {
-					if (!header["content-type"]) {
-						header["content-type"] = "application/json";
-					}
-					res = new ReadableStream({
-						start(ctrl) {
-							ctrl.enqueue(textEncoder.encode(JSON.stringify(data)));
-							ctrl.close();
-						},
-					});
+					);
+				} finally {
+					ctrl.abort();
 				}
-				return {
-					code,
-					header,
-					data: res,
-				};
 			},
 			// @ts-ignore
 			_rawObject: object,
 		};
-		console.log(666)
 		setSfRequest(new ServerSideRequest(ins));
 		return ins;
 	};

@@ -16,6 +16,7 @@ export interface RequestProp {
 	header: any;
 	body: ReadableStream<Uint8Array>;
 	context: RequestContext;
+	signal: AbortSignal;
 }
 export interface ResponseData {
 	code: number;
@@ -24,11 +25,11 @@ export interface ResponseData {
 }
 
 export interface ResolvedServerInstance {
-	readonly matchRequest:{
-		host?: RegExp,
-		prefix?: RegExp,
-		ip?: RegExp,
-	}
+	readonly matchRequest: {
+		host?: RegExp;
+		prefix?: RegExp;
+		ip?: RegExp;
+	};
 	readonly important?: number;
 	readonly staticFilePath?: string;
 	readonly name: string;

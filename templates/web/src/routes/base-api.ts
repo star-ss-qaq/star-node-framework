@@ -1,4 +1,4 @@
-import { Body, Get, Post, ResponseWithMeta } from "@thestarweb/star-framework-app-web";
+import { Body, Get, getSfRequest, Post, ResponseWithMeta } from "@thestarweb/star-framework-app-web";
 
 export class BaseApi{
   @Get("/test")
@@ -27,6 +27,11 @@ export class BaseApi{
 		}, 1000);
 		return readable;
 	}
+	@Get("delay")
+	async delay() {
+		await new Promise(r=>setTimeout(r,10000))
+		return "hello";
+	}
 	@Get("/ttt")
 	ttt() {
 		return import("../index.css?raw");
@@ -34,5 +39,10 @@ export class BaseApi{
 	@Post("/")
 	post(@Body() body?: { a: boolean; b?: 1 | string }) {
 		return body;
+	}
+	@Get('request')
+	request(){
+		const res = getSfRequest().post('self:/', {body:{a:true,b:'qaq'}})
+		return res;
 	}
 }

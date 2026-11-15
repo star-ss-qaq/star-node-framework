@@ -1,3 +1,4 @@
+import { abort } from "node:process";
 import { isMarkedAsUntransferable } from "node:worker_threads";
 
 enum MessageType {
@@ -6,6 +7,7 @@ enum MessageType {
 	WriteClose = 3,
 	WriteAbort = 4,
 	ReadCancel = 5,
+	AbortSignal = 6,
 }
 enum Status {
 	Open,
@@ -13,6 +15,7 @@ enum Status {
 	Abort,
 }
 export function messagePortToConnection(port: MessagePort, debugName: string) {
+	const abortController = new AbortController();
 	let writeEnd = false;
 	let remoteEnd = false;
 	function checkEnd() {
@@ -104,12 +107,28 @@ export function messagePortToConnection(port: MessagePort, debugName: string) {
 				break;
 			case MessageType.ReadCancel:
 				writable.abort(new ReadableCancel());
+				writeEnd = true;
+				remoteEnd = true;
+				checkEnd();
+				break;
+			case MessageType.AbortSignal:
+				abortController.abort();
 				break;
 		}
 	}
 	port.addEventListener("message", messageHandle);
 	port.start();
-	return { writable, readable };
+	return {
+		writable,
+		readable,
+		signal: abortController.signal,
+		abort() {
+			port.postMessage({ type: MessageType.AbortSignal });
+			writeEnd = true;
+			remoteEnd = true;
+			checkEnd();
+		},
+	};
 }
 class ReadableCancel extends Error {}
 class WriteableAbort extends Error {}

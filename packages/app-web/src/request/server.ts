@@ -12,6 +12,7 @@ export class ServerSideRequest extends SFWebRequest {
 		app: string,
 		method: Method,
 		url: URL,
+		signal: AbortSignal | undefined,
 		prop: Prop,
 	) {
 		if (app === "self") {
@@ -21,11 +22,12 @@ export class ServerSideRequest extends SFWebRequest {
 				header: prop.header || {},
 				context: {},
 				body: new ReadableStream({
-          start(ctrl){
-            ctrl.enqueue(textEncoder.encode(prop.body))
-            ctrl.close();
-          }
-        }),
+					start(ctrl) {
+						ctrl.enqueue(textEncoder.encode(prop.body));
+						ctrl.close();
+					},
+				}),
+				signal: signal || new AbortController().signal,
 			});
 			return new Response(res.data, { status: res.code, headers: res.header });
 		}

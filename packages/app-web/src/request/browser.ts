@@ -10,6 +10,7 @@ export class BrowserSideRequest extends SFWebRequest<Pick<AllApi, "self">> {
 		app: string,
 		method: Method,
 		url: URL,
+    signal: AbortSignal,
 		prop: Prop,
 	) {
 		if (app === "self") {
@@ -24,6 +25,7 @@ export class BrowserSideRequest extends SFWebRequest<Pick<AllApi, "self">> {
 					//@ts-ignore
 					duplex: "half",
 					method,
+          signal,
 				},
 			);
 		}

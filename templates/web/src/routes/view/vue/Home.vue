@@ -19,6 +19,10 @@ async function handleRequest() {
 			c: 123, // 后端应当正确丢弃
 		},
 	});
-	console.log(res);
+	console.log(1111, res);
 }
+// 理论上不应该这么做，但是这里为了检验服务器调用这块是否正常
+// handleRequest();
+request.get("self:/delay", {});
+request.get("self:/delay", { keepRequest: true });
 </script>

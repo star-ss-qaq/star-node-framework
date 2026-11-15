@@ -10,19 +10,25 @@ export async function createHttpServer(config: ServerConfig) {
 	const server = createServer();
 	let handles = await parseInstancesConfig(config.instances);
 	server.on("request", async (req, res) => {
+		const controller = new AbortController();
+		const { signal } = controller;
+		res.on("close", () => {
+			controller.abort();
+		});
 		const url = new URL(
 			req.url || "/",
 			`http://${req.headers.host || "127.0.0.1"}/`,
 		);
-		let prefix = '/'
+		let prefix = "/";
 		const instance = handles.find((i) => {
-			if(i.matchRequest.host&&!i.matchRequest.host.test(url.host)) return false;
-			if(i.matchRequest.prefix){
-				const p = i.matchRequest.prefix.exec(url.pathname)
-				if(!p)return false;
+			if (i.matchRequest.host && !i.matchRequest.host.test(url.host))
+				return false;
+			if (i.matchRequest.prefix) {
+				const p = i.matchRequest.prefix.exec(url.pathname);
+				if (!p) return false;
 				prefix = p[0];
-			} else{
-				prefix = '/'
+			} else {
+				prefix = "/";
 			}
 			return true;
 		});
@@ -48,6 +54,7 @@ export async function createHttpServer(config: ServerConfig) {
 					}
 				} catch {}
 			}
+			if (signal.aborted) return;
 			try {
 				const ret = await instance.onRequest({
 					method: (req.method?.toUpperCase() as any) || "GET",
@@ -55,7 +62,9 @@ export async function createHttpServer(config: ServerConfig) {
 					header: req.headers,
 					body: Readable.toWeb(req) as any,
 					context: { prefix: "/" },
+					signal,
 				});
+				if (signal.aborted) return;
 				if (ret) {
 					if (ret.code) {
 						res.statusCode = ret.code;
@@ -64,9 +73,9 @@ export async function createHttpServer(config: ServerConfig) {
 						res.setHeader(key, data as any);
 					});
 					if (ret.data) {
-						if(ret.data instanceof Readable){
+						if (ret.data instanceof Readable) {
 							ret.data.pipe(res);
-						}else{
+						} else {
 							Readable.fromWeb(ret.data as any).pipe(res);
 						}
 					} else {
@@ -75,6 +84,7 @@ export async function createHttpServer(config: ServerConfig) {
 					return;
 				}
 			} catch (e) {
+				if (signal.aborted) return;
 				console.warn(e);
 				res.statusCode = 500;
 				res.end();

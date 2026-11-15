@@ -1,10 +1,9 @@
+import { setRequestAbortSignal } from "../../../abort-signal/browser.js";
 import { BrowserSideRequest } from "../../../request/browser.js";
 import { setSfRequest } from "../../../request/index.js";
 import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 import { parseRoute } from "../../../route/index.js";
-import { redirectStatusCode } from "../../const.js";
-import { RenderContext } from "../../render/index.js";
-import { RenderConfig, ViewMeta } from "../../types.js";
+import { ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
 import { LoadingProgress } from "../loading-progress.js";
 import {
@@ -31,10 +30,13 @@ function handleMeta(meta: ViewMeta) {
 export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	const { config, pageData } = (window as any)[ssrToBrowserDataKey];
 	delete (window as any)[ssrToBrowserDataKey];
-	setSfRequest(new BrowserSideRequest(config.baseUrl))
+	setSfRequest(new BrowserSideRequest(config.baseUrl));
 	const route = routes("GET", location.pathname);
+	let abortCtrl = new AbortController();
+	setRequestAbortSignal(abortCtrl.signal);
 	const getData = async () => {
 		const res = await fetch(location.href, {
+			signal: abortCtrl.signal,
 			redirect: "manual",
 			headers: { "x-requested-with": "sf-page-render" },
 		});
@@ -60,6 +62,9 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	);
 	handleMeta(context.meta);
 	listenerRoute(async () => {
+		abortCtrl.abort();
+		abortCtrl = new AbortController();
+		setRequestAbortSignal(abortCtrl.signal);
 		const route = routes("GET", location.pathname);
 		LoadingProgress.instance.start();
 		const c = await updateRootRenderContext(context, route, getData);
