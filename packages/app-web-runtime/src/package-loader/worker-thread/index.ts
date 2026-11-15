@@ -66,7 +66,7 @@ export class PackageWorkerThreadLoader extends BasePackageLoader {
 	}
 	async onRequest(prop: RequestProp) {
 		if (this.activeIns.length === 0) {
-			return { code: 500, header: {}, res: null };
+			return { code: 500, header: {}, data: null };
 		}
 		// TODO 如果有多个存活实例，应该做负载均衡，同时可能需要考虑动态扩容
 		return this.activeIns[0].onRequest(prop);

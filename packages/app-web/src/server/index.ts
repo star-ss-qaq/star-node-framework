@@ -13,8 +13,10 @@ import {
 } from "@thestarweb/star-framework-web-runtime";
 import { Method } from "../route/types.js";
 import { JSONBody } from "./body/json.js";
+import { setSfRequest } from "../request/index.js";
+import { ServerSideRequest } from "../request/server.js";
 
-const textEncoder = new TextEncoder()
+const textEncoder = new TextEncoder();
 
 export function createServerFactory(object: any) {
 	const handles = [JSONBody];
@@ -120,12 +122,14 @@ export function createServerFactory(object: any) {
 				return {
 					code,
 					header,
-					res,
+					data: res,
 				};
 			},
 			// @ts-ignore
 			_rawObject: object,
 		};
+		console.log(666)
+		setSfRequest(new ServerSideRequest(ins));
 		return ins;
 	};
 }

@@ -63,11 +63,11 @@ export async function createHttpServer(config: ServerConfig) {
 					Object.entries(ret.header).forEach(([key, data]) => {
 						res.setHeader(key, data as any);
 					});
-					if (ret.res) {
-						if(ret.res instanceof Readable){
-							ret.res.pipe(res);
+					if (ret.data) {
+						if(ret.data instanceof Readable){
+							ret.data.pipe(res);
 						}else{
-							Readable.fromWeb(ret.res as any).pipe(res);
+							Readable.fromWeb(ret.data as any).pipe(res);
 						}
 					} else {
 						res.end();
