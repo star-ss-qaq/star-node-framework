@@ -104,7 +104,7 @@ export function createServerFactory(object: any) {
 							} = await handle({
 								body,
 								header: reqHeader,
-								query: parse(urlObj.search),
+								query: parse(urlObj.search.substring(1)),
 								url: urlObj,
 								method: method as Method,
 								route,
