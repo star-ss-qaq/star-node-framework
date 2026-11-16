@@ -14,13 +14,15 @@ export interface RequestContext {
 export type Method = "GET" | "POST" | "PUT" | "DELETE" | "WS" | "OPTION";
 
 export interface RequestProp {
+	ip: string;
+	port: number;
 	method: Method;
 	url: URL;
 	header: any;
 	body: ReadableStream<Uint8Array>;
 	context: RequestContext;
 	signal: AbortSignal;
-	appName?: string
+	appName?: string;
 }
 export interface ResponseData {
 	code: number;

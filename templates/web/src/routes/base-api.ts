@@ -2,6 +2,7 @@ import {
 	Body,
 	Get,
 	getSfRequest,
+	Ip,
 	Post,
 	ResponseWithMeta,
 } from "@thestarweb/star-framework-app-web";
@@ -55,5 +56,10 @@ export class BaseApi {
 	requestOther() {
 		const res = getSfRequest().get("test:/test", {});
 		return res;
+	}
+	@Get('ip')
+	ip(@Ip()ip: string){
+		console.log(ip)
+		return ip;
 	}
 }

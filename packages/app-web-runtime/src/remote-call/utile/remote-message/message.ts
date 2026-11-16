@@ -10,6 +10,8 @@ import { VarUIntHandle } from "./var-uint-handle.js";
 
 const AllTypes = {
 	[MessageType.NewRequest]: [
+		{ name: "ip" as const, handle: VarCharHandle },
+		{ name: "port" as const, handle: VarUIntHandle },
 		{ name: "methodCode" as const, handle: UInt8Handle },
 		{ name: "appName" as const, handle: VarCharHandle },
 		{ name: "path" as const, handle: VarCharHandle },

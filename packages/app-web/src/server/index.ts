@@ -39,6 +39,7 @@ export function createServerFactory(object: any) {
 				header: reqHeader,
 				body: rawBody,
 				signal,
+				ip,
 			}: RequestProp) {
 				const ctrl = new AbortController();
 				try {
@@ -109,6 +110,7 @@ export function createServerFactory(object: any) {
 								method: method as Method,
 								route,
 								param: route.params,
+								context: { ip },
 							});
 							let res: ReadableStream | null;
 							if (data instanceof ReadableStream) {

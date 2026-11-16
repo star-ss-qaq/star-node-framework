@@ -23,6 +23,8 @@ export async function createHttpServer(config: ServerConfig) {
 			body: Readable.toWeb(req) as any,
 			context: { prefix: "/" },
 			signal,
+			ip: req.socket.remoteAddress || "127.0.0.1",
+			port: req.socket.remotePort || 0,
 		});
 		if (signal.aborted) return;
 		if (ret.code) {
@@ -43,5 +45,5 @@ export async function createHttpServer(config: ServerConfig) {
 	});
 	server.listen(config.port);
 	console.log(`server start at: http://127.0.0.1:${config.port}`);
-	return {}
+	return {};
 }

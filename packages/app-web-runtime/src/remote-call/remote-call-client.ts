@@ -58,6 +58,8 @@ export abstract class RemoteCallClient {
 		body,
 		signal,
 		appName = "",
+		ip,
+		port
 	}: RequestProp) {
 		const { readable, writable, abort } = await this.createConnection();
 		signal.addEventListener("abort", (ev) => {
@@ -71,6 +73,8 @@ export abstract class RemoteCallClient {
 				header,
 				context,
 				appName,
+				ip,
+				port,
 			}),
 		);
 		writer.releaseLock();
