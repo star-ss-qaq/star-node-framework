@@ -153,7 +153,7 @@ export function createServerFactory(object: any) {
 			// @ts-ignore
 			_rawObject: object,
 		};
-		setSfRequest(new ServerSideRequest(ins));
+		setSfRequest(new ServerSideRequest(ins, context.innerCall));
 		return ins;
 	};
 }

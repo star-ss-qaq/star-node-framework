@@ -8,8 +8,9 @@ import {
 } from "../types/index.js";
 import { isAbsolute, join } from "node:path";
 import { readFile } from "node:fs/promises";
-import { typeOf, validate } from "@deepkit/type";
+import { reflectOrUndefined, typeOf, validate } from "@deepkit/type";
 import { FSWatcher, watch } from "node:fs";
+import { handleRef } from "../parse-instances-config.js";
 
 export interface CommonPackageConfig {
 	package: string;
@@ -74,6 +75,7 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 			root: this._packagePath,
 			static: browserDir,
 			indexHtml: await readFile(join(browserDir, "index.html"), "utf-8"),
+			innerCall: this.innerCall,
 		};
 		if (!this._running) return;
 		this.staticFilePath = browserDir;
@@ -114,7 +116,9 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 	public get config() {
 		return this._config;
 	}
+	innerCall:(prop: RequestProp)=>Promise<ResponseData>
 	constructor(protected _config: CommonPackageConfig) {
+		this.innerCall = handleRef.value;
 		this.startLoading = this.loadPackageInfo().then(() => {
 			if (!this._running) return;
 			this.watchHandle = watch(

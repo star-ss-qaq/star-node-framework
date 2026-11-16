@@ -9,20 +9,20 @@ import {
 import { PackageWorkerThreadLoader } from "./index.js";
 import { RemoteCallClient } from "../../remote-call/remote-call-client.js";
 import { messagePortToConnection } from "../../remote-call/utile/message-port-to-connection.js";
-import { InitMessage, RequestMessage } from "./types.js";
+import { InitMessage, Message, RequestMessage } from "./types.js";
 
 const ext = extname(import.meta.filename);
 
 export class WorkerMainThreadCtrl extends RemoteCallClient {
 	handleRequest(prop: RequestProp): Promise<ResponseData> {
-		throw new Error("Method not implemented.");
+		return this.main.serverRuntimeContext.innerCall(prop);
 	}
 	createConnection() {
 		const { port1, port2 } = new MessageChannel();
 		this.worker.postMessage({ type: 2, port: port2 } as RequestMessage, [
 			port2 as any,
 		]);
-		return messagePortToConnection(port1,'main');
+		return messagePortToConnection(port1, "main");
 	}
 	private shouldRun = true;
 
@@ -49,19 +49,19 @@ export class WorkerMainThreadCtrl extends RemoteCallClient {
 				this.worker.postMessage({
 					type: 1,
 					mainPath: this.main.mainPath,
-					context: this.main.serverRuntimeContext,
+					context: { ...this.main.serverRuntimeContext, innerCall: undefined },
 				} as InitMessage);
 			});
-			worker.on("message", (message) => {
+			worker.on("message", (message: Message) => {
 				switch (message.type) {
-					case "initd":
+					case 3:
 						this._loading = undefined;
 						r();
 						this.main.onInsOnline(this);
 						break;
-					// case "message":
-					// 	this.onMessage(message.message);
-					// 	break;
+					case 2:
+						this.onConnection(messagePortToConnection(message.port, "worker"));
+						break;
 				}
 			});
 			worker.on("exit", () => {

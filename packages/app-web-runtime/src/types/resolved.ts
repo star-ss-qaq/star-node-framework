@@ -2,6 +2,9 @@ export interface ServerRuntimeContext {
 	root: string;
 	static: string;
 	indexHtml: string;
+	innerCall: (
+		prop: RequestProp,
+	) => Promise<ResponseData>;
 }
 
 export interface RequestContext {
@@ -17,6 +20,7 @@ export interface RequestProp {
 	body: ReadableStream<Uint8Array>;
 	context: RequestContext;
 	signal: AbortSignal;
+	appName?: string
 }
 export interface ResponseData {
 	code: number;

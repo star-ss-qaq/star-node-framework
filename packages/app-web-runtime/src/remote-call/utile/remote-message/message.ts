@@ -11,6 +11,7 @@ import { VarUIntHandle } from "./var-uint-handle.js";
 const AllTypes = {
 	[MessageType.NewRequest]: [
 		{ name: "methodCode" as const, handle: UInt8Handle },
+		{ name: "appName" as const, handle: VarCharHandle },
 		{ name: "path" as const, handle: VarCharHandle },
 		{ name: "header" as const, handle: JSONHandle },
 		{ name: "context" as const, handle: JSONHandle },

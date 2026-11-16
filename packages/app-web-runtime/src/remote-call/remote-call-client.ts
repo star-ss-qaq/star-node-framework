@@ -23,6 +23,7 @@ export abstract class RemoteCallClient {
 			const header = readMessage(MessageType.NewRequest, requestHeader.value);
 			const data = await this.handleRequest({
 				...header,
+				appName: header.appName || undefined,
 				url: new URL(header.path),
 				method: MethodCodeToMethod[header.methodCode],
 				body: readable,
@@ -49,7 +50,15 @@ export abstract class RemoteCallClient {
 	abstract handleRequest(prop: RequestProp): Promise<ResponseData>;
 	abstract createConnection(): IConnection | Promise<IConnection>;
 
-	async onRequest({ method, url, header, context, body, signal }: RequestProp) {
+	async onRequest({
+		method,
+		url,
+		header,
+		context,
+		body,
+		signal,
+		appName = "",
+	}: RequestProp) {
 		const { readable, writable, abort } = await this.createConnection();
 		signal.addEventListener("abort", (ev) => {
 			abort();
@@ -61,6 +70,7 @@ export abstract class RemoteCallClient {
 				path: url.toString(),
 				header,
 				context,
+				appName,
 			}),
 		);
 		writer.releaseLock();

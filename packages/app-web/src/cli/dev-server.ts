@@ -13,10 +13,11 @@ import {
 	ResponseData,
 	ServerConfig,
 	ServerInstance,
+	ServerRuntimeContext,
 } from "@thestarweb/star-framework-web-runtime";
 import { dumpRouteType } from "../server/dump-api-type.js";
 import { isAbsolute, join } from "path";
-
+import { handleRef } from "@thestarweb/star-framework-web-runtime";
 
 export interface DevServerConfig extends Partial<ServerConfig> {
 	/**
@@ -36,21 +37,27 @@ export interface DevServerConfig extends Partial<ServerConfig> {
 	port?: number;
 }
 
-export function devServer(html: string,{
+export function devServer(
+	html: string,
+	{
 		apiTypeDefinePath = "./route-type.ts",
 		apiTypeNamespaceDefinePath,
 		port = 3000,
 		instances = [],
 		...serverConfig
-	}: DevServerConfig): SFDevHook {
+	}: DevServerConfig,
+): SFDevHook {
 	let server: Awaited<ReturnType<typeof createHttpServer>>;
 	let viteInterceptor: Interceptor;
 	let _vite: ViteDevServer;
 	let packageName = "";
-	const context = {
+	const context: ServerRuntimeContext = {
 		root: process.cwd(),
 		static: "",
 		indexHtml: html,
+		innerCall: function (prop: RequestProp): Promise<ResponseData> {
+			return handleRef.value(prop);
+		},
 	};
 	let rawIns: ServerInstance | undefined;
 	const ins: ResolvedServerInstance = {
@@ -99,7 +106,7 @@ export function devServer(html: string,{
 			packageName = info.name;
 			rawIns = handleIns(main(context));
 			server = await createHttpServer({
-				instances: [ins],
+				instances: [...instances, ins],
 				port: 3000,
 			});
 		},

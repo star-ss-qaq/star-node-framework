@@ -1,11 +1,18 @@
-import { ServerInstance } from "@thestarweb/star-framework-web-runtime";
+import {
+	RequestProp,
+	ResponseData,
+	ServerInstance,
+} from "@thestarweb/star-framework-web-runtime";
 import { Method } from "../route/types.js";
 import { Prop, SFWebRequest } from "./types.js";
 
 const textEncoder = new TextEncoder();
 
 export class ServerSideRequest extends SFWebRequest {
-	constructor(private serverIns: ServerInstance) {
+	constructor(
+		private serverIns: ServerInstance,
+		private innerCall: (prop: RequestProp) => Promise<ResponseData>,
+	) {
 		super();
 	}
 	protected async handleInnerCall(
@@ -15,22 +22,35 @@ export class ServerSideRequest extends SFWebRequest {
 		signal: AbortSignal | undefined,
 		prop: Prop,
 	) {
-		if (app === "self") {
-			const res = await this.serverIns.onRequest({
-				method,
-				url,
-				header: prop.header || {},
-				context: {},
-				body: new ReadableStream({
-					start(ctrl) {
+		const res = await (
+			app === "self" ? this.serverIns.onRequest : this.innerCall
+		)({
+			method,
+			url,
+			header: prop.header || {},
+			context: {},
+			appName: app,
+			body: new ReadableStream({
+				start(ctrl) {
+					if (prop.body) {
 						ctrl.enqueue(textEncoder.encode(prop.body));
-						ctrl.close();
-					},
-				}),
-				signal: signal || new AbortController().signal,
-			});
-			return new Response(res.data, { status: res.code, headers: res.header });
-		}
-		throw new Error("Method not implemented.");
+					}
+					ctrl.close();
+				},
+			}),
+			signal: signal || new AbortController().signal,
+		});
+		const reader = res.data?.getReader();
+		return new Response(
+			new ReadableStream({
+				async pull(ctrl) {
+					if (!reader) ctrl.close();
+					const res = await reader!.read();
+					if (res.value) ctrl.enqueue(res.value);
+					if (res.done) ctrl.close();
+				},
+			}),
+			{ status: res.code, headers: res.header },
+		);
 	}
 }
