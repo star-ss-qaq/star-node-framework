@@ -30,7 +30,14 @@ export interface Prop {
 	header?: Record<string, string>;
 	param?: any;
 }
-type APIType = Record<Method, { [k: string]: { prop: Prop; return: any } }>;
+interface ApiDefine {
+	prop: Prop;
+	return: any;
+}
+interface ApisDefine {
+	[k: string]: ApiDefine;
+}
+type APIType = Partial<Record<Method, ApisDefine>>;
 
 declare module "@thestarweb/star-framework-app-web" {
 	interface ProjectApi extends APIType {}
@@ -38,9 +45,26 @@ declare module "@thestarweb/star-framework-app-web" {
 		self: ProjectApi;
 	}
 }
-const textEncoder = new TextEncoder();
+type AllUrl<Root extends Record<string, APIType>, M extends Method> = {
+	[K1 in keyof Root & string]: {
+		[K3 in keyof Root[K1][M] & string]: `${K1}:${K3}`;
+	}[keyof Root[K1][M] & string];
+}[keyof Root & string];
+type UrlToProp<
+	Root extends Record<string, APIType>,
+	M extends Method,
+	P extends string,
+> = P extends `${infer K1}:${infer K3}`
+	? K1 extends keyof Root
+		? Root[K1] extends Record<M, infer C>
+			? K3 extends keyof C
+				? C[K3]
+				: never
+			: never
+		: never
+	: never;
 export abstract class SFWebRequest<
-	All extends Record<keyof All, APIType> = AllApi,
+	All extends Record<keyof All, Partial<APIType>> = AllApi,
 > {
 	constructor() {}
 	protected abstract handleInnerCall(
@@ -79,31 +103,28 @@ export abstract class SFWebRequest<
 		return data.json();
 	}
 
-	async get<A extends StringKeyOf<All>, P extends StringKeyOf<All[A]["GET"]>>(
-		path: `${A}:${P}`,
-		prop: All[A]["GET"][P]["prop"] & UserConfig,
-	): Promise<All[A]["GET"][P]["return"]> {
+	async get<P extends AllUrl<All, "GET">>(
+		path: P,
+		prop: UrlToProp<All, "GET", P>["prop"] & UserConfig,
+	): Promise<UrlToProp<All, "GET", P>["return"]> {
 		return await this._request("GET", path, prop);
 	}
-	async post<A extends StringKeyOf<All>, P extends StringKeyOf<All[A]["POST"]>>(
-		path: `${A}:${P}`,
-		prop: All[A]["POST"][P]["prop"] & UserConfig,
-	): Promise<All[A]["POST"][P]["return"]> {
+	async post<P extends AllUrl<All, "POST">>(
+		path: P,
+		prop: UrlToProp<All, "POST", P>["prop"] & UserConfig,
+	): Promise<UrlToProp<All, "POST", P>["return"]> {
 		return await this._request("POST", path as string, prop);
 	}
-	async put<A extends StringKeyOf<All>, P extends StringKeyOf<All[A]["PUT"]>>(
-		path: `${A}:${P}`,
-		prop: All[A]["PUT"][P]["prop"] & UserConfig,
-	): Promise<All[A]["PUT"][P]["return"]> {
+	async put<P extends AllUrl<All, "PUT">>(
+		path: P,
+		prop: UrlToProp<All, "PUT", P>["prop"] & UserConfig,
+	): Promise<UrlToProp<All, "PUT", P>["return"]> {
 		return await this._request("PUT", path as string, prop);
 	}
-	async delete<
-		A extends StringKeyOf<All>,
-		P extends StringKeyOf<All[A]["DELETE"]>,
-	>(
-		path: `${A}:${P}`,
-		prop: All[A]["DELETE"][P]["prop"] & UserConfig,
-	): Promise<All[A]["DELETE"][P]["return"]> {
+	async delete<P extends AllUrl<All, "DELETE">>(
+		path: P,
+		prop: UrlToProp<All, "DELETE", P>["prop"] & UserConfig,
+	): Promise<UrlToProp<All, "DELETE", P>["return"]> {
 		return await this._request("PUT", path as string, prop);
 	}
 }
