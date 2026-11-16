@@ -1,7 +1,7 @@
 import { getConfig } from "@thestarweb/star-framework-cli";
 import { getFlatRoute } from "../route/index.js";
 import { dirname, relative } from "path";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { paramMeta } from "../params/index.js";
 import {
 	dumpTSType,
@@ -26,7 +26,9 @@ export async function dumpRouteType(
 	if (!rPath.startsWith(".")) {
 		rPath = `./${rPath}`;
 	}
-	data.push(`import App from ${JSON.stringify(rPath)};`);
+	if(!packageName){
+		data.push(`import App from ${JSON.stringify(rPath)};`);
+	}
 	data.push(`declare module '@thestarweb/star-framework-app-web'{`);
 	data.push(`\tinterface ${packageName ? "AllApi" : "ProjectApi"}{`);
 	if (packageName) {
@@ -112,5 +114,6 @@ export async function dumpRouteType(
 	}
 	data.push(`\t}`);
 	data.push(`}`);
+	await mkdir(dirname(file), { recursive: true });
 	await writeFile(file, data.join("\n"));
 }
