@@ -5,3 +5,4 @@ declare global {
 		client: {};
 	}
 }
+export {}

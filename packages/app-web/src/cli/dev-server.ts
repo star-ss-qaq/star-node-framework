@@ -33,7 +33,7 @@ export interface DevServerConfig extends Partial<ServerConfig> {
 	/**
 	 * @default 3000
 	 */
-	port: number;
+	port?: number;
 }
 
 export function devServer(html: string,{
