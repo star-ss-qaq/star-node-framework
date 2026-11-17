@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.4...@thestarweb/star-framework-db@1.1.0) (2026-11-17)
+
+
+### Bug Fixes
+
+* **db:** 修复update语句不会正确的进行语法转换的问题 ([392522a](https://github.com/star-ss-qaq/star-node-framework/commit/392522ac0f351a3953982d4088bde6493f1b915e))
+
+
+### Features
+
+* **db:** 初步添加mysql支持 ([e5d52f5](https://github.com/star-ss-qaq/star-node-framework/commit/e5d52f59596b80895425ae1c0554fb1ad291e9b9))
+
+
+
+
+
 ## [1.0.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.0.2...@thestarweb/star-framework-db@1.0.4) (2026-11-01)
 
 **Note:** Version bump only for package @thestarweb/star-framework-db

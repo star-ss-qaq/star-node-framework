@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.1.2...@thestarweb/star-framework-cli@1.1.3) (2026-11-17)
+
+
+### Bug Fixes
+
+* **cli:** 现在cli会依次扫描多种后缀的配置文件(需要node自带ts类型擦除功能，且目前无法支持配置文件中使用运行时类型相关功能) ([cbd477c](https://github.com/star-ss-qaq/star-node-framework/commit/cbd477cff03915158eca37f0f3869eb87760fb22))
+
+
+
+
+
 ## [1.1.2](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.1.1...@thestarweb/star-framework-cli@1.1.2) (2026-11-01)
 
 **Note:** Version bump only for package @thestarweb/star-framework-cli

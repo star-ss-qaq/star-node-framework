@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.1.4...@thestarweb/star-framework-app-web@1.2.0) (2026-11-17)
+
+
+### Bug Fixes
+
+* 修复合并冲突 ([249661a](https://github.com/star-ss-qaq/star-node-framework/commit/249661a8881f0c6763d63f2e7f61465a881f71ae))
+* **app-web:** 生成接口定义时，指定文件夹不存在时报错问题&非必要的项目依赖问题 ([8c317dd](https://github.com/star-ss-qaq/star-node-framework/commit/8c317dda7d9910d3934e0d289f884f8d39f45f1f))
+* **app-web:** 现在支持view捕获页面中的异常等情况，以便页面能正确处理错误或由layout截断渲染 ([cbd57c1](https://github.com/star-ss-qaq/star-node-framework/commit/cbd57c14f45abd91617d3988b0606ff66ab7c2d7))
+* **app-web:** 修复多api时类型定义无法正确给出类型提示的问题 ([dd27428](https://github.com/star-ss-qaq/star-node-framework/commit/dd27428ea7b49cf5b954bee7e6b72da308793654))
+* **app-web:** 修复类型定义在特定场景下报错的问题 ([50fafea](https://github.com/star-ss-qaq/star-node-framework/commit/50fafeaeef181b70f5ea1916aedd9ec0fbaf6c7a))
+* **app-web:** 修复query解析问题 ([761d2c1](https://github.com/star-ss-qaq/star-node-framework/commit/761d2c1c10b7f2bfe19171aa3f671bb5e9874089))
+* **app-web:** 修复ssr html组件没有正确渲染子路由的问题 ([4effe76](https://github.com/star-ss-qaq/star-node-framework/commit/4effe76a223a39bb6c40b87954c1c34cee088890))
+
+
+### Features
+
+* **app-web&app-web-runntime:** 增加IP及上下文数据的传递 ([492d9d2](https://github.com/star-ss-qaq/star-node-framework/commit/492d9d202adfd5f0cfd2a3f5837a602852939388))
+* **app-web&app-web-runntime:** 支持内部调用 ([8d8c0b6](https://github.com/star-ss-qaq/star-node-framework/commit/8d8c0b65a680c288fd5a6f0f8f409924671a2bbf))
+* **app-web&app-web-runtime:** 初步支持服务器内自调用&api调整，请注意更新依赖库。 ([4545a14](https://github.com/star-ss-qaq/star-node-framework/commit/4545a141b3fa242858dad8cb549a7ab7b41290f0))
+* **app-web:** 切换到新运行时 ([8a9d330](https://github.com/star-ss-qaq/star-node-framework/commit/8a9d330e09014c3f018025853ee524acdc354270))
+* **app-web:** 优化dump api类型的配置 ([837e20e](https://github.com/star-ss-qaq/star-node-framework/commit/837e20ef77a917806fec7b8b0ae672b91d0afbe1))
+* **app-web:** 运行时适配 ([2a00443](https://github.com/star-ss-qaq/star-node-framework/commit/2a004439b4231a798e72ac6d851e4c5b97fad4d1))
+* **app-web:** 增加AbortSignal ([aecc07d](https://github.com/star-ss-qaq/star-node-framework/commit/aecc07d5fd46aa43d66ca5a3c6c8d680df221b0d))
+
+
+
+
+
 ## [1.1.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.1.3...@thestarweb/star-framework-app-web@1.1.4) (2026-11-03)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web
