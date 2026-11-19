@@ -32,7 +32,11 @@ export function shouldRemoveAsDeclaration(
 					const item = res.raw[type] || res.raw.whenDecorator;
 					if (item && item.enable !== false) {
 						if (item.alwaysRemoveSelf) removeDecorator.add(m);
-						return res;
+						if (item.removeSelfOny) {
+							if (res.shouldRemove) removeDecorator.add(m);
+						} else {
+							return res;
+						}
 					}
 				}
 			}

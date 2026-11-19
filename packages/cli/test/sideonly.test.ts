@@ -25,6 +25,22 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 				whenDecorator: { enable: true },
 				whenCallExpression: { mode: "remove" },
 			},
+			{
+				import: "test",
+				name: ["CurrentSideDecorator"],
+				//@ts-ignore
+				side: "currentSide",
+				type: "include",
+				whenDecorator: { enable: true, removeSelfOny: true },
+			},
+			{
+				import: "test",
+				name: ["OtherSideDecorator"],
+				//@ts-ignore
+				side: "otherSide",
+				type: "include",
+				whenDecorator: { enable: true, removeSelfOny: true },
+			},
 		],
 	});
 	function f(t: string) {
@@ -115,13 +131,13 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 		check("let a:SFSideOmit<['otherSide','qaq'],string>;", "let a:string;");
 	});
 
-	test("SFSiteSwith函数版本", async () => {
+	test("SFSiteSwitch函数版本", async () => {
 		check("const a=SFSideSwitch({currentSide:'hello'});", "const a='hello';");
 		check("const a=SFSideSwitch({otherSide:'hello'});", "const a=undefined;");
 		check("const a=SFSideSwitch({'currentSide':'hello'});", "const a='hello';");
 		check("const a=SFSideSwitch({'otherSide':'hello'});", "const a=undefined;");
 	});
-	test("SFSiteSwith类型定义版本", async () => {
+	test("SFSiteSwitch类型定义版本", async () => {
 		check("let a:SFSideSwitch<{currentSide:string}>;", "let a:string;");
 		check("let a:SFSideSwitch<{otherSide:string}>;", "let a:never;");
 
@@ -173,6 +189,17 @@ describe("测试SideOnly相关功能是否能正常工作", () => {
 		check(
 			"import aa from 'hello';import bb from 'hello2';const a = aa();const b=bb();",
 			"import aa from 'hello';import bb from 'hello2';const a = null;const b=bb();",
+		);
+	});
+	test("某些修饰器应该只有在特定端才生效", async () => {
+		undefined;
+		check(
+			"import { CurrentSideDecorator } from 'test';@CurrentSideDecorator()class{}",
+			"import { CurrentSideDecorator } from 'test';@CurrentSideDecorator()class{}",
+		);
+		check(
+			"import { OtherSideDecorator } from 'test';@OtherSideDecorator() class{}",
+			"import { OtherSideDecorator } from 'test';class{}",
 		);
 	});
 });

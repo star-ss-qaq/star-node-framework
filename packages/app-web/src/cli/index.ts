@@ -86,6 +86,13 @@ export function SFWebPlugin({
 					removeMode: { prop: true, body: "throw" },
 				},
 			},
+			{
+				import: "@thestarweb/star-framework-app-web",
+				name: ["AddInterceptor"],
+				side: "server",
+				type: "include",
+				whenDecorator: { enable: true, removeSelfOny: true },
+			},
 		],
 		vitePlugin: {
 			name: "sf-web-html",
@@ -109,7 +116,7 @@ export function SFWebPlugin({
 				configFile,
 				JSON.stringify({
 					"sf-formate": "1",
-					...(await import('./package-info.js')).info,
+					...(await import("./package-info.js")).info,
 					buildAt: Date.now(),
 					server: {
 						dir: relative(fullUnpackDistPath, res.server.distPath),

@@ -21,6 +21,7 @@ export type MethodRemoveOption =
 	| { prop?: boolean; body?: boolean | "throw"; returnType?: boolean };
 
 interface DecoratorHandle {
+	removeSelfOny?: FromArgWithSelf<boolean>;
 	/**
 	 * @default false
 	 */
