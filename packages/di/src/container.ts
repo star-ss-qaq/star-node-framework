@@ -39,7 +39,7 @@ export class DIContainer {
 			if (info.token === "null") {
 				return null;
 			}
-			if (info.token === "undefined") {
+			if (info.token === "undefined" || info.token === "never") {
 				return undefined;
 			}
 			try {
