@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { SFDB } from "@thestarweb/star-framework-db";
 
-export const db = new SFDB(
+export const db = await SFDB.create(
 	{
 		database: {
 			default: {
