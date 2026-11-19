@@ -59,6 +59,10 @@ export function getClassConstructorInjectTokens<
 			token = metadata[index];
 		} else if (isCustomTypeClass(arg.type)) {
 			token = arg.type.classType;
+		} else if (arg.type.kind === ReflectionKind.null) {
+			token = "null";
+		} else if (arg.type.kind === ReflectionKind.undefined) {
+			token = "undefined";
 		}
 		tokens.push({ required: !arg.optional, token: token });
 	});

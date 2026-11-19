@@ -36,6 +36,12 @@ export class DIContainer {
 	) {
 		let p = null;
 		if (info.token) {
+			if (info.token === "null") {
+				return null;
+			}
+			if (info.token === "undefined") {
+				return undefined;
+			}
 			try {
 				p = await this._resolve(info.token, loop2);
 			} catch (e) {
