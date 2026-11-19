@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-di@1.0.1...@thestarweb/star-framework-di@1.0.2) (2026-11-19)
+
+
+### Bug Fixes
+
+* **di:** 解决参数因为sideOnly被改写为undefined时报错的问题 ([8f06747](https://github.com/star-ss-qaq/star-node-framework/commit/8f067474517b64e70d743369ac2f69c21d2b5930))
+
+
+
+
+
 ## [1.0.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-di@1.0.0...@thestarweb/star-framework-di@1.0.1) (2026-11-01)
 
 **Note:** Version bump only for package @thestarweb/star-framework-di
