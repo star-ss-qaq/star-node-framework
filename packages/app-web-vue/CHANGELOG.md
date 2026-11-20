@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.12](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web-vue@1.0.10...@thestarweb/star-framework-app-web-vue@1.0.12) (2026-11-20)
+
+
+### Bug Fixes
+
+* **app-web-vue:** 解决多个layout嵌套的问题（但也失去了嵌套异步渲染方法的能力，后续回统一添加异步文本替换的功能） ([51e36dc](https://github.com/star-ss-qaq/star-node-framework/commit/51e36dcd6dc89acd2d98590eebb156d4d2295204))
+
+
+
+
+
 ## [1.0.11](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web-vue@1.0.10...@thestarweb/star-framework-app-web-vue@1.0.11) (2026-11-19)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web-vue

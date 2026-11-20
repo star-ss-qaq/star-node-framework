@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.2...@thestarweb/star-framework-app-web@1.2.4) (2026-11-20)
+
+
+### Bug Fixes
+
+* **app-web-vue:** 解决多个layout嵌套的问题（但也失去了嵌套异步渲染方法的能力，后续回统一添加异步文本替换的功能） ([51e36dc](https://github.com/star-ss-qaq/star-node-framework/commit/51e36dcd6dc89acd2d98590eebb156d4d2295204))
+* **app-web:** 生成api定义时，header参数始终未可选（通常是浏览器再带，不适合作为强制传递的字段） ([b78130f](https://github.com/star-ss-qaq/star-node-framework/commit/b78130f59756c741f6fac62eae58169c2a2a160d))
+
+
+
+
+
 ## [1.2.3](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.2...@thestarweb/star-framework-app-web@1.2.3) (2026-11-19)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web
