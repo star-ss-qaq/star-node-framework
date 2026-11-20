@@ -26,7 +26,7 @@ export async function dumpRouteType(
 	if (!rPath.startsWith(".")) {
 		rPath = `./${rPath}`;
 	}
-	if(!packageName){
+	if (!packageName) {
 		data.push(`import App from ${JSON.stringify(rPath)};`);
 	}
 	data.push(`declare module '@thestarweb/star-framework-app-web'{`);
@@ -59,7 +59,7 @@ export async function dumpRouteType(
 				}
 				if (param.types.header) {
 					data.push(
-						`\t\t\t\t\theader${param.types.header.required ? "" : "?"}:${dumpTSType(param.types.header.type)},`,
+						`\t\t\t\t\theader?:${dumpTSType(param.types.header.type)},`,
 					);
 				}
 				data.push(`\t\t\t\t},`);
