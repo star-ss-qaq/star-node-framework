@@ -12,15 +12,20 @@ import {
 	createSSRApp,
 	defineAsyncComponent,
 	h,
+	inject,
 	onMounted,
 	onUpdated,
+	provide,
+	Ref,
 	ref,
 	shallowRef,
+	watch,
 } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { load, LoadableType } from "@thestarweb/star-framework-utils";
 import { provideSystemContext } from "./data-context/index.js";
 
+const routeProvideKey = Symbol();
 export class VueRender implements IRender {
 	comp!: Component;
 	constructor(private compLoader: LoadableType<Component>) {}
@@ -37,19 +42,22 @@ export class VueRender implements IRender {
 	) {
 		const app = createApp(this.comp, prop);
 		this._makeContext(context, app);
-		app.component(
-			"sf-route",
-			defineAsyncComponent(async () => {
+		app.provide(routeProvideKey, child);
+		app.component("sf-route", {
+			setup() {
+				const child = inject<RenderContext>(routeProvideKey)!;
+				provide(routeProvideKey, child.child);
 				const subRender = child.render;
 				if (subRender instanceof VueRender) {
-					return h(subRender.comp, child.prop);
+					return () => h(subRender.comp, child.prop);
 				}
-				const str = await child.warpRenderToString({});
-				return h("div", {
-					innerHTML: str,
-				});
-			}),
-		);
+				const str = child.warpRenderToString({});
+				return () =>
+					h("div", {
+						innerHTML: str,
+					});
+			},
+		});
 		const str = await renderToString(app);
 		// console.log(str);
 
@@ -69,16 +77,35 @@ export class VueRender implements IRender {
 				return () => h(this.comp, refProp.value);
 			},
 		});
+		app.provide(routeProvideKey, refChild);
 		this._makeContext(context, app);
 		app.component("sf-route", {
 			setup: () => {
+				const refChild = inject<Ref<RenderContext>>(routeProvideKey)!;
+				const refSubChild = shallowRef(refChild.value.child);
+				watch(
+					refChild,
+					(newValue, _, onCleanup) => {
+						refSubChild.value = newValue.child;
+						onCleanup(
+							refChild.value.watch(() => {
+								refSubChild.value = refChild.value.child;
+							}),
+						);
+					},
+					{ immediate: true },
+				);
+				provide(routeProvideKey, refSubChild);
 				const divRef = ref<HTMLDivElement>();
 				let ins: WarpRenderInstance | null = null;
 				const render = (hydrate: boolean = false) => {
 					ins?.unMount();
 					ins = null;
 					if (!(refChild.value.render instanceof VueRender)) {
-						ins = child[hydrate ? "hydrate" : "mount"](divRef.value!, {});
+						ins = refChild.value[hydrate ? "hydrate" : "mount"](
+							divRef.value!,
+							{},
+						);
 					}
 				};
 				onMounted(() => {

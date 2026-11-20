@@ -42,19 +42,19 @@ export interface IRender {
 	renderToString?(
 		dataContext: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 	): string | Promise<string>;
 	mount?(
 		dom: HTMLElement,
 		dataContext: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 	): RenderInstance;
 	hydrate?(
 		dom: HTMLElement,
 		dataContext: RenderDataContext,
 		prop: any,
-		chrild: RenderContext,
+		child: RenderContext,
 	): RenderInstance;
 }
 export class RenderContext {
@@ -163,13 +163,18 @@ export class RenderContext {
 	unmountAll() {
 		this._instances.forEach((i) => i.unMount());
 	}
+	private watches = new Set<() => void>();
+	watch(callback: () => void) {
+		this.watches.add(callback);
+		return () => this.watches.delete(callback);
+	}
 	async updateTree(node: RenderContext, allowRender = true) {
-		let shoudldRerender = false;
+		let shouldRerender = false;
 		const unRerenderTask: (() => any)[] = [];
 		if (this._render !== node._render) {
 			this._render = node._render;
 			if (allowRender) {
-				shoudldRerender = true;
+				shouldRerender = true;
 			}
 		}
 		if (this._prop !== node._prop) {
@@ -182,17 +187,17 @@ export class RenderContext {
 						});
 					});
 				} else {
-					shoudldRerender = true;
+					shouldRerender = true;
 				}
 			}
 		}
 		let childUpdated = false;
-		let shoudUpdateSubtree = false;
+		let shouldUpdateSubtree = false;
 		if (this._child !== node._child) {
 			if (!this._child || !node._child) {
 				this._child = node._child;
 			} else {
-				shoudUpdateSubtree = true;
+				shouldUpdateSubtree = true;
 			}
 			if (this._instances.every((i) => i.rawInstance.updateChild)) {
 				childUpdated = true;
@@ -205,13 +210,16 @@ export class RenderContext {
 				});
 			}
 		}
-		let isRerender = allowRender && shoudldRerender;
+		let isRerender = allowRender && shouldRerender;
 
-		if (shoudUpdateSubtree) {
+		if (shouldUpdateSubtree) {
 			await this._child?.updateTree(
 				node._child!,
 				allowRender && !childUpdated && !isRerender,
 			);
+		}
+		if (allowRender) {
+			this.watches.forEach((i) => i());
 		}
 		if (isRerender) {
 			await Promise.all(
