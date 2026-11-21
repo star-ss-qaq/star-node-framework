@@ -107,7 +107,7 @@ export function devServer(
 			rawIns = handleIns(main(context));
 			server = await createHttpServer({
 				instances: [...instances, ins],
-				port: 3000,
+				port,
 			});
 		},
 		async hotReload(main) {
