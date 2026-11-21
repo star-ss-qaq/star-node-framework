@@ -26,10 +26,11 @@ export async function dumpRouteType(
 	if (!rPath.startsWith(".")) {
 		rPath = `./${rPath}`;
 	}
+	data.push('import type * as t from "@thestarweb/star-framework-app-web";');
 	if (!packageName) {
 		data.push(`import App from ${JSON.stringify(rPath)};`);
 	}
-	data.push(`declare module '@thestarweb/star-framework-app-web'{`);
+	data.push(`declare module "@thestarweb/star-framework-app-web"{`);
 	data.push(`\tinterface ${packageName ? "AllApi" : "ProjectApi"}{`);
 	if (packageName) {
 		data.push(`\t${JSON.stringify(packageName)}:{`);
