@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.5](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.4...@thestarweb/star-framework-app-web@1.2.5) (2026-11-21)
+
+
+### Bug Fixes
+
+* **app-web:** 修复开发服务器端口配置失效的问题 ([8785c0d](https://github.com/star-ss-qaq/star-node-framework/commit/8785c0d74a8df1362483243360d2b838c6b82746))
+* **app-web:** 修复一些情况下，输出的接口类型会导致原本包的类型定义失效的问题 ([53c94a9](https://github.com/star-ss-qaq/star-node-framework/commit/53c94a9b56c74cea5b66bafb7d4786ef331db7c2))
+
+
+
+
+
 ## [1.2.4](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.2...@thestarweb/star-framework-app-web@1.2.4) (2026-11-20)
 
 
