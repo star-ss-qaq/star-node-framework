@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.10](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-cli%401.1.9...%40thestarweb%2Fstar-framework-cli%401.1.10) (2026-11-25)
+
+**Note:** Version bump only for package @thestarweb/star-framework-cli
+
+
+
+
+
 ## [1.1.9](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-cli@1.1.8...@thestarweb/star-framework-cli@1.1.9) (2026-11-25)
 
 **Note:** Version bump only for package @thestarweb/star-framework-cli

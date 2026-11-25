@@ -1,6 +1,6 @@
 {
 	"name": "@thestarweb/star-framework-utils",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Star Node Framework utils",
 	"main": "dist/index.js",
 	"types": "src/index.ts",
