@@ -46,7 +46,10 @@ export class ServerSideRequest extends SFWebRequest {
 		return new Response(
 			new ReadableStream({
 				async pull(ctrl) {
-					if (!reader) ctrl.close();
+					if (!reader) {
+						ctrl.close();
+						return;
+					}
 					const res = await reader!.read();
 					if (res.value) ctrl.enqueue(res.value);
 					if (res.done) ctrl.close();
