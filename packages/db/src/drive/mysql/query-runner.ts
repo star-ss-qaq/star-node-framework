@@ -1,4 +1,4 @@
-import { Connection, ResultSetHeader } from "mysql2/promise";
+import type { Connection, ResultSetHeader } from "mysql2/promise";
 import { SQL } from "../../query-build/types.js";
 import { QueryRunner } from "../../query-runner/index.js";
 import { DBExecResult } from "../../types/index.js";
