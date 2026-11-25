@@ -101,7 +101,12 @@ export abstract class SFWebRequest<
 					{ ...prop, body },
 				));
 		if (!data.ok) throw new Error();
-		return data.json();
+		const t = await data.text();
+		if (t) {
+			return JSON.parse(t);
+		}
+		return undefined;
+		// return data.json();
 	}
 
 	async get<P extends AllUrl<All, "GET">>(
