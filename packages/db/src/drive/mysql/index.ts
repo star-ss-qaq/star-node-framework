@@ -6,16 +6,12 @@ import {
 import { DBDifference } from "../../types/schema.js";
 import { IDrive } from "../i-drive.js";
 import { MysqlQueryRunner } from "./query-runner.js";
-import {
-	createPool,
-	createConnection,
-	PoolOptions,
-	Pool,
-} from "mysql2/promise";
+import type { PoolOptions, Pool } from "mysql2/promise";
 import { StructUpdateHelper } from "./struct-update-helper.js";
 
 export class MysqlDrive implements IDrive {
 	noDbHierarchy = false as const;
+	private usePool: boolean;
 	private pool?: Pool;
 	private connection: string | PoolOptions;
 	constructor({
@@ -29,13 +25,15 @@ export class MysqlDrive implements IDrive {
 		usePool?: boolean;
 		connection: string | PoolOptions;
 	}) {
+		this.usePool = usePool;
 		this.connection = connection;
-		if (usePool) {
-			this.pool = createPool(connection as any);
-		}
 	}
 
 	async createQueryRunner() {
+		const { createConnection, createPool } = await import("mysql2/promise");
+		if (this.usePool && !this.pool) {
+			this.pool = createPool(this.connection as any);
+		}
 		const connection = await (this.pool
 			? this.pool.getConnection()
 			: createConnection(this.connection as any));
