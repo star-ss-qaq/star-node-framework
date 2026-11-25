@@ -1,0 +1,26 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # lerna 需要完整历史来判断变更包
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false # never use caching in release builds
+      - run: npm i
+      - run: rm package-lock.json
+      - run: npm run build
+      - run: npx lerna version --no-private --yes --force-publish
