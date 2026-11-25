@@ -29,4 +29,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - run: npx lerna publish --no-private --yes
+      #   - run: npx lerna publish --no-private --yes
+      - run: git diff
+      - run: git diff --summary
+      - run: git status
