@@ -2,9 +2,7 @@ export interface ServerRuntimeContext {
 	root: string;
 	static: string;
 	indexHtml: string;
-	innerCall: (
-		prop: RequestProp,
-	) => Promise<ResponseData>;
+	innerCall: (prop: RequestProp) => Promise<ResponseData>;
 }
 
 export interface RequestContext {

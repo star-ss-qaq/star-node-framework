@@ -15,3 +15,4 @@ export const Query = paramMeta.createDecorator("query");
 export const Param = paramMeta.createDecorator("param");
 export const Context = paramMeta.createDecorator("context");
 export const Ip = () => Context("ip");
+export const Prefix = () => Context("prefix");

@@ -40,6 +40,7 @@ export function createServerFactory(object: any) {
 				body: rawBody,
 				signal,
 				ip,
+				context,
 			}: RequestProp) {
 				const ctrl = new AbortController();
 				try {
@@ -110,7 +111,7 @@ export function createServerFactory(object: any) {
 								method: method as Method,
 								route,
 								param: route.params,
-								context: { ip },
+								context: { ...context, ip },
 							});
 							let res: ReadableStream | null;
 							if (data instanceof ReadableStream) {

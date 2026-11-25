@@ -28,7 +28,6 @@ export async function parseInstancesConfig(instances: ServerInstanceConfig[]) {
 	const handles = list.filter((i) => i);
 	async function handle(prop: RequestProp): Promise<ResponseData> {
 		const { url, method, signal, appName } = prop;
-		let prefix = "/";
 		const instance = handles.find(
 			appName
 				? (i) => i.name === appName
@@ -38,9 +37,9 @@ export async function parseInstancesConfig(instances: ServerInstanceConfig[]) {
 						if (i.matchRequest.prefix) {
 							const p = i.matchRequest.prefix.exec(url.pathname);
 							if (!p) return false;
-							prefix = p[0];
+							prop.context.prefix = p[0];
 						} else {
-							prefix = "/";
+							prop.context.prefix = "/";
 						}
 						return true;
 					},
