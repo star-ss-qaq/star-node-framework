@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.1](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web%401.3.0...%40thestarweb%2Fstar-framework-app-web%401.3.1) (2026-11-25)
+
+### Bug Fixes
+
+* **app-web:** ServerSideRequest无法正确处理ResponseBody为null的情况 ([3b63ec4](https://github.com/star-ss-qaq/star-node-framework/commit/3b63ec49e070761f16863a32fd194a9fc4de1019))
+* **app-web:** 修复后端未返回undidfined时，request会报错的问题 ([052e175](https://github.com/star-ss-qaq/star-node-framework/commit/052e1756582bef301c9f2d4b114b46b2691c54fa))
+
+
 # [1.3.0](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web%401.2.9...%40thestarweb%2Fstar-framework-app-web%401.3.0) (2026-11-25)
 
 ### Bug Fixes
