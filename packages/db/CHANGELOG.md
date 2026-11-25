@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.2.0...@thestarweb/star-framework-db@1.2.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **db:** 修复可选依赖 ([03b668d](https://github.com/star-ss-qaq/star-node-framework/commit/03b668d8a61a8fc1e72a9cfe4d84cab78ee491ab))
+
+
+### Reverts
+
+* Revert "feat(db): 更改了db的引入方式" ([8df56a2](https://github.com/star-ss-qaq/star-node-framework/commit/8df56a21645a61894911f98c57da5289b232fda2))
+
+
+
+
+
 # [1.2.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-db@1.1.0...@thestarweb/star-framework-db@1.2.0) (2026-11-19)
 
 

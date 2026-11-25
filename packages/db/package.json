@@ -1,6 +1,6 @@
 {
 	"name": "@thestarweb/star-framework-db",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Star Framework CLI",
 	"main": "dist/index.js",
 	"types": "src/index.ts",
