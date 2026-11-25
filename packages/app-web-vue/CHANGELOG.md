@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web-vue%401.0.17...%40thestarweb%2Fstar-framework-app-web-vue%401.1.0) (2026-11-25)
+
+### Features
+
+* **app-web:** 优化prefix ([d639262](https://github.com/star-ss-qaq/star-node-framework/commit/d6392622222acdb67b448f6ebe0d0e0e48a7f3a9))
+
+
 ## [1.0.17](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web-vue%401.0.16...%40thestarweb%2Fstar-framework-app-web-vue%401.0.17) (2026-11-25)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web-vue

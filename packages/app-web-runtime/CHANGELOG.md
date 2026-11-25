@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-web-runtime%401.2.3...%40thestarweb%2Fstar-framework-web-runtime%401.3.0) (2026-11-25)
+
+### Features
+
+* **app-web:** 优化prefix ([d639262](https://github.com/star-ss-qaq/star-node-framework/commit/d6392622222acdb67b448f6ebe0d0e0e48a7f3a9))
+
+
 ## [1.2.3](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-web-runtime%401.2.2...%40thestarweb%2Fstar-framework-web-runtime%401.2.3) (2026-11-25)
 
 **Note:** Version bump only for package @thestarweb/star-framework-web-runtime

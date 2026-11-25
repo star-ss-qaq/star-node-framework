@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web%401.2.9...%40thestarweb%2Fstar-framework-app-web%401.3.0) (2026-11-25)
+
+### Bug Fixes
+
+* **app-web-runtrime:** 修复由于appName为作用域包时无法被调用的问题 ([f917baf](https://github.com/star-ss-qaq/star-node-framework/commit/f917baf9d2ebb1c763ac569d7733dfbf17521fbc))
+
+### Features
+
+* **app-web:** 优化prefix ([d639262](https://github.com/star-ss-qaq/star-node-framework/commit/d6392622222acdb67b448f6ebe0d0e0e48a7f3a9))
+
+
 ## [1.2.9](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-app-web%401.2.8...%40thestarweb%2Fstar-framework-app-web%401.2.9) (2026-11-25)
 
 **Note:** Version bump only for package @thestarweb/star-framework-app-web
