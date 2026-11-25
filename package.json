@@ -4,6 +4,9 @@
 	"description": "Node框架",
 	"main": "index.js",
 	"type": "module",
+	"repository": {
+		"url": "https://github.com/star-ss-qaq/star-node-framework"
+	},
 	"scripts": {
 		"test": "vitest",
 		"build": "lerna run build",

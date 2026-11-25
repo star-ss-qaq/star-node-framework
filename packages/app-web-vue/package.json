@@ -6,6 +6,9 @@
 	"types": "src/index.ts",
 	"type": "module",
 	"sideEffects": false,
+	"repository": {
+		"url": "https://github.com/star-ss-qaq/star-node-framework"
+	},
 	"publishConfig": {
 		"access": "public"
 	},

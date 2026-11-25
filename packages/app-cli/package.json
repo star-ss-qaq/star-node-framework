@@ -5,6 +5,9 @@
 	"main": "dist/index.js",
 	"types": "src/index.ts",
 	"type": "module",
+	"repository": {
+		"url": "https://github.com/star-ss-qaq/star-node-framework"
+	},
 	"publishConfig": {
 		"access": "public"
 	},
