@@ -11,6 +11,7 @@ import { readFile } from "node:fs/promises";
 import { reflectOrUndefined, typeOf, validate } from "@deepkit/type";
 import { FSWatcher, watch } from "node:fs";
 import { handleRef } from "../parse-instances-config.js";
+import { pathToFileURL } from "node:url";
 
 export interface CommonPackageConfig {
 	package: string;
@@ -48,11 +49,15 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 	private _packagePath!: string;
 	private _packageInfo!: PackageInfo;
 	private _mainPath!: string;
+	private _mainFileURL!: string;
 	public get name() {
 		return this._config.name || this._packageInfo.name;
 	}
 	get mainPath() {
 		return this._mainPath;
+	}
+	get mainFileURL() {
+		return this._mainFileURL;
 	}
 	serverRuntimeContext!: ServerRuntimeContext;
 	staticFilePath?: string | undefined;
@@ -70,6 +75,7 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 		}
 		this._packageInfo = info;
 		this._mainPath = join(this._packagePath, info.server.dir, info.server.main);
+		this._mainFileURL = pathToFileURL(this.mainPath).toString();
 		const browserDir = join(this._packagePath, info.browser.dir);
 		this.serverRuntimeContext = {
 			root: this._packagePath,
@@ -116,7 +122,7 @@ export abstract class BasePackageLoader implements ResolvedServerInstance {
 	public get config() {
 		return this._config;
 	}
-	innerCall:(prop: RequestProp)=>Promise<ResponseData>
+	innerCall: (prop: RequestProp) => Promise<ResponseData>;
 	constructor(protected _config: CommonPackageConfig) {
 		this.innerCall = handleRef.value;
 		this.startLoading = this.loadPackageInfo().then(() => {

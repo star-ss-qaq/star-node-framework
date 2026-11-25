@@ -34,7 +34,7 @@ let w: Worker;
 parentPort.on("message", async (message: Message) => {
 	switch (message.type) {
 		case 1:
-			const module = await import(message.mainPath);
+			const module = await import(message.mainFileURL);
 			const ins = module.default({
 				...message.context,
 				innerCall: (prop: RequestProp) => w.onRequest(prop),

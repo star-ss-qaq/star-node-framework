@@ -49,6 +49,7 @@ export class WorkerMainThreadCtrl extends RemoteCallClient {
 				this.worker.postMessage({
 					type: 1,
 					mainPath: this.main.mainPath,
+					mainFileURL: this.main.mainFileURL,
 					context: { ...this.main.serverRuntimeContext, innerCall: undefined },
 				} as InitMessage);
 			});

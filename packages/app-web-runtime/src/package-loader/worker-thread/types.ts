@@ -3,6 +3,7 @@ import { ServerRuntimeContext } from "../../types/index.js";
 export interface InitMessage {
 	type: 1;
 	mainPath: string;
+	mainFileURL: string;
 	context: Omit<ServerRuntimeContext, "innerCall">;
 }
 export interface InitdMessage {
