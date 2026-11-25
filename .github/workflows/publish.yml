@@ -23,4 +23,8 @@ jobs:
       - run: npm i
       - run: rm package-lock.json
       - run: npm run build
-      - run: npx lerna version --no-private --yes --force-publish
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - run: npx lerna publish --no-private --yes --force-publish
