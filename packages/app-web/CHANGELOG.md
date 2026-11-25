@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.6](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.5...@thestarweb/star-framework-app-web@1.2.6) (2026-11-25)
+
+
+### Bug Fixes
+
+* **app-web:** 前缀支持 ([fb30500](https://github.com/star-ss-qaq/star-node-framework/commit/fb305000679246dde31eea0d29edf6b818f3f0fb))
+
+
+
+
+
 ## [1.2.5](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-app-web@1.2.4...@thestarweb/star-framework-app-web@1.2.5) (2026-11-21)
 
 

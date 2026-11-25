@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/star-ss-qaq/star-node-framework/compare/@thestarweb/star-framework-web-runtime@1.1.0...@thestarweb/star-framework-web-runtime@1.2.0) (2026-11-25)
+
+
+### Bug Fixes
+
+* **app-web:** 前缀支持 ([fb30500](https://github.com/star-ss-qaq/star-node-framework/commit/fb305000679246dde31eea0d29edf6b818f3f0fb))
+
+
+### Features
+
+* **app-web-runtime:** 解决window下导入项目模块的问题 ([1d1a55b](https://github.com/star-ss-qaq/star-node-framework/commit/1d1a55b2882f5dac32ee4e895d6bceec3898385e))
+
+
+
+
+
 # 1.1.0 (2026-11-17)
 
 
