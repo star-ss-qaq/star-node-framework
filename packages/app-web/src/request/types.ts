@@ -79,7 +79,8 @@ export abstract class SFWebRequest<
 		path: string,
 		prop: UserProp,
 	): Promise<any> {
-		const url = new URL(path);
+		const index = path.indexOf(":/");
+		const service = path.substring(0, index);
 		if (!prop.header) prop.header = {};
 		if (!prop.header["content-type"])
 			prop.header["content-type"] = "application/json";
@@ -87,15 +88,15 @@ export abstract class SFWebRequest<
 		let signal = prop.keepRequest ? undefined : getRequestAbortSignal();
 		if (prop.signal)
 			signal = signal ? mergeAbortSignal(signal, prop.signal) : prop.signal;
-		const data = await (url.protocol === "https" || url.protocol === "http"
-			? fetch(url, {
+		const data = await (service === "https" || service === "http"
+			? fetch(path, {
 					...prop,
 					body,
 				})
 			: this.handleInnerCall(
-					url.protocol.substring(0, url.protocol.length - 1),
+					service,
 					method,
-					url,
+					new URL(path.substring(index + 2), "sf-inner-call:/"),
 					signal,
 					{ ...prop, body },
 				));
