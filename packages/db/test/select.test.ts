@@ -4,8 +4,8 @@ import { baseSchema } from "./base/schema.js";
 import { checkSql } from "./base/utils.js";
 import { TestOnlyDrive } from "../src/drive/test-only.js";
 
-describe("测试SELECT语句拼接", async () => {
-	const db = await SFDB.create(baseSchema, { type: "test-only" });
+describe("测试SELECT语句拼接", () => {
+	const db = new SFDB(baseSchema, { type: "test-only" });
 	test("最基础的查询", async () => {
 		checkSql(
 			db.select("user").addSelect("createTime").toSql(),

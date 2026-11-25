@@ -1,8 +1,12 @@
 import { IDrive } from "./i-drive.js";
+import { MysqlDrive } from "./mysql/index.js";
+import { SQLiteOnlyDrive } from "./sqlite/index.js";
+import { TestOnlyDrive } from "./test-only.js";
+
 export const RegisteredDriveMap = {
-	sqlite: () => import("./sqlite/index.js").then((m) => m.SQLiteOnlyDrive),
-	mysql: () => import("./mysql/index.js").then((m) => m.MysqlDrive),
-	"test-only": () => import("./test-only.js").then((m) => m.TestOnlyDrive),
+	sqlite: SQLiteOnlyDrive,
+	mysql: MysqlDrive,
+	"test-only": TestOnlyDrive,
 } satisfies {
-	[k in string]: () => Promise<new (config: any) => IDrive<any>>;
+	[k in string]: new (config: any) => IDrive<any>;
 };

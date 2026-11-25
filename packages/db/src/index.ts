@@ -8,9 +8,7 @@ import { CommonUtils, formatName } from "./utils.js";
 type ConnectionConfig = {
 	[k in keyof typeof RegisteredDriveMap]: {
 		type: k;
-	} & ConstructorParameters<
-		Awaited<ReturnType<(typeof RegisteredDriveMap)[k]>>
-	>[0];
+	} & ConstructorParameters<(typeof RegisteredDriveMap)[k]>[0];
 }[keyof typeof RegisteredDriveMap];
 
 export class SFDB<
@@ -19,20 +17,7 @@ export class SFDB<
 > extends QueryBuild<DB_HIERARCHY, S> {
 	readonly commonUtils: CommonUtils<DB_HIERARCHY>;
 	readonly structHelper: StructHelper<DB_HIERARCHY>;
-	constructor(
-		drive: IDrive<DB_HIERARCHY>,
-		schema: S,
-		connection: ConnectionConfig,
-	) {
-		const commonUtils = new CommonUtils(schema, drive);
-		super(schema, drive, commonUtils);
-		this.commonUtils = commonUtils;
-		this.structHelper = new StructHelper(schema, drive, commonUtils);
-	}
-	static async create<DB_HIERARCHY extends boolean, S extends InstanceSchema>(
-		schema: S,
-		connection: ConnectionConfig,
-	) {
+	constructor(schema: S, connection: ConnectionConfig) {
 		Object.entries(schema.database).forEach(([dbCodeName, dbSchema]) => {
 			if (!dbSchema.name) dbSchema.name = formatName(dbCodeName);
 			Object.entries(dbSchema.tables).forEach(
@@ -69,10 +54,13 @@ export class SFDB<
 		if (!(connection.type in RegisteredDriveMap)) {
 			throw new Error(`unknown db drive: ${connection.type}`);
 		}
-		const drive: any = new (await RegisteredDriveMap[
-			connection.type as keyof typeof RegisteredDriveMap
-		]())(connection as any);
-		return new SFDB<DB_HIERARCHY, S>(drive, schema, connection);
+		const drive: any = new RegisteredDriveMap[connection.type](
+			connection as any,
+		);
+		const commonUtils = new CommonUtils(schema, drive);
+		super(schema, drive, commonUtils);
+		this.commonUtils = commonUtils;
+		this.structHelper = new StructHelper(schema, drive, commonUtils);
 	}
 }
 export { And, Or, Raw, Column, Value } from "./query-build/index.js";

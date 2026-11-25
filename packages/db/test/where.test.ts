@@ -3,8 +3,8 @@ import { SFDB, Column, Or, Raw } from "../src/index.js";
 import { baseSchema } from "./base/schema.js";
 import { checkSql } from "./base/utils.js";
 
-describe("where条件", async () => {
-	const db = await SFDB.create(baseSchema, { type: "test-only" });
+describe("where条件", () => {
+	const db = new SFDB(baseSchema, { type: "test-only" });
 
 	test("where条件", async () => {
 		checkSql(
