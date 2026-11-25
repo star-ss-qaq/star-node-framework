@@ -28,7 +28,7 @@ export class ServerSideRequest extends SFWebRequest {
 			method,
 			url,
 			header: prop.header || {},
-			context: {},
+			context: { prefix: "/" },
 			appName: app,
 			body: new ReadableStream({
 				start(ctrl) {
@@ -39,7 +39,7 @@ export class ServerSideRequest extends SFWebRequest {
 				},
 			}),
 			signal: signal || new AbortController().signal,
-			ip: '127.0.0.1',
+			ip: "127.0.0.1",
 			port: 0,
 		});
 		const reader = res.data?.getReader();

@@ -6,6 +6,7 @@ import { parseRoute } from "../../../route/index.js";
 import { ViewMeta } from "../../types.js";
 import { findRouteDom } from "../find-route-dom.js";
 import { LoadingProgress } from "../loading-progress.js";
+import { removePrefix } from "../remove-prefix.js";
 import {
 	createRootRenderContext,
 	ssrToBrowserDataKey,
@@ -30,8 +31,9 @@ function handleMeta(meta: ViewMeta) {
 export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 	const { config, pageData } = (window as any)[ssrToBrowserDataKey];
 	delete (window as any)[ssrToBrowserDataKey];
-	setSfRequest(new BrowserSideRequest(config.baseUrl));
-	const route = routes("GET", location.pathname);
+	setSfRequest(new BrowserSideRequest(config.prefix));
+	const pathNameWithoutPrefix = removePrefix(location.pathname, config.prefix);
+	const route = routes("GET", pathNameWithoutPrefix);
 	let abortCtrl = new AbortController();
 	setRequestAbortSignal(abortCtrl.signal);
 	const getData = async () => {
@@ -65,7 +67,11 @@ export const clientRender = async (routes: ReturnType<typeof parseRoute>) => {
 		abortCtrl.abort();
 		abortCtrl = new AbortController();
 		setRequestAbortSignal(abortCtrl.signal);
-		const route = routes("GET", location.pathname);
+		const pathNameWithoutPrefix = removePrefix(
+			location.pathname,
+			config.prefix,
+		);
+		const route = routes("GET", pathNameWithoutPrefix);
 		LoadingProgress.instance.start();
 		const c = await updateRootRenderContext(context, route, getData);
 		handleMeta(c.meta);

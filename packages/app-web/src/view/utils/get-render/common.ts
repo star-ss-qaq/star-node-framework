@@ -11,7 +11,7 @@ import { ResponseWithMeta } from "../../../return-types/response-with-meta.js";
 
 function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 	const routeRawContext = new SFRawDataContext(route);
-	const { baseUrl } = config;
+	const { prefix } = config;
 	return {
 		update(route: RouteType<"GET">) {
 			routeRawContext.update(route);
@@ -20,7 +20,7 @@ function createRawDataContext(config: RenderConfig, route: RouteType<"GET">) {
 			return {
 				route: routeRawContext.createChild(),
 				request: getSfRequest(),
-				baseUrl,
+				prefix,
 			};
 		},
 	};

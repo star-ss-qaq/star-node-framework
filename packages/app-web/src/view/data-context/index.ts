@@ -5,7 +5,7 @@ export * from "./context.js";
 export interface SystemRenderDataContext {
 	route: SFDataContext<RouteType<"GET">>;
 	request: SFWebRequest;
-	baseUrl: string;
+	prefix: string;
 }
 export interface UserRenderDataContext extends Record<
 	string,

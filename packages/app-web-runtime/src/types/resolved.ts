@@ -6,7 +6,7 @@ export interface ServerRuntimeContext {
 }
 
 export interface RequestContext {
-	prefix?: string;
+	prefix: string;
 }
 
 export type Method = "GET" | "POST" | "PUT" | "DELETE" | "WS" | "OPTION";

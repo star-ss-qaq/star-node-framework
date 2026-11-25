@@ -9,6 +9,7 @@ import {
 } from "./common.js";
 import { RenderConfig } from "../../types.js";
 import { redirectStatusCode } from "../../const.js";
+import { VNodeType } from "../../html/types.js";
 
 export const createServerRender: (
 	context: ServerRuntimeContext,
@@ -16,7 +17,7 @@ export const createServerRender: (
 	const htmlVDdom = parseHtmlToVDom(context.indexHtml);
 	return async (prop, next) => {
 		const config: RenderConfig = {
-			baseUrl: "/",
+			prefix: prop.context.prefix,
 		};
 		const nextPromise = next(prop);
 		const { accept, "sec-fetch-dest": fetchDest } = prop.header;
@@ -48,6 +49,38 @@ export const createServerRender: (
 			const res = await render.warpRenderToString({});
 			return new ResponseWithMeta(
 				renderVDomToString(htmlVDdom, {
+					customizeRender(dom) {
+						if (typeof dom === "object" && dom.type === VNodeType.Element) {
+							if (
+								["img", "script", "video"].includes(dom.tagName) &&
+								dom.attributes.src?.startsWith("/")
+							) {
+								return () =>
+									renderVDomToString({
+										...dom,
+										attributes: {
+											...dom.attributes,
+											src:
+												prop.context.prefix + dom.attributes.src.substring(1),
+										},
+									});
+							}
+							if (
+								["a", "link"].includes(dom.tagName) &&
+								dom.attributes.href?.startsWith("/")
+							) {
+								return () =>
+									renderVDomToString({
+										...dom,
+										attributes: {
+											...dom.attributes,
+											src:
+												prop.context.prefix + dom.attributes.href.substring(1),
+										},
+									});
+							}
+						}
+					},
 					customizeChildrenRender: (dom) => {
 						if (dom.tagName === routeElementSelector) {
 							return () => res;

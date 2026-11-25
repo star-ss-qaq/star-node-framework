@@ -23,6 +23,7 @@ import {
 	getRequestAbortSignal,
 	runWithSignal,
 } from "../abort-signal/server.js";
+import { removePrefix } from "../view/utils/remove-prefix.js";
 
 const textEncoder = new TextEncoder();
 
@@ -51,7 +52,11 @@ export function createServerFactory(object: any) {
 								typeof url === "string"
 									? new URL(url, "http://127.0.0.1/")
 									: url;
-							const route = routes(method as Method, urlObj.pathname);
+							const pathNameWithoutPrefix = removePrefix(
+								urlObj.pathname,
+								context.prefix,
+							);
+							const route = routes(method as Method, pathNameWithoutPrefix);
 
 							const interceptors: Interceptor[] = route.allRoute.flatMap(
 								(info) => getInterceptors(info.obj),

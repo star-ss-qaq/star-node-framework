@@ -15,7 +15,7 @@ export interface ViewInfo<T = any> {
 }
 
 export interface RenderConfig {
-	baseUrl: string;
+	prefix: string;
 }
 
 export interface DataHandle {

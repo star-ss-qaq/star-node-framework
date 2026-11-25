@@ -35,7 +35,9 @@ export async function parseInstancesConfig(instances: ServerInstanceConfig[]) {
 						if (i.matchRequest.host && !i.matchRequest.host.test(url.host))
 							return false;
 						if (i.matchRequest.prefix) {
-							const p = i.matchRequest.prefix.exec(url.pathname);
+							let pathName = url.pathname;
+							if (!pathName.endsWith("/")) pathName += "/";
+							const p = i.matchRequest.prefix.exec(pathName);
 							if (!p) return false;
 							prop.context.prefix = p[0];
 						} else {
