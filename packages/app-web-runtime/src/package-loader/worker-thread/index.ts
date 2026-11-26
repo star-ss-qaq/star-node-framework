@@ -58,7 +58,6 @@ export class PackageWorkerThreadLoader extends BasePackageLoader {
 		protected _config: CommonPackageConfig & {
 			expectationCount?: number;
 			env?: Record<string, string>;
-			cwd?: string;
 			arg?: string[];
 		},
 	) {
