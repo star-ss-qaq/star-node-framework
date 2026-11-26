@@ -53,7 +53,7 @@ export const createServerRender: (
 						if (typeof dom === "object" && dom.type === VNodeType.Element) {
 							if (
 								["img", "script", "video"].includes(dom.tagName) &&
-								dom.attributes.src?.startsWith("/")
+								dom.attributes.src?.startsWith("./")
 							) {
 								return () =>
 									renderVDomToString({
@@ -61,21 +61,21 @@ export const createServerRender: (
 										attributes: {
 											...dom.attributes,
 											src:
-												prop.context.prefix + dom.attributes.src.substring(1),
+												prop.context.prefix + dom.attributes.src.substring(2),
 										},
 									});
 							}
 							if (
 								["a", "link"].includes(dom.tagName) &&
-								dom.attributes.href?.startsWith("/")
+								dom.attributes.href?.startsWith("./")
 							) {
 								return () =>
 									renderVDomToString({
 										...dom,
 										attributes: {
 											...dom.attributes,
-											src:
-												prop.context.prefix + dom.attributes.href.substring(1),
+											href:
+												prop.context.prefix + dom.attributes.href.substring(2),
 										},
 									});
 							}

@@ -52,7 +52,10 @@ export async function parseInstancesConfig(instances: ServerInstanceConfig[]) {
 				!url.pathname.includes("./") &&
 				instance.staticFilePath
 			) {
-				const path = join(instance.staticFilePath, url.pathname);
+				const path = join(
+					instance.staticFilePath,
+					url.pathname.substring(0, prop.context.prefix.length),
+				);
 				try {
 					const s = await stat(path);
 					if (s.isFile()) {

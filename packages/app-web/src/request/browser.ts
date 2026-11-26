@@ -10,14 +10,14 @@ export class BrowserSideRequest extends SFWebRequest<Pick<AllApi, "self">> {
 		app: string,
 		method: Method,
 		url: URL,
-    signal: AbortSignal,
+		signal: AbortSignal,
 		prop: Prop,
 	) {
 		if (app === "self") {
 			return fetch(
 				new URL(
-					url.pathname + url.search,
-					new URL(this.baseUrl, location.origin),
+					this.baseUrl + url.pathname.substring(1) + url.search,
+					location.origin,
 				),
 				{
 					...prop,
@@ -25,7 +25,7 @@ export class BrowserSideRequest extends SFWebRequest<Pick<AllApi, "self">> {
 					//@ts-ignore
 					duplex: "half",
 					method,
-          signal,
+					signal,
 				},
 			);
 		}

@@ -84,6 +84,7 @@ export async function loadViteConfig() {
 		].join("\n");
 	}
 	viteConfig = {
+		base: "./",
 		define: {
 			...config?.define,
 		},
@@ -91,7 +92,6 @@ export async function loadViteConfig() {
 		// @ts-ignore
 		input: "sf:main",
 		build: {
-			minify: false,
 			rolldownOptions: {
 				treeshake: {
 					moduleSideEffects: [
