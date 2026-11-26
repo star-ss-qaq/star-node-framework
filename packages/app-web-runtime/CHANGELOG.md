@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.1](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-web-runtime%401.3.0...%40thestarweb%2Fstar-framework-web-runtime%401.3.1) (2026-11-26)
+
+### Bug Fixes
+
+* **app-web-runtime:** 移除不支持的cwd参数，避免误用 ([6aea7ca](https://github.com/star-ss-qaq/star-node-framework/commit/6aea7cadb1a69909041b9f32fb4cbf90ce8af3f3))
+* **cli&app-web:** 优化路径前缀的一些问题 ([0f83c36](https://github.com/star-ss-qaq/star-node-framework/commit/0f83c3658bff658fed1e0b6e2e9ebef3ba387ab7))
+
+
 # [1.3.0](https://github.com/star-ss-qaq/star-node-framework/compare/%40thestarweb%2Fstar-framework-web-runtime%401.2.3...%40thestarweb%2Fstar-framework-web-runtime%401.3.0) (2026-11-25)
 
 ### Features
